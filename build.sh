@@ -6,4 +6,8 @@ mkdir -p build && cd build
 
 ln -s ../asset/* ./
 
-cmake .. && make -j$(($(nproc) + 1)) && ./RMCV
+cmake .. && make -j$(($(nproc) + 1))
+
+if [ $? -eq 0 ] && [ "$1" == "--run" ]; then
+    ./RMCV
+fi
