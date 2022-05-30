@@ -16,7 +16,7 @@ add_subdirectory(src/config)
 add_subdirectory(src/logging)
 add_subdirectory(src/threading)
 add_subdirectory(src/capture)
-# add_subdirectory(src/communicate)
+add_subdirectory(src/io)
 add_subdirectory(src/detect)
 add_subdirectory(src/predict)
 # add_subdirectory(src/web)
@@ -46,6 +46,7 @@ target_link_libraries( ${PROJECT_NAME}
         # thread_communicate
         detect
         predict
+        io
         # thread_strategy
         # thread_web
 

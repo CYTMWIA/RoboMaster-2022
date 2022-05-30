@@ -17,6 +17,8 @@
 #include "detect/cv_armor.hpp"
 #include "predict/AdaptiveEKF.hpp"
 #include "predict/UniformLinearMotionR.hpp"
+#include "io/serial.hpp"
+
 // 使用OpenCV窗口调参
 #define DEBUG_WITH_OPENCV_WINDOW 0
 
@@ -59,6 +61,8 @@ int main(int, char **)
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
 
+    io::Serial ser{};
+
     std::unordered_map<ThreadCode, std::thread> threads_pool;
     MessageBus& msgbus = MessageBus::connect();
 
@@ -77,9 +81,9 @@ int main(int, char **)
     ekf.Q(4, 4) = 1;
     ekf.Q(5, 5) = 10;
     // 观测过程协方差
-    ekf.R(0, 0) = 0.01;
-    ekf.R(1, 1) = 0.01;
-    ekf.R(2, 2) = 0.01;
+    ekf.R(0, 0) = 20;
+    ekf.R(1, 1) = 20;
+    ekf.R(2, 2) = 20;
 	
     bool ekf_init = false;
     predict::ulmr::Predict predict;
@@ -127,8 +131,8 @@ int main(int, char **)
             ekf_init = true;
         }
         
-        predict.delta_t = 0;
-        // predict.delta_t = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now()-last_time).count();
+        // predict.delta_t = 0;
+        predict.delta_t = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now()-last_time).count();
 
         ekf.predict(predict);
         Eigen::Matrix<double, 3, 1> Yr;
@@ -142,7 +146,7 @@ int main(int, char **)
         __LOG_DEBUG("R {:.1f}, {:.1f}, {:.1f} T {:.1f}, {:.1f}, {:.1f}; S {:.2f}, {:.2f}, {:.2f}", pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
         // __LOG_DEBUG("D {:.2f} | P {:.2f} | Y {:.2f} | R {:.2f}", pose.distance(), pose.theta_x, pose.theta_y, pose.theta_z);
         
-
+        ser.vofa_justfloat(pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
         cv::imshow("SHOW", img);
         cv::waitKey(40);
         last_time = std::chrono::steady_clock::now();
