@@ -40,7 +40,7 @@ int main()
         cv::Mat img = RoslikeTopic<cv::Mat>::get("capture_image");
         
         cv::Mat show;
-        cv::resize(img, show, cv::Size(480.0, img.rows*(480.0/img.cols)));
+        cv::resize(img, show, cv::Size(800, img.rows*(800.0/img.cols)));
         cv::imshow("CAP", show);
         
         auto key = cv::waitKey(10);
