@@ -57,11 +57,11 @@ namespace rmcv::config
             std::string path; // 模型路径
         } model;
 
-        struct Ekf // 扩展卡尔曼
+        struct KalmanFilter // 卡尔曼参数
         {
             std::vector<double> q; // 预测过程协方差 对角线
             std::vector<double> r; // 观测过程协方差 对角线
-        } ekf;
+        } kalman_filter;
 
         struct Serial // 串口
         {

@@ -99,8 +99,8 @@ namespace rmcv::config
 
         READ_CONFIG(model.path, std::string, "");
 
-        READ_CONFIG(ekf.q, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
-        READ_CONFIG(ekf.r, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
+        READ_CONFIG(kalman_filter.q, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
+        READ_CONFIG(kalman_filter.r, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
 
         READ_CONFIG(serial.enable, toml::boolean, 0);
         READ_CONFIG(serial.port, std::string, "/dev/ttyUSB0");

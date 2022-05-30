@@ -99,7 +99,7 @@ namespace rmcv::detect
             break;
         }
         thresh = std::min(255, thresh+25);
-        std::cout << thresh << std::endl;
+        // std::cout << thresh << std::endl;
         int32_t maxp = 0;
         for (int i=0;i<256;i++) if (gray_count[i]>gray_count[maxp]) maxp = i;
         maxp = gray_count[maxp];

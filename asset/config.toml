@@ -13,11 +13,14 @@ path = ""
 [camera]
 manufacturer = "dahua"
 # 传统视觉
-exposure_time = 10000.0 # 100FPS
-gain = 1.6 # 大恒16.0，大华1.6
+exposure_time = 1000.0
+gain = 1.0 # 大恒16.0，大华1.6
 # 神经网络
 # exposure_time = 9940.0 # 100FPS
 # gain = 1.60 # 大恒16.0，大华1.6
+# 标定
+# exposure_time = 20000.0 
+# gain = 3.2
 
 white_balance_red = 1.6
 white_balance_blue = 1.7
@@ -26,9 +29,9 @@ calibration_file = "./result.xml"
 [model]
 path = "/home/rm/model_zoo/yolox-nano-0406-5k.xml"
 
-[ekf]
-q = [0.1, 100.0, 0.1, 100.0, 0.1, 100.0]
-r = [1.0, 1.0, 300.0]
+[kalman_filter]
+q = [0.01, 1000.0, 0.01, 1000.0, 0.01, 1000.0]
+r = [500.0, 500.0, 500.0]
 
 [serial]
 enable = false

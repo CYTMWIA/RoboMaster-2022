@@ -24,7 +24,7 @@ namespace rmcv::predict
          * 即OpenCV坐标系始终为：y为高度轴，xOz为地面平面（z为俯视状态下的纵轴）
          * （x、y、z分别为tvec第1、2、3个数）
          */
-        cv::solvePnP(kArmorPoints[armor_type], points, camera_matrix_, distortion_coefficients_, rvec, tvec, false, cv::SOLVEPNP_EPNP);
+        cv::solvePnP(kArmorPoints[armor_type], points, camera_matrix_, distortion_coefficients_, rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
 
         TargetPosition res;
 

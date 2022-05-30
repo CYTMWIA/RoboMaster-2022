@@ -78,7 +78,7 @@ namespace rmcv::work_thread
         auto fps = rmcv::util::FpsCounter();
         while (true)
         {
-            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
 
             threading::RoslikeTopic<cv::Mat>::set("capture_image", pcap->next());
         }
