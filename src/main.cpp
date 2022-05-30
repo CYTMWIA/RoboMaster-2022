@@ -33,7 +33,7 @@ void task_capture(const Config& cfg)
 
     while (true)
     {
-        VariableCenter<cv::Mat>::set("src_image", cp.next());
+        GlobalVariable<cv::Mat>::set("src_image", cp.next());
     }
 }
 
@@ -42,7 +42,7 @@ void task_detect(const Config& cfg)
     auto md = detect::Model("/home/rm/models/model-opt-int8.xml", "/home/rm/models/model-opt-int8.bin");
     while (true)
     {
-        VariableCenter<std::vector<detect::BoundingBox>>::set("detections", md(VariableCenter<cv::Mat>::get("src_image")));
+        GlobalVariable<std::vector<detect::BoundingBox>>::set("detections", md(GlobalVariable<cv::Mat>::get("src_image")));
     }
     
 }
@@ -95,9 +95,9 @@ int main(int, char **)
     auto last_time = std::chrono::steady_clock::now();
     while (true)
     {
-        auto img = VariableCenter<cv::Mat>::get("src_image");
+        auto img = GlobalVariable<cv::Mat>::get("src_image");
         // auto detections = md(img);
-        auto detections = VariableCenter< std::vector<detect::BoundingBox> >::get("detections");
+        auto detections = GlobalVariable< std::vector<detect::BoundingBox> >::get("detections");
         
         if (detections.empty())
         {
@@ -186,8 +186,8 @@ int main(int, char **)
 #if DEBUG_WITH_OPENCV_WINDOW
     while (true)
     {
-        auto img = VariableCenter<cv::Mat>::get("detect_image");
-        auto detections = VariableCenter<std::vector<BoundingBox>>::get("detect_result");
+        auto img = GlobalVariable<cv::Mat>::get("detect_image");
+        auto detections = GlobalVariable<std::vector<BoundingBox>>::get("detect_result");
 
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
         for (const auto &b: detections)
@@ -200,7 +200,7 @@ int main(int, char **)
             cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id]);
         }
         cv::imshow("SHOW", img);
-        if (VariableCenter<cv::Mat>::exist("debug_fb")) cv::imshow("DEBUG", VariableCenter<cv::Mat>::get("debug_fb", true));
+        if (GlobalVariable<cv::Mat>::exist("debug_fb")) cv::imshow("DEBUG", GlobalVariable<cv::Mat>::get("debug_fb", true));
         cv::waitKey(5);
     }
 #else

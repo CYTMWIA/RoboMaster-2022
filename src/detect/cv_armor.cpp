@@ -105,7 +105,7 @@ namespace rmcv::detect
         // cv::line(ori_img, res.pts[1], res.pts[2], cv::Scalar{0, 0, 255}, 2);
         // cv::line(ori_img, res.pts[2], res.pts[3], cv::Scalar{0, 0, 255}, 2);
         // cv::line(ori_img, res.pts[3], res.pts[0], cv::Scalar{0, 0, 255}, 2);
-        // VariableCenter<cv::Mat>::set("debug_fb", roi);
+        // GlobalVariable<cv::Mat>::set("debug_fb", roi);
         // // STRATEGY_DEBUG_IMAGE.set(ori_img);
 
         return res;

@@ -29,7 +29,7 @@ namespace rmcv
             if (name=="capture")
             {
                 std::vector<uchar> buf;
-                cv::imencode(".jpeg", VariableCenter<cv::Mat>::get("capture_image", true), buf);
+                cv::imencode(".jpeg", GlobalVariable<cv::Mat>::get("capture_image", true), buf);
                 // std::string_view s(buf.data(), std::size(buf));
                 auto rsp = createResponse(Status::CODE_200, oatpp::String((char*)buf.data(), buf.size()));
                 rsp->putHeader("Content-Type", "image/jpeg");

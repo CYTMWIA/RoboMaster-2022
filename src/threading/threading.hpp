@@ -167,11 +167,11 @@ namespace rmcv
     };
 
     template <typename DataType>
-    class VariableCenter
+    class GlobalVariable
     {
     private:
-        static VariableCenter<DataType> instance_;
-        VariableCenter(){};
+        static GlobalVariable<DataType> instance_;
+        GlobalVariable(){};
 
         /* 重哈希会导致所有迭代器被非法化，即数据转移，这在其他线程读取数据时非常危险
          * 但是，重哈希仅若新元素数量大于 max_load_factor()*bucket_count() 才发生
@@ -205,7 +205,7 @@ namespace rmcv
         };
     };
     template <typename T>
-    VariableCenter<T> VariableCenter<T>::instance_{};
+    GlobalVariable<T> GlobalVariable<T>::instance_{};
 }
 
 #endif
