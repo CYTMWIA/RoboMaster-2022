@@ -15,6 +15,8 @@ find_package(OpenCV 4 REQUIRED)
 add_subdirectory(../../capture capture_dir)
 add_subdirectory(../../config config_dir)
 add_subdirectory(../../logging logging_dir)
+add_subdirectory(../../work_thread work_thread_dir)
+add_subdirectory(../../threading threading_dir)
 
 # Tools
 
@@ -27,6 +29,8 @@ link_libraries(
     capture
     config
     logging
+    work_thread
+    threading
 )
 
 set(EXECUTABLE_OUTPUT_PATH ../../../)

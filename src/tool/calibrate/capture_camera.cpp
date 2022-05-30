@@ -8,12 +8,15 @@
 #include "capture/capture.hpp"
 #include "config/config.hpp"
 #include "logging/logging.hpp"
+#include "threading/threading.hpp"
+#include "work_thread/CaptureThread.hpp"
 
 #define IMAGE_DIR "./image/"
 #define IMAGE_XML "./image_list.xml"
 
 using namespace rmcv;
 using namespace config;
+using namespace threading;
 
 int main()
 {
@@ -21,10 +24,9 @@ int main()
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
 
-    auto cp = capture::DahengCapture(cfg.camera.id);
-    cp.set_exposure_time(cfg.camera.exposure_time);
-    cp.set_gain(cfg.camera.gain);
-    cp.set_white_balance(cfg.camera.white_balance_red, cfg.camera.white_balance_green, cfg.camera.white_balance_blue);
+    __LOG_INFO("启动捕获线程…");
+    work_thread::CaptureThread capture{cfg};
+    capture.up();
 
     std::filesystem::remove_all(IMAGE_DIR);
     std::filesystem::create_directories(IMAGE_DIR);
@@ -35,7 +37,7 @@ int main()
     int32_t img_count = 0;
     while (true)
     {
-        cv::Mat img = cp.next();
+        cv::Mat img = RoslikeTopic<cv::Mat>::get("capture_image");
         
         cv::imshow("CAP", img);
         
