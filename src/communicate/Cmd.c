@@ -66,14 +66,14 @@ void CmdToCv_make(const CmdToCv *cmd, uint8_t *data)
 int32_t CmdToCv_parse(CmdToCv *cmd, uint8_t *data, uint32_t data_len)
 {
     int idx = find_mem(data, data_len, kHeadingBytes, kHeadingBytesCount);
-    if (idx == -1 || data_len - idx < kCmdToEcSize || memcmp(data + data_len - kTailingBytesCount, kTailingBytes, kTailingBytesCount) != 0)
+    if (idx == -1 || data_len - idx < kCmdToEcSize || memcmp(data + idx + data_len - kTailingBytesCount, kTailingBytes, kTailingBytesCount) != 0)
         return -1;
 
     data = &(data[idx + kHeadingBytesCount]);
 
-    cmd->enemy_color = (data[0] >> 0) & 0x1;
-    cmd->target = (data[0] >> 1) & 0x11;
-    cmd->tactic = (data[0] >> 3) & 0x111;
+    cmd->enemy_color = (data[0] >> 0) & 1;
+    cmd->target = (data[0] >> 1) & 3;
+    cmd->tactic = (data[0] >> 3) & 7;
     data += 1;
 
     memcpy(&(cmd->bullet_speed), data, 4);  data += 4;

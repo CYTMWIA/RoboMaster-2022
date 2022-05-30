@@ -1,6 +1,10 @@
 #include "Serial.hpp"
 #include "serial/serial.h"
 
+#include "logging/logging.hpp"
+
+#include <iostream>
+
 namespace rmcv::communicate
 {
     class Serial::Impl
@@ -28,9 +32,16 @@ namespace rmcv::communicate
 
             serial_.read(recv_buffer_, new_bytes_count);
 
+            // std::cout << new_bytes_count << ": ";
+            // for (const auto &c: recv_buffer_) std::cout << c << " | ";
+            // std::cout << std::endl;
+
             auto res = CmdToCv_parse(&status, recv_buffer_.data(), recv_buffer_.size());
-            if (res <= 0)
+            if (res < 0)
+            {
                 recv_buffer_.clear();
+                __LOG_WARNING("串口数据解析失败");
+            }
             else
                 recv_buffer_.erase(recv_buffer_.begin(), recv_buffer_.begin() + res);
         }
