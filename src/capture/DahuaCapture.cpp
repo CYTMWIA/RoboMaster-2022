@@ -1,6 +1,6 @@
 #include "DahuaCapture.hpp"
 
-#include "/opt/HuarayTech/MVviewer/include/IMVApi.h"
+#include "IMVApi.h"
 
 #include "logging/logging.hpp"
 

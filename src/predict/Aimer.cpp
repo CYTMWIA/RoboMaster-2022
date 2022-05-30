@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "logging.hpp"
+#include "logging/logging.hpp"
 
 #include "Aimer.hpp"
 

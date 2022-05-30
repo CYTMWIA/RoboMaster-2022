@@ -4,16 +4,7 @@ if (TARGET ${PROJECT_NAME})
     return()
 endif()
 
-
-add_subdirectory(../logging logging_binary_dir)
-
-
 add_library(${PROJECT_NAME})
-
-target_include_directories( ${PROJECT_NAME}
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}
-)
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
@@ -22,6 +13,5 @@ target_sources( ${PROJECT_NAME}
 
 target_link_libraries( ${PROJECT_NAME}
     PUBLIC
-        logging
         pthread
 )

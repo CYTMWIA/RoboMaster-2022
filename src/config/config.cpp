@@ -5,7 +5,7 @@
 #include <toml.hpp>
 
 #include "config.hpp"
-#include "logging.hpp"
+#include "logging/logging.hpp"
 
 namespace rmcv::config
 {

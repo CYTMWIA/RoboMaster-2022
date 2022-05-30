@@ -6,26 +6,7 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-
-find_package(OpenCV 4 REQUIRED)
-find_package(fmt REQUIRED)
-
-add_subdirectory(../logging logging_binary_dir)
-add_subdirectory(../threading threading_dir) # Debug
-
 add_library(${PROJECT_NAME})
-
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
-        ${PROJECT_SOURCE_DIR}
-)
-
-target_include_directories( ${PROJECT_NAME}
-    SYSTEM PRIVATE
-        ${OpenCV_INCLUDE_DIRS}
-        ${fmt_INCLUDE_DIRS}
-)
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
@@ -36,22 +17,19 @@ target_sources( ${PROJECT_NAME}
         CvArmorDetector.cpp
 )
 
-target_link_libraries( ${PROJECT_NAME}
-    PRIVATE
-        logging
-        threading
-        fmt::fmt
-)
-
 if(NOT DEFINED MODEL_RUNNER)
-    set(MODEL_RUNNER "openvino_yolox")
+    set(MODEL_RUNNER "none")
 endif()
 message("当前 MODEL_RUNNER : " ${MODEL_RUNNER})
 
-if(MODEL_RUNNER MATCHES "tensorrt.*$")
+if(MODEL_RUNNER MATCHES "none")
+    target_compile_definitions( ${PROJECT_NAME}
+        PUBLIC MODEL_RUNNER_NONE
+    )
+elseif(MODEL_RUNNER MATCHES "tensorrt.*$")
     find_package(TensorRT REQUIRED)
     target_compile_definitions( ${PROJECT_NAME}
-        PUBLIC USE_TENSORRT_SJTU
+        PUBLIC MODEL_RUNNER_TENSORRT_SJTU
     )
     target_include_directories( ${PROJECT_NAME}
         SYSTEM PUBLIC ${TensorRT_INCLUDE_DIRS}
@@ -71,7 +49,7 @@ elseif(MODEL_RUNNER MATCHES "openvino.*$")
     find_package(ngraph REQUIRED)
     find_package(InferenceEngine REQUIRED)
     target_compile_definitions( ${PROJECT_NAME}
-        PUBLIC USE_OPENVINO
+        PUBLIC MODEL_RUNNER_OPENVINO
     )
     target_link_libraries( ${PROJECT_NAME}
         PRIVATE
