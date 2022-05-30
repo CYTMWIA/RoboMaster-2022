@@ -95,7 +95,7 @@ namespace rmcv::detect
             InferenceEngine::Core core_;
             InferenceEngine::InputsDataMap input_info_;
             InferenceEngine::OutputsDataMap output_info_;
-            InferenceEngine::ExecutableNetwork exe_net_;
+            InferenceEngine::ExecutableNetwork network_;
             InferenceEngine::InferRequest infer_request_;
 
         public:
@@ -115,9 +115,9 @@ namespace rmcv::detect
                 // 输出设置
                 output_info_ = net_info.getOutputsInfo();
                 
-                exe_net_ = core_.LoadNetwork(xml_path, "GPU");
+                network_ = core_.LoadNetwork(xml_path, "GPU");
 
-                infer_request_ = exe_net_.CreateInferRequest();
+                infer_request_ = network_.CreateInferRequest();
 
                 cv::Mat test(640, 640, CV_8UC3);
                 operator()(test);

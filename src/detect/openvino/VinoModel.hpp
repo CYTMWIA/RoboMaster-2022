@@ -24,9 +24,9 @@ namespace rmcv::detect
          * @brief VinoModel 构造函数
          *
          * @param xml_path xml 文件路径
-         * @param bin_path bin 文件路径
+         * @param bin_path bin 文件路径（已弃用）
          */
-        VinoModel(std::string xml_path, std::string bin_path);
+        VinoModel(std::string xml_path, std::string bin_path="deprecated");
 
         /**
          * @brief 推理

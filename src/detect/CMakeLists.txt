@@ -40,11 +40,11 @@ target_link_libraries( ${PROJECT_NAME}
 )
 
 if(NOT DEFINED MODEL_RUNNER)
-    set(MODEL_RUNNER "openvino_sjtu")
+    set(MODEL_RUNNER "openvino_nanodet")
 endif()
 message("当前 MODEL_RUNNER : " ${MODEL_RUNNER})
 
-if(MODEL_RUNNER STREQUAL "tensorrt_sjtu")
+if(MODEL_RUNNER MATCHES "tensorrt.*$")
     find_package(TensorRT REQUIRED)
     target_compile_definitions( ${PROJECT_NAME}
         PUBLIC USE_TENSORRT_SJTU
@@ -63,21 +63,22 @@ if(MODEL_RUNNER STREQUAL "tensorrt_sjtu")
             nvonnxparser
             cuda
     )
-elseif(MODEL_RUNNER STREQUAL "openvino_sjtu")
+elseif(MODEL_RUNNER MATCHES "openvino.*$")
     find_package(ngraph REQUIRED)
     find_package(InferenceEngine REQUIRED)
     target_compile_definitions( ${PROJECT_NAME}
-        PUBLIC USE_OPENVINO_SJTU
-    )
-    target_sources( ${PROJECT_NAME}
-        PRIVATE
-            openvino_sjtu/VinoModel.cpp
+        PUBLIC USE_OPENVINO
     )
     target_link_libraries( ${PROJECT_NAME}
         PRIVATE
             ${InferenceEngine_LIBRARIES}
             ${NGRAPH_LIBRARIES}
     )
+    if(MODEL_RUNNER STREQUAL "openvino_sjtu")
+        target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelSjtu.cpp)
+    elseif(MODEL_RUNNER STREQUAL "openvino_nanodet")
+        target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelNanodet.cpp)
+    endif()
 else()
     message(FATAL_ERROR "未知 MODEL_RUNNER : " ${MODEL_RUNNER})
 endif()

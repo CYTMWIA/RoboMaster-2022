@@ -1,11 +1,11 @@
 [capture]
-target = "camera"
+target = "video"
 
 [communicate]
 enable = true
 
 [video]
-path = ""
+path = "/home/rm/dataset/Video/哨兵移动.mp4"
 
 [image]
 path = ""
@@ -21,8 +21,7 @@ white_balance_blue = 1.7
 calibration_file = "./result.xml"
 
 [model]
-bin_file = "/home/rm/models/model-opt-int8.bin"
-xml_file = "/home/rm/models/model-opt-int8.xml"
+xml_file = "/home/rm/model_zoo/nanodet-416-0403.xml"
 
 [ekf]
 q = [0.1, 100.0, 0.1, 100.0, 0.1, 100.0]
@@ -33,9 +32,9 @@ port = "/dev/ttyUSB0"
 baud_rate = 115200
 
 [vofa]
-enable = true
+enable = false
 ip = "192.168.137.1"
 port = 1347
 
 [debug]
-enable_window = false
+enable_window = true

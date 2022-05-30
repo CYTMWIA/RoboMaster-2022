@@ -18,7 +18,7 @@ namespace rmcv::detect
 
     LightBar minAreaRect(cv::InputArray points);
 
-    BoundingBox fix_boundingbox(const BoundingBox &ori_bbox, const cv::Mat &ori_img);
+   void fix_boundingbox(BoundingBox &bbox, const cv::Mat &img);
 }
 
 #endif

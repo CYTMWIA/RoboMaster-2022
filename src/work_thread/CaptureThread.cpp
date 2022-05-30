@@ -19,7 +19,7 @@ namespace rmcv::work_thread
         }
         else if (target_ == "video")
         {
-            __LOG_ERROR_AND_EXIT("捕获视频尚未实现（没需求+懒");
+            target_func_ = std::bind(&CaptureThread::video, this, cfg.video.path);
         }
         else if (target_ == "camera")
         {
@@ -38,6 +38,18 @@ namespace rmcv::work_thread
         cv::Mat img = cv::imread(path);
 
         RoslikeTopic<cv::Mat>::set("capture_image", img);
+    }
+
+    void CaptureThread::video(const std::string path)
+    {
+        using namespace rmcv::threading;
+
+        auto cp = rmcv::capture::VideoCapturer(path);
+
+        while (true)
+        {
+            threading::RoslikeTopic<cv::Mat>::set("capture_image", cp.next());
+        }
     }
 
     void CaptureThread::camera(int32_t id, double exposure_time, double gain, double white_balance_red, double white_balance_green, double white_balance_blue)

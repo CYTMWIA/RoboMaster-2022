@@ -133,7 +133,16 @@ int main(int, char **)
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
         for (const auto &b : detections)
         {
-            // for (int i=0;i<4;i++) std::cout<< b.pts[i].x << " " << b.pts[i].y << std::endl;
+            bool break_flag = false;
+            for (int i=0;i<4;i++)
+            {
+                if (b.pts[i].x!=b.pts[i].x || b.pts[i].y!=b.pts[i].y) // NaN
+                {
+                    break_flag = true;
+                    break;
+                }
+            }
+            if (break_flag) break;
             cv::line(img, b.pts[0], b.pts[1], colors[2], 2);
             cv::line(img, b.pts[1], b.pts[2], colors[2], 2);
             cv::line(img, b.pts[2], b.pts[3], colors[2], 2);

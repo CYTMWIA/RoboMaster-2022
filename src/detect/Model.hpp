@@ -10,8 +10,8 @@
 
 #if USE_TENSORRT_SJTU
 #include "tensorrt_sjtu/TRTModule.hpp"
-#elif USE_OPENVINO_SJTU
-#include "openvino_sjtu/VinoModel.hpp"
+#elif USE_OPENVINO
+#include "openvino/VinoModel.hpp"
 #endif
 
 namespace rmcv::detect
@@ -24,7 +24,7 @@ namespace rmcv::detect
 
     public:
         Model(std::string onnx_path) : model_{onnx_path} {};
-#elif USE_OPENVINO_SJTU
+#elif USE_OPENVINO
     private:
         VinoModel model_;
 
