@@ -13,6 +13,7 @@
 
 #include "capture/daheng.hpp"
 #include "detect/model.hpp"
+#include "predict/pnp_solver.hpp"
 
 // 使用OpenCV窗口调参
 #define DEBUG_WITH_OPENCV_WINDOW 0
@@ -44,7 +45,7 @@ int main(int, char **)
     vc.set_white_balance(cfg.capture.camera.white_balance_red, cfg.capture.camera.white_balance_green, cfg.capture.camera.white_balance_blue);
     
     auto md = detect::Model("/home/rm/models/model-opt-int8.xml", "/home/rm/models/model-opt-int8.bin");
-
+    auto ps = predict::PnpSolver("/home/rm/RMCV/build/BuBinyTou.xml");
     while (true)
     {
         auto img = vc.next();
@@ -53,12 +54,14 @@ int main(int, char **)
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
         for (const auto &b: detections)
         {
-            // for (int i=0;i<4;i++) std::cout<< b.pts[i].x << " " << b.pts[i].y << std::endl;
             cv::line(img, b.pts[0], b.pts[1], colors[2], 2);
             cv::line(img, b.pts[1], b.pts[2], colors[2], 2);
             cv::line(img, b.pts[2], b.pts[3], colors[2], 2);
             cv::line(img, b.pts[3], b.pts[0], colors[2], 2);
             cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id]);
+
+            auto pose = ps.solve(predict::ArmorType::kSmallArmor, b.pts);
+            __LOG_DEBUG("DIS {:.2f}; R {:.2f}, {:.2f}, {:.2f}", pose.distance(), pose.rx, pose.ry, pose.rz);
         }
         cv::imshow("SHOW", img);
         cv::waitKey(5);

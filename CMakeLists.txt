@@ -18,7 +18,7 @@ add_subdirectory(src/threading)
 add_subdirectory(src/capture)
 # add_subdirectory(src/communicate)
 add_subdirectory(src/detect)
-# add_subdirectory(src/predict)
+add_subdirectory(src/predict)
 # add_subdirectory(src/web)
 
 # RMCV
@@ -45,6 +45,7 @@ target_link_libraries( ${PROJECT_NAME}
         # thread_capture
         # thread_communicate
         detect
+        predict
         # thread_strategy
         # thread_web
 
