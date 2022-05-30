@@ -1,5 +1,7 @@
 #include "HammingMatch.hpp"
 
+#include "cv_util.hpp"
+
 #include "threading/threading.hpp"
 
 namespace rmcv::detect
@@ -46,9 +48,7 @@ namespace rmcv::detect
         cv::cvtColor(icon_image, icon_template, cv::COLOR_BGR2GRAY);
         cv::threshold(icon_template, icon_template, 0, 255, cv::THRESH_OTSU);
 
-        std::vector<std::vector<cv::Point>> contours;
-        std::vector<cv::Vec4i> hierarchy; // unused
-        cv::findContours(icon_template, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+        std::vector<std::vector<cv::Point>> contours = find_external_contours(icon_template);
 
         cv::Point2f center(icon_template.cols/2.0, icon_template.rows/2.0);
         for (const auto& con: contours)
@@ -57,7 +57,7 @@ namespace rmcv::detect
             if (rect.contains(center))
             {
                 cv::Mat _template = icon_template(rect);
-                cv::resize(_template, _template, cv::Size(50.0, _template.rows*(50.0/_template.cols)));
+                cv::resize(_template, _template, cv::Size(32.0, _template.rows*(32.0/_template.cols)));
                 return HammingMatch(_template);
             }
         }

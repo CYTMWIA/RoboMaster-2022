@@ -19,7 +19,7 @@ using namespace communicate;
 using namespace predict;
 using namespace util;
 
-#define DEBUG_IMSHOW_WIDTH 320.0 // 调试图像宽度
+#define DEBUG_IMSHOW_WIDTH 720.0 // 调试图像宽度
 
 void debug_imshow(const std::string name, const cv::Mat &img)
 {
@@ -52,9 +52,9 @@ int main(int, char **)
     work_thread::CommunicateThread communicate{cfg};
     communicate.up();
 
-    // __LOG_INFO("启动决策线程…");
-    // work_thread::StrategyThread strategy{cfg};
-    // strategy.up();
+    __LOG_INFO("启动决策线程…");
+    work_thread::StrategyThread strategy{cfg};
+    strategy.up();
 
     __LOG_INFO("所有线程已启动");
 
@@ -73,8 +73,8 @@ int main(int, char **)
         }
 
         // 可视化检测结果
-        auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result", true);
         auto ori_img = RoslikeTopic<cv::Mat>::get("capture_image");
+        auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result", true);
         cv::Mat img; // 避免引用源图像
         ori_img.copyTo(img);
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
@@ -88,6 +88,7 @@ int main(int, char **)
                     break_flag = true;
                     break;
                 }
+                
             }
             if (break_flag) break;
             cv::line(img, b.pts[0], b.pts[1], colors[2], 2);

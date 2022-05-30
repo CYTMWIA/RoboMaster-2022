@@ -3,7 +3,7 @@
 
 #include "BoundingBox.hpp"
 
-#include "Model.hpp"
+#include "NnArmorDetector.hpp"
 
 #include "cv_util.hpp"
 #include "CvArmorDetector.hpp"

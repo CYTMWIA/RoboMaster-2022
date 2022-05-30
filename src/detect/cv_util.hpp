@@ -37,8 +37,6 @@ namespace rmcv::detect
 
     void match_lightbars(std::vector<RRect> &rrects, std::vector<Lightbar> &lightbars, std::vector<LightbarMatchResult> &results);
 
-    inline double distance(cv::Point2f p1, cv::Point2f p2);
-
     cv::Mat awakenlion_threshold(const cv::Mat &src, double gray_max_ = 0.6, double gray_avg_ = 0.4, double ch0 = 0.1, double ch1 = 0.2, double ch2 = 0.7);
 
     void fix_boundingbox(BoundingBox &bbox, const cv::Mat &img);
@@ -46,6 +44,11 @@ namespace rmcv::detect
     std::vector<std::vector<cv::Point>> find_external_contours(const cv::Mat &src);
 
     cv::Mat safe_range_roi(const cv::Mat &src, cv::Range range_rows, cv::Range range_cols);
+
+    inline double distance(cv::Point2f p1, cv::Point2f p2)
+    {
+        return abs(cv::norm(p1 - p2));
+    }
 }
 
 #endif

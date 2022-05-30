@@ -2,6 +2,8 @@
 
 #include "threading/threading.hpp"
 
+#include "logging/logging.hpp"
+
 #include <algorithm>
 
 namespace rmcv::detect
@@ -45,11 +47,6 @@ namespace rmcv::detect
         // 确定倾斜弧度
         if (pts[0].y > pts[1].y) std::swap(pts[0], pts[1]);
         rad = std::atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
-    }
-
-    inline double distance(cv::Point2f p1, cv::Point2f p2)
-    {
-        return abs(cv::norm(p1-p2));
     }
 
     cv::Mat awakenlion_threshold(const cv::Mat &src, double gray_max_, double gray_avg_, double ch0, double ch1, double ch2)
@@ -96,6 +93,7 @@ namespace rmcv::detect
         if (rrects.empty()) return;
 
         std::sort(rrects.begin(), rrects.end(), [](auto& r1, auto& r2) { return r1.center.x < r2.center.x; }); // 按照中心x升序（从左到右）
+
         lightbars.clear();
         lightbars.reserve(rrects.size());
         for (const auto& rr: rrects) lightbars.push_back(Lightbar(rr));
@@ -118,19 +116,19 @@ namespace rmcv::detect
                 // 平行
                 float angle = abs(lrr.rad - rrr.rad);
                 ADD_CONFIDENCE(40.0, 1 - abs(min(angle, 180 - angle) / (M_PI / 2.0)));
-                std::cout << c << " ";
+                // std::cout << c << " ";
 
                 // 长宽相同
                 ADD_CONFIDENCE(40.0, 1 - abs(2 * (lrr.width - rrr.width+1) / (lrr.width + rrr.width+1))); // +1 避免 nan
                 ADD_CONFIDENCE(10.0, 1 - abs(2 * (lrr.height - rrr.height+1) / (lrr.height + rrr.height+1)));
-                std::cout << c << " ";
+                // std::cout << c << " ";
 
                 // 组成四边形的长宽比
                 std::vector<cv::Point2f> pts = { llb.vertex_up , rlb.vertex_up, llb.vertex_down, rlb.vertex_down };
                 auto arect = RRect(cv::minAreaRect(pts));
                 float ratio = arect.width/arect.height;
-                ADD_CONFIDENCE(50.0, 1 - min(abs(270.0 / 55.0 - ratio), abs(135.0 / 55.0 - ratio))/2);
-                std::cout << c << " ";
+                ADD_CONFIDENCE(50.0, 1 - min(abs(270.0 / 55.0 - ratio), abs(135.0 / 55.0 - ratio))/1.5);
+                // std::cout << c << " ";
 
                 // 灯条占装甲板宽度
                 float width_up = distance(llb.vertex_up , rlb.vertex_up);
@@ -139,10 +137,10 @@ namespace rmcv::detect
                 ADD_CONFIDENCE(10.0, 1-lrr.height/width_down);
                 ADD_CONFIDENCE(10.0, 1-rrr.height/width_up);
                 ADD_CONFIDENCE(10.0, 1-rrr.height/width_down);
-                std::cout << c << " ";
+                // std::cout << c << " ";
 
                 c = max(0.0, c)/total_score;
-                std::cout << ">> " << c << std::endl;
+                // std::cout << ">> " << c << std::endl;
 
 #undef ADD_CONFIDENCE
                 results.push_back(std::move(res));
@@ -178,28 +176,63 @@ namespace rmcv::detect
         double scale = 100.0/roi.cols;
         cv::resize(roi, roi, cv::Size(100, roi.rows*scale));
 
-        roi = awakenlion_threshold(roi);
+        // 自动二值化，用尽可能小的阈值达成区域内只有两个轮廓（使灯条区域最大）
+        cv::Mat gray, thr;
+        cv::cvtColor(roi, gray, cv::COLOR_BGR2GRAY);
+        std::vector<std::vector<cv::Point>> contours, cons;
+        int32_t lo=100, hi=255, mid;
+        while (lo + 16 < hi)
+        {
+            contours.clear();
 
-        // 形态学
-        cv::morphologyEx(roi, roi, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 3)));
+            mid = (lo+hi)/2;
+            cv::threshold(gray, thr, mid, 255, cv::THRESH_BINARY);
+            cons = find_external_contours(thr);
+            std::copy_if(cons.begin(), cons.end(), std::back_inserter(contours), [](auto &c){ return cv::contourArea(c) > 4;});
 
-        std::vector<std::vector<cv::Point>> contours = find_external_contours(roi);
+            if (2 < contours.size()) 
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                hi = mid;
+            }
+        }
 
         // 灯条匹配
         std::vector<RRect> rrects;
         std::vector<Lightbar> lightbars;
         std::vector<LightbarMatchResult> pairs;
-        for (const auto &con : contours)
+        if (contours.size() == 2)
         {
-            // 筛选轮廓
-            if (cv::contourArea(con)<16) continue;
-
-            rrects.push_back(RRect(cv::minAreaRect(con)));
+            for (const auto &con : contours)
+            {
+                rrects.push_back(RRect(cv::minAreaRect(con)));
+            }
+            // RoslikeTopic<cv::Mat>::set("debug_img_1", thr);
+            // RoslikeTopic<cv::Mat>::set("debug_img_2", awakenlion_threshold(roi));
         }
-        if (!rrects.size()) return;
+        else
+        {
+            roi = awakenlion_threshold(roi);
+            cv::morphologyEx(roi, roi, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(8, 4)));
+            contours = find_external_contours(roi);
+
+            for (const auto &con : contours)
+            {
+                // 筛选轮廓
+                if (cv::contourArea(con)<16) continue;
+
+                rrects.push_back(RRect(cv::minAreaRect(con)));
+            }
+            if (rrects.size() < 2) return;
+        }
         match_lightbars(rrects, lightbars, pairs);
 
-        if (pairs.size() && pairs[0].confidence > 0.7)
+        
+
+        if (pairs.size() && (contours.size() == 2 || pairs[0].confidence > 0.6))
         {
             // std::cout << "修正实行" << std::endl;
             const Lightbar &left = lightbars[pairs[0].left_idx];

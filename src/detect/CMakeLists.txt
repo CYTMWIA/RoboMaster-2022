@@ -10,11 +10,12 @@ add_library(${PROJECT_NAME})
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        Model.cpp
         cv_util.cpp
         HammingMatch.cpp
         MatchsClassifier.cpp
         CvArmorDetector.cpp
+        NnArmorDetector.cpp
+        BoundingBox.cpp
 )
 
 if(NOT DEFINED MODEL_RUNNER)

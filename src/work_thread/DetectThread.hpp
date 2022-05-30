@@ -18,7 +18,8 @@ namespace rmcv::work_thread
     DECL_WORKTHTREAD(DetectThread)
 
 private:
-    rmcv::detect::Model model_;
+    // rmcv::detect::CvArmorDetector detector;
+    rmcv::detect::NnArmorDetector detector;
 
 public:
     DetectThread(const rmcv::config::Config &cfg);

@@ -75,7 +75,7 @@ namespace rmcv::work_thread
         pcap->set_gain(gain);
         pcap->set_white_balance(white_balance_red, white_balance_green, white_balance_blue);
 
-        // auto fps = rmcv::util::FpsCounter();
+        auto fps = rmcv::util::FpsCounter();
         while (true)
         {
             // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});

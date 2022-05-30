@@ -44,8 +44,8 @@ namespace rmcv::detect
     int32_t CvArmorDetector::match_armor_icon(const cv::Mat &img, const Lightbar &left, const Lightbar &right, const double &thresh)
     {
         cv::Point2f icon_vertexs_src[4];
-        auto armor_left = left.extend(3);
-        auto armor_right = right.extend(3);
+        auto armor_left = left.extend(2.5);
+        auto armor_right = right.extend(2.5);
         icon_vertexs_src[0] = cv::Point2f(armor_left.vertex_up.x, armor_left.vertex_up.y);
         icon_vertexs_src[1] = cv::Point2f(armor_left.vertex_down.x, armor_left.vertex_down.y);
         icon_vertexs_src[2] = cv::Point2f(armor_right.vertex_down.x, armor_right.vertex_down.y);
@@ -84,13 +84,14 @@ namespace rmcv::detect
     std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
     {
         cv::Mat img;
-        // double scale = 640.0 / src.cols;
-        // cv::resize(src, img, cv::Size(640.0, src.rows * scale));
-        double scale = 1;
-        src.copyTo(img);
+        double scale = 640.0 / src.cols;
+        cv::resize(src, img, cv::Size(640.0, src.rows * scale));
+        // double scale = 1;
+        // src.copyTo(img);
 
         cv::Mat img_thr = awakenlion_threshold(img);
-        cv::morphologyEx(img_thr, img_thr, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(12, 6)));
+        cv::morphologyEx(img_thr, img_thr, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(10, 2)));
+        cv::morphologyEx(img_thr, img_thr, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2)));
 
         rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img_thr);
 
@@ -102,8 +103,8 @@ namespace rmcv::detect
         for (const auto &con : contours)
         {
             // 筛选轮廓
-            // if (cv::contourArea(con) < 16)
-            //     continue;
+            if (cv::contourArea(con) < 4)
+                continue;
 
             rrects.push_back(RRect(cv::minAreaRect(con)));
         }
@@ -121,7 +122,7 @@ namespace rmcv::detect
             const Lightbar &left = lightbars[pair.left_idx];
             const Lightbar &right = lightbars[pair.right_idx];
 
-            int32_t robot_id = match_armor_icon(img, left, right, 0.70);
+            int32_t robot_id = match_armor_icon(img, left, right, 0.7);
             if (robot_id == -1)
                 continue;
 
@@ -135,7 +136,7 @@ namespace rmcv::detect
             bbox.pts[2] = cv::Point2f(right.vertex_down.x / scale, right.vertex_down.y / scale);
             bbox.pts[3] = cv::Point2f(right.vertex_up.x / scale, right.vertex_up.y / scale);
 
-            std::cout << bbox.tag_id << " <-> " << bbox.color_id << std::endl;
+            // std::cout << bbox.tag_id << " <-> " << bbox.color_id << std::endl;
 
             armors.push_back(std::move(bbox));
         }

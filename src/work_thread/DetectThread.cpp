@@ -11,7 +11,9 @@
 
 namespace rmcv::work_thread
 {
-    DetectThread::DetectThread(const rmcv::config::Config &cfg) : model_(cfg.model.path)
+    DetectThread::DetectThread(const rmcv::config::Config &cfg) : 
+    detector(cfg.model.path)
+    // detector()
     {
     }
 
@@ -19,19 +21,14 @@ namespace rmcv::work_thread
     {
         using namespace rmcv::threading;
         using namespace rmcv::detect;
-        CvArmorDetector detector;
-        // auto fps = rmcv::util::FpsCounter();
+
+        auto fps = rmcv::util::FpsCounter();
         while (true)
         {
             // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
 
             auto img = RoslikeTopic<cv::Mat>::get("capture_image");
             auto res = detector(img);
-            // auto res = model_(img);
-            // for (auto &r : res)
-            // {
-            //     rmcv::detect::fix_boundingbox(r, img);
-            // }
             RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
         }
     }
