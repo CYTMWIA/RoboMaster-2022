@@ -1,6 +1,7 @@
 #include "CommunicateThread.hpp"
 
 #include "threading/threading.hpp"
+#include "logging/logging.hpp"
 
 namespace rmcv::work_thread
 {
@@ -20,38 +21,22 @@ namespace rmcv::work_thread
 
     CommunicateThread::CommunicateThread(const rmcv::config::Config &cfg)
     {
-        target_ = cfg.communicate.target;
         freq_ = 100;
 
-        if (target_ == "serial")
-        {
-            target_func_ = std::bind(&CommunicateThread::serial, this, cfg.serial.port, cfg.serial.baud_rate);
-        }
-        else if (target_ == "vofa")
-        {
-            target_func_ = std::bind(&CommunicateThread::vofa, this, cfg.vofa.ip, cfg.vofa.port);
-        }
+        vofa_ip_ = cfg.vofa.ip;
+        vofa_port_ = cfg.vofa.port;
+        serial_port_ = cfg.serial.port;
+        serial_baud_rate_ = cfg.serial.baud_rate;
     }
 
-    void CommunicateThread::vofa(const std::string ip, const uint16_t port)
+    void CommunicateThread::run()
     {
         using namespace rmcv::communicate;
         using namespace rmcv::threading;
 
-        Vofa vofa{ip, port};
+        Vofa vofa{vofa_ip_, vofa_port_};
 
-        cycle([&]()
-        {
-            vofa.justfloat(RoslikeTopic<std::vector<float>>::get("vofa_justfloat", true));
-        });
-    }
-
-    void CommunicateThread::serial(const std::string port, const uint32_t baud_rate)
-    {
-        using namespace rmcv::communicate;
-        using namespace rmcv::threading;
-
-        Serial serial{port, baud_rate};
+        Serial serial{serial_port_, serial_baud_rate_};
 
         RobotStatus robot_status;
         CmdToEc output;
@@ -59,10 +44,16 @@ namespace rmcv::work_thread
 
         cycle([&]()
         {
+            // Vofa
+            vofa.justfloat(RoslikeTopic<std::vector<float>>::get("vofa_justfloat", true));
+
+
+            // Serial
+
             output = RoslikeTopic<CmdToEc>::get("cmd_to_ec", true);
 
             // if (output.pitch!=0 && output.yaw!=0)
-            //     __LOG_DEBUG("Sending Pitch {}, Yaw {}", output.pitch, output.yaw);
+            // __LOG_DEBUG("Sending Pitch {}, Yaw {}", output.pitch, output.yaw);
             serial.send(output);
 
             serial.update(robot_status);
@@ -73,6 +64,7 @@ namespace rmcv::work_thread
 
     void CommunicateThread::up()
     {
-        thread_ = std::thread(target_func_);
+        auto running = std::bind(&CommunicateThread::run, this);
+        thread_ = std::thread(running);
     }
 }

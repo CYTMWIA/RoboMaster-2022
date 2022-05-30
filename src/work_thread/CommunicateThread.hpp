@@ -23,13 +23,17 @@ namespace rmcv::work_thread
         std::thread thread_;
 
         int32_t freq_;
-        std::string target_;
-        std::function<void(void)> target_func_;
+
+        bool vofa_enable_=true;
+        std::string vofa_ip_;
+        uint16_t vofa_port_;
+
+        bool serial_enable_=true;
+        std::string serial_port_;
+        uint32_t serial_baud_rate_;
 
         void cycle(const std::function<void(void)> &func);
-        void vofa(const std::string ip, const uint16_t port);
-        void serial(const std::string port, const uint32_t baud_rate);
-
+        void run();
     public:
         CommunicateThread(const rmcv::config::Config &cfg);
         void up();

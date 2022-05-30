@@ -13,6 +13,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/src/detect detect_dir)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/logging logging_dir)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/predict predict_dir)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/threading threading_dir)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/util util_dir)
 
 add_library(${PROJECT_NAME})
 
@@ -39,6 +40,7 @@ target_link_libraries( ${PROJECT_NAME}
         logging
         predict
         threading
+        util
 
         ${OpenCV_LIBS}
 )

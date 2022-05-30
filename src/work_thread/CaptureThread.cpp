@@ -3,6 +3,7 @@
 #include "logging/logging.hpp"
 #include "threading/threading.hpp"
 #include "capture/capture.hpp"
+#include "util/util.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -48,8 +49,11 @@ namespace rmcv::work_thread
         cp.set_gain(gain);
         cp.set_white_balance(white_balance_red, white_balance_green, white_balance_blue);
 
+        // auto fps = rmcv::util::FpsCounter();
         while (true)
         {
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
+
             threading::RoslikeTopic<cv::Mat>::set("capture_image", cp.next());
         }
     }

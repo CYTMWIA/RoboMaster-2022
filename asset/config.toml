@@ -3,7 +3,7 @@ target = "camera"
 
 [communicate]
 enable = true
-target = "vofa"
+target = "serial"
 
 [video]
 path = ""

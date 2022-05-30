@@ -19,6 +19,7 @@ add_subdirectory(src/detect)
 add_subdirectory(src/logging)
 add_subdirectory(src/predict)
 add_subdirectory(src/threading)
+add_subdirectory(src/util)
 add_subdirectory(src/work_thread)
 
 # RMCV
@@ -44,6 +45,7 @@ target_link_libraries( ${PROJECT_NAME}
         logging
         predict
         threading
+        util
         work_thread
         
         ${OpenCV_LIBS}

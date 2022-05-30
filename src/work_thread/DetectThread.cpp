@@ -3,8 +3,11 @@
 #include "logging/logging.hpp"
 #include "threading/threading.hpp"
 #include "detect/detect.hpp"
+#include "util/util.hpp"
 
 #include <opencv2/opencv.hpp>
+
+#include <chrono>
 
 namespace rmcv::work_thread
 {
@@ -29,9 +32,11 @@ namespace rmcv::work_thread
     void DetectThread::run()
     {
         using namespace rmcv::threading;
-
+        auto fps = rmcv::util::FpsCounter();
         while (true)
         {
+            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
+
             auto res = pmodel->operator()(RoslikeTopic<cv::Mat>::get("capture_image"));
             RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
         }

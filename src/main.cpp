@@ -9,6 +9,7 @@
 #include "predict/predict.hpp"
 #include "communicate/communicate.hpp"
 #include "work_thread/work_thread.hpp"
+#include "util/util.hpp"
 
 using namespace rmcv;
 using namespace config;
@@ -16,6 +17,7 @@ using namespace threading;
 using namespace detect;
 using namespace communicate;
 using namespace predict;
+using namespace util;
 
 int main(int, char **)
 {
@@ -55,13 +57,8 @@ int main(int, char **)
     auto pnp = PnpSolver(cfg.camera.calibration_file);
     auto aimer = Aimer();
 
-    int history_size = 5;
-    std::vector<float> pitch_history;
-    std::vector<float> yaw_history;
-
-    auto first_img = RoslikeTopic<cv::Mat>::get("capture_image");
-    auto img_width = first_img.cols, img_height = first_img.rows;
-    auto img_x_center = img_width / 2.0, img_y_center = img_height / 2.0;
+    MovingAverageFilter ma_pitch(5);
+    MovingAverageFilter ma_yaw(5);
     while (true)
     {
         // 数据更新
@@ -98,10 +95,10 @@ int main(int, char **)
             Yr << pnp_result.pitch, pnp_result.yaw, pnp_result.distance;
             ekf.update(measure, Yr);
             auto xd = sqrt(ekf.Xe[0]*ekf.Xe[0]+ekf.Xe[2]*ekf.Xe[2]+ekf.Xe[4]*ekf.Xe[4]);
-            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)ekf.Xe[0], (float)ekf.Xe[2], (float)ekf.Xe[4], (float)xd, (float)pnp_result.distance});
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)ekf.Xe[0], (float)ekf.Xe[2], (float)ekf.Xe[4], (float)xd, (float)pnp_result.distance});
 
-            auto aim_result = aimer.aim_static({ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]}, robot_status.pitch / 180.0 * M_PI);
-            // auto aim_result = aimer.aim_static({pnp_result.x, pnp_result.y, pnp_result.z}, robot_status.pitch / 180.0 * M_PI);
+            // auto aim_result = aimer.aim_static({ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]}, robot_status.pitch / 180.0 * M_PI);
+            auto aim_result = aimer.aim_static({pnp_result.x, pnp_result.y, pnp_result.z}, robot_status.pitch / 180.0 * M_PI);
 
             cmd2ec.pitch = aim_result.pitch / M_PI * 180.0;
             cmd2ec.yaw = aim_result.yaw / M_PI * 180.0;
@@ -111,7 +108,14 @@ int main(int, char **)
             ekf_init = false;
             cmd2ec.pitch = cmd2ec.yaw = 0;
         }
-        
+
+        cmd2ec.pitch = limit(cmd2ec.pitch, -0.5, 0.5);
+        cmd2ec.yaw = limit(cmd2ec.yaw, -0.5, 0.5);
+
+        cmd2ec.pitch = ma_pitch.update(cmd2ec.pitch);
+        cmd2ec.yaw = ma_yaw.update(cmd2ec.yaw);
+
+        // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {cmd2ec.pitch, cmd2ec.yaw});
         RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
         if (!cfg.debug.enable_window)
