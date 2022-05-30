@@ -5,6 +5,8 @@ if (TARGET ${PROJECT_NAME})
 endif()
 
 
+find_package(fmt REQUIRED)
+
 add_subdirectory(../logging logging_binary_dir)
 
 
@@ -14,6 +16,7 @@ target_include_directories( ${PROJECT_NAME}
     PRIVATE
         ${PROJECT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/3rdparty/toml11
+        ${fmt_INCLUDE_DIRS}
 )
 
 target_sources( ${PROJECT_NAME}
@@ -24,4 +27,5 @@ target_sources( ${PROJECT_NAME}
 target_link_libraries( ${PROJECT_NAME}
     PRIVATE
         logging
+        fmt::fmt
 )
