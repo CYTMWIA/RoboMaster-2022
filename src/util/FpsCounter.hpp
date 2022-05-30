@@ -9,6 +9,7 @@ namespace rmcv::util
     {
     private:
         std::chrono::time_point<std::chrono::steady_clock> tick_time_;
+        bool first_flag_;
     public:
         FpsCounter();
         float tick();
