@@ -117,28 +117,32 @@ namespace rmcv::detect
 
                 // 平行
                 float angle = abs(lrr.rad - rrr.rad);
-                ADD_CONFIDENCE(40.0, 1 - abs(min(angle, 180 - angle) / (M_PI / 4.0)));
+                ADD_CONFIDENCE(40.0, 1 - abs(min(angle, 180 - angle) / (M_PI / 2.0)));
+                std::cout << c << " ";
 
                 // 长宽相同
-                ADD_CONFIDENCE(30.0, 1 - abs(2 * (lrr.width - rrr.width) / (lrr.width + rrr.width)));
-                ADD_CONFIDENCE(20.0, 1 - abs(2 * (lrr.height - rrr.height) / (lrr.height + rrr.height)));
+                ADD_CONFIDENCE(40.0, 1 - abs(2 * (lrr.width - rrr.width+1) / (lrr.width + rrr.width+1))); // +1 避免 nan
+                ADD_CONFIDENCE(10.0, 1 - abs(2 * (lrr.height - rrr.height+1) / (lrr.height + rrr.height+1)));
+                std::cout << c << " ";
 
                 // 组成四边形的长宽比
-                float width_up = distance(llb.vertex_up , rlb.vertex_up);
-                float width_down = distance(llb.vertex_down, rlb.vertex_down);
-                float ratio_tl = width_up / lrr.width;
-                float ratio_br = width_down / rrr.width;
-                ADD_CONFIDENCE(25.0, 1 - min(abs(270.0 / 55.0 - ratio_tl), abs(135.0 / 55.0 - ratio_tl))/2.0);
-                ADD_CONFIDENCE(25.0, 1 - min(abs(270.0 / 55.0 - ratio_br), abs(135.0 / 55.0 - ratio_br))/2.0);
+                std::vector<cv::Point2f> pts = { llb.vertex_up , rlb.vertex_up, llb.vertex_down, rlb.vertex_down };
+                auto arect = RRect(cv::minAreaRect(pts));
+                float ratio = arect.width/arect.height;
+                ADD_CONFIDENCE(50.0, 1 - min(abs(270.0 / 55.0 - ratio), abs(135.0 / 55.0 - ratio))/2);
+                std::cout << c << " ";
 
                 // 灯条占装甲板宽度
-                ADD_CONFIDENCE(15.0, 1-lrr.height/width_up);
-                ADD_CONFIDENCE(15.0, 1-lrr.height/width_down);
-                ADD_CONFIDENCE(15.0, 1-rrr.height/width_up);
-                ADD_CONFIDENCE(15.0, 1-rrr.height/width_down);
+                float width_up = distance(llb.vertex_up , rlb.vertex_up);
+                float width_down = distance(llb.vertex_down, rlb.vertex_down);
+                ADD_CONFIDENCE(10.0, 1-lrr.height/width_up);
+                ADD_CONFIDENCE(10.0, 1-lrr.height/width_down);
+                ADD_CONFIDENCE(10.0, 1-rrr.height/width_up);
+                ADD_CONFIDENCE(10.0, 1-rrr.height/width_down);
+                std::cout << c << " ";
 
                 c = max(0.0, c)/total_score;
-                std::cout << c << std::endl;
+                std::cout << ">> " << c << std::endl;
 
 #undef ADD_CONFIDENCE
                 results.push_back(std::move(res));
@@ -179,9 +183,7 @@ namespace rmcv::detect
         // 形态学
         cv::morphologyEx(roi, roi, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 3)));
 
-        std::vector<std::vector<cv::Point>> contours;
-        std::vector<cv::Vec4i> hierarchy; // unused
-        cv::findContours(roi, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+        std::vector<std::vector<cv::Point>> contours = find_external_contours(roi);
 
         // 灯条匹配
         std::vector<RRect> rrects;
@@ -193,15 +195,9 @@ namespace rmcv::detect
             if (cv::contourArea(con)<16) continue;
 
             rrects.push_back(RRect(cv::minAreaRect(con)));
-            // cv::Point2f pts4[4];
-            // cv::minAreaRect(con).points(pts4);
-            // for (int i = 0; i < 4; i++)
-            //     cv::line(roi, pts4[i], pts4[(i+1)%4], cv::Scalar(127), 2);
         }
         if (!rrects.size()) return;
         match_lightbars(rrects, lightbars, pairs);
-
-        cv::Mat debug; roi.copyTo(debug); RoslikeTopic<cv::Mat>::set("fix_boundingbox", debug);
 
         if (pairs.size() && pairs[0].confidence > 0.7)
         {
@@ -213,5 +209,22 @@ namespace rmcv::detect
             bbox.pts[2] = cv::Point2f(range_col.start + right.vertex_down.x/scale, range_row.start + right.vertex_down.y/scale);
             bbox.pts[3] = cv::Point2f(range_col.start + right.vertex_up.x/scale, range_row.start + right.vertex_up.y/scale);
         }
+    }
+
+    std::vector<std::vector<cv::Point>> find_external_contours(const cv::Mat &src)
+    {
+        std::vector<std::vector<cv::Point>> contours;
+        std::vector<cv::Vec4i> hierarchy; // unused
+        cv::findContours(src, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+        return contours;
+    }
+
+    cv::Mat safe_range_roi(const cv::Mat &src, cv::Range range_rows, cv::Range range_cols)
+    {
+        range_rows.start = std::max(0, range_rows.start);
+        range_rows.end = std::min(src.rows, range_rows.end);
+        range_cols.start = std::max(0, range_cols.start);
+        range_cols.end = std::min(src.cols, range_cols.end);
+        return src(range_rows, range_cols);
     }
 }
