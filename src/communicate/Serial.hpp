@@ -3,8 +3,7 @@
 
 #include <string>
 #include <vector>
-
-#include "serial/serial.h"
+#include <memory>
 
 #include "Cmd.hpp"
 #include "Vofa.hpp"
@@ -14,21 +13,15 @@ namespace rmcv::communicate
     class Serial
     {
     private:
-        serial::Serial serial_;
-        std::vector<uint8_t> recv_buffer_;
+        class Impl;
+        std::unique_ptr<Impl> pimpl;
 
     public:
         Serial(std::string dev = "/dev/ttyUSB0", uint32_t baud_rate = 115200);
+        ~Serial();
 
         void send(const CvStatus &status);
         void update(RobotStatus &status);
-
-        template <typename... Args>
-        void vofa_justfloat(Args &&...nums)
-        {
-            std::vector<uint8_t> data = Vofa::to_justfloat({nums...});
-            serial_.write(data);
-        }
     };
 }
 

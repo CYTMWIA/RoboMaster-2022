@@ -4,20 +4,19 @@
 #include <vector>
 #include <string>
 #include <cstring>
-
-#include <boost/asio.hpp>
+#include <memory>
 
 namespace rmcv::communicate
 {
     class Vofa
     {
     private:
-        boost::asio::io_context io_context_;
-        boost::asio::ip::udp::socket udp_socket_;
-        boost::asio::ip::udp::endpoint vofa_endpoint_;
+        class Impl;
+        std::unique_ptr<Impl> pimpl;
 
     public:
         Vofa(std::string vofa_ip, uint16_t vofa_port);
+        ~Vofa();
 
         void vofa_endpoint(std::string vofa_ip, uint16_t vofa_port);
 

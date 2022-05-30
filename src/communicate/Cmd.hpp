@@ -10,4 +10,12 @@ extern "C"
 #include "Cmd.h"
 }
 
+namespace rmcv::communicate
+{
+    using CmdToCv = ::CmdToCv;
+    using CmdToEc = ::CmdToEc;
+    using RobotStatus = ::RobotStatus;
+    using CvStatus = ::CvStatus;
+}
+
 #endif
