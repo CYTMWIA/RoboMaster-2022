@@ -16,9 +16,10 @@ namespace rmcv::config
     name = dot_find_or<type>(#name, fallback); \
     std::cout << "> " << #name << ": " << name << std::endl;
 
-        READ_CONFIG(capture.target, std::string, "");
+        READ_CONFIG(capture.target, std::string, "camera");
 
         READ_CONFIG(communicate.enable, toml::boolean, 0);
+        READ_CONFIG(communicate.target, std::string, "serial");
 
         READ_CONFIG(video.path, std::string, "");
 
@@ -38,6 +39,9 @@ namespace rmcv::config
 
         READ_CONFIG(serial.port, std::string, "/dev/ttyUSB0");
         READ_CONFIG(serial.baud_rate, toml::integer, 115200);
+
+        READ_CONFIG(vofa.ip, std::string, "192.168.137.1");
+        READ_CONFIG(vofa.port, toml::integer, 1347);
 
         READ_CONFIG(debug.enable_window, toml::boolean, 0);
 

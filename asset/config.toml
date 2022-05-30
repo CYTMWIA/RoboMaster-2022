@@ -1,18 +1,25 @@
-capture.target = "camera"
+[capture]
+target = "camera"
 
-video.path = ""
+[communicate]
+enable = true
+target = "vofa"
 
-image.path = ""
+[video]
+path = ""
+
+[image]
+path = ""
 
 [camera]
 id = 1
-exposure_time = 9940.0 # 100FPS
-#exposure_time = 20000.0 # calibration
-# exposure_time = 50000.0
+# exposure_time = 9940.0 # 100FPS
+exposure_time = 20000.0 # calibration
+
 gain = 16.0
 white_balance_red = 1.6
 white_balance_blue = 1.7
-calibration_file = "/home/rm/RMCV/build/result.xml"
+calibration_file = "./result.xml"
 
 [model]
 bin_file = "/home/rm/models/model-opt-int8.bin"
@@ -22,5 +29,9 @@ xml_file = "/home/rm/models/model-opt-int8.xml"
 port = "/dev/ttyUSB0"
 baud_rate = 115200
 
+[vofa]
+ip = "192.168.137.1"
+port = 1347
+
 [debug]
-enable_window = true
+enable_window = false

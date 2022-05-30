@@ -25,6 +25,6 @@ namespace rmcv::communicate
         if (res <= 0)
             recv_buffer_.clear();
         else
-            recv_buffer_.erase(recv_buffer_.begin(), recv_buffer_.begin()+res);
+            recv_buffer_.erase(recv_buffer_.begin(), recv_buffer_.begin() + res);
     }
 }

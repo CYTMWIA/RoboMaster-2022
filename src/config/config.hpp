@@ -21,7 +21,8 @@ namespace rmcv::config
 
         struct Communicate
         {
-            bool enable; // 是否启用通信线程
+            bool enable;        // 是否启用通信线程
+            std::string target; // 通信目标 可选：serial, vofa
         } communicate;
 
         // 对象参数
@@ -59,6 +60,12 @@ namespace rmcv::config
             std::string port;  // 串口接口
             int32_t baud_rate; // 波特率
         } serial;
+
+        struct Vofa // VOFA+
+        {
+            std::string ip; // IP
+            int32_t port;   // 端口
+        } vofa;
 
         // 其他参数
 

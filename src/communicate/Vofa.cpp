@@ -17,7 +17,7 @@ namespace rmcv::communicate
         vofa_endpoint_ = ip::udp::endpoint(ip::address::from_string(vofa_ip), vofa_port);
     }
 
-    void Vofa::rawdata(std::vector<uint8_t> data)
+    void Vofa::rawdata(const std::vector<uint8_t>& data)
     {
         using namespace boost::asio;
         udp_socket_.send_to(buffer(data), vofa_endpoint_);

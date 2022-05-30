@@ -22,16 +22,6 @@ using namespace predict;
 
 int main(int, char **)
 {
-    Vofa vofa("192.168.137.1", 1347);
-
-    std::vector<double> a = {1,2,3,4};
-    while (true)
-    {
-        vofa.justfloat(a);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-    
-
     Config cfg;
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
@@ -66,7 +56,7 @@ int main(int, char **)
     // 观测过程协方差
     ekf.R(0, 0) = 1;   // pitch
     ekf.R(1, 1) = 1;   // yaw
-    ekf.R(2, 2) = 500; // distance
+    ekf.R(2, 2) = 300; // distance
 
     /**********************************
      * 计算 相关
@@ -99,15 +89,14 @@ int main(int, char **)
         if (!detections.empty())
         {
             auto target = detections[0];
-            __LOG_DEBUG("{:.1f} {:.1f}, {:.1f} {:.1f}, {:.1f} {:.1f}, {:.1f} {:.1f}", target.pts[0].x, target.pts[0].y, target.pts[1].x, target.pts[1].y, target.pts[2].x, target.pts[2].y, target.pts[3].x, target.pts[3].y);
+            // __LOG_DEBUG("{:.1f} {:.1f}, {:.1f} {:.1f}, {:.1f} {:.1f}, {:.1f} {:.1f}", target.pts[0].x, target.pts[0].y, target.pts[1].x, target.pts[1].y, target.pts[2].x, target.pts[2].y, target.pts[3].x, target.pts[3].y);
 
             auto pnp_result = pnp.solve(kSmallArmor, target.pts);
-            // __LOG_DEBUG("PnP X {}, Y {}, Z {}", pnp_result.x, pnp_result.y, pnp_result.z);
-            __LOG_DEBUG("PnP P {}, Y {}, D {}", pnp_result.pitch, pnp_result.yaw, pnp_result.distance);
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)pnp_result.pitch, (float)pnp_result.yaw, (float)pnp_result.distance});
 
             if (!ekf_init)
             {
-                // __LOG_DEBUG("EKF Init");
+                __LOG_DEBUG("EKF Init");
                 Eigen::Matrix<double, 6, 1> Xr;
                 Xr << pnp_result.x, 0, pnp_result.y, 0, pnp_result.z, 0;
                 ekf.init(Xr);
@@ -118,10 +107,11 @@ int main(int, char **)
             Eigen::Matrix<double, 3, 1> Yr;
             Yr << pnp_result.pitch, pnp_result.yaw, pnp_result.distance;
             ekf.update(measure, Yr);
-            // __LOG_DEBUG("EKF X {}, Y {}, Z {}", ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]);
+            auto xd = sqrt(ekf.Xe[0]*ekf.Xe[0]+ekf.Xe[2]*ekf.Xe[2]+ekf.Xe[4]*ekf.Xe[4]);
+            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)ekf.Xe[0], (float)ekf.Xe[2], (float)ekf.Xe[4], (float)xd, (float)pnp_result.distance});
 
-            // auto aim_result = aimer.aim_static({ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]}, robot_status.pitch / 180.0 * M_PI);
-            auto aim_result = aimer.aim_static({pnp_result.x, pnp_result.y, pnp_result.z}, robot_status.pitch / 180.0 * M_PI);
+            auto aim_result = aimer.aim_static({ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]}, robot_status.pitch / 180.0 * M_PI);
+            // auto aim_result = aimer.aim_static({pnp_result.x, pnp_result.y, pnp_result.z}, robot_status.pitch / 180.0 * M_PI);
 
             cmd2ec.pitch = aim_result.pitch / M_PI * 180.0;
             cmd2ec.yaw = aim_result.yaw / M_PI * 180.0;
@@ -131,7 +121,7 @@ int main(int, char **)
             ekf_init = false;
             cmd2ec.pitch = cmd2ec.yaw = 0;
         }
-
+        
         RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
         if (!cfg.debug.enable_window)
