@@ -1,0 +1,12 @@
+[submodule "toml11"]
+	path = config/toml11
+	url = https://github.com/ToruNiina/toml11.git
+[submodule "thread_communicate/serial"]
+	path = thread_communicate/serial
+	url = https://github.com/wjwwood/serial.git
+[submodule "3rdparty/toml11"]
+	path = 3rdparty/toml11
+	url = git@github.com:ToruNiina/toml11.git
+[submodule "3rdparty/serial"]
+	path = 3rdparty/serial
+	url = git@github.com:wjwwood/serial.git
