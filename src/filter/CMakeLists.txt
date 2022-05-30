@@ -7,19 +7,20 @@ endif()
 find_package(Eigen3 REQUIRED)
 find_package(Ceres 2 REQUIRED)
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME})
 
 target_include_directories( ${PROJECT_NAME}
-    INTERFACE
+    PUBLIC
         ${CERES_INCLUDE_DIRS}
         ${EIGEN3_INCLUDE_DIR}
 )
 
-# target_sources( ${PROJECT_NAME}
-
-# )
+target_sources( ${PROJECT_NAME}
+    PRIVATE
+        spec/UlmXyzKf.cpp
+)
 
 target_link_libraries( ${PROJECT_NAME}
-    INTERFACE
+    PUBLIC
         ${CERES_LIBRARIES}
 )

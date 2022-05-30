@@ -7,4 +7,6 @@
 #include "KalmanFilter.hpp"
 #include "AdaptiveEKF.hpp"
 
+#include "spec/UlmXyzKf.hpp"
+
 #endif // __FILTER_FILTER_HPP__

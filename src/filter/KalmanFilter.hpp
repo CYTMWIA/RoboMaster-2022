@@ -9,14 +9,14 @@ namespace rmcv::filter
     template <int N_X, int N_Y>
     class KalmanFilter
     {
+    public:
         using MatrixXX = Eigen::Matrix<double, N_X, N_X>;
         using MatrixYX = Eigen::Matrix<double, N_Y, N_X>;
         using MatrixXY = Eigen::Matrix<double, N_X, N_Y>;
         using MatrixYY = Eigen::Matrix<double, N_Y, N_Y>;
         using VectorX = Eigen::Matrix<double, N_X, 1>;
         using VectorY = Eigen::Matrix<double, N_Y, 1>;
-
-    public:
+    
         VectorX X;
         MatrixXX F;
         MatrixXX P;
