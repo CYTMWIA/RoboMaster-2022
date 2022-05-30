@@ -7,7 +7,7 @@
 
 namespace rmcv::detect
 {
-    struct LightBar
+    struct RRect
     {
         /*
          * width始终为长边，angle始终为长边从 向正右方射线 沿逆时针转动的角度即[0, 180)
@@ -16,7 +16,7 @@ namespace rmcv::detect
         float width, height, rad;
     };
 
-    LightBar minAreaRect(cv::InputArray points);
+    RRect min_area_rect(cv::InputArray points);
 
    void fix_boundingbox(BoundingBox &bbox, const cv::Mat &img);
 }

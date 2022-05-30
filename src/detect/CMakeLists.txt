@@ -11,7 +11,7 @@ find_package(OpenCV 4 REQUIRED)
 find_package(fmt REQUIRED)
 
 add_subdirectory(../logging logging_binary_dir)
-
+add_subdirectory(../threading threading_dir) # Debug
 
 add_library(${PROJECT_NAME})
 
@@ -36,6 +36,7 @@ target_sources( ${PROJECT_NAME}
 target_link_libraries( ${PROJECT_NAME}
     PRIVATE
         logging
+        threading
         fmt::fmt
 )
 
