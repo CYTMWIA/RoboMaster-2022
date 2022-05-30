@@ -86,7 +86,7 @@ namespace rmcv::work_thread
                 // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {ptarget->pts[0].x, ptarget->pts[0].y, ptarget->pts[1].x, ptarget->pts[1].y, ptarget->pts[2].x, ptarget->pts[2].y, ptarget->pts[3].x, ptarget->pts[3].y});
 
                 // PNP
-                auto pos = pnp_solver_.solve(kSmallArmor, ptarget->pts);
+                auto pos = pnp_solver_.solve(ARMOR_SMALL, ptarget->pts);
                 // __LOG_DEBUG("{:.2f}, {:.2f}, {:.2f}", pos.x, pos.y, pos.z);
 
                 if (new_target_flag)

@@ -9,30 +9,8 @@ namespace rmcv::predict
 {
     enum ArmorType
     {
-        kSmallArmor = 0,
-        kBigArmor
-    };
-
-    // 装甲板尺寸
-    const double kSmallArmorWidth = 135;
-    const double kSmallArmorHeight = 55;
-    const double kBigArmorWidth = 270;
-    const double kBigArmorHeight = 55;
-
-    using ObjectPoints = std::vector<cv::Point3f>;
-    const std::vector<ObjectPoints> kArmorPoints = {
-        {
-            cv::Point3f(-kSmallArmorWidth/2, kSmallArmorHeight/2, 0),
-            cv::Point3f(-kSmallArmorWidth/2, -kSmallArmorHeight/2, 0),
-            cv::Point3f(kSmallArmorWidth/2, -kSmallArmorHeight/2, 0),
-            cv::Point3f(kSmallArmorWidth/2, kSmallArmorHeight/2, 0)
-        },
-        {
-            cv::Point3f(-kBigArmorWidth/2, kBigArmorHeight/2, 0),
-            cv::Point3f(-kBigArmorWidth/2, -kBigArmorHeight/2, 0),
-            cv::Point3f(kBigArmorWidth/2, -kBigArmorHeight/2, 0),
-            cv::Point3f(kBigArmorWidth/2, kBigArmorHeight/2, 0)
-        }
+        ARMOR_SMALL = 0,
+        ARMOR_BIG
     };
 
     struct TargetPosition

@@ -1,7 +1,24 @@
 #include "PnpSolver.hpp"
 
+#include "rm_data.hpp"
+
 namespace rmcv::predict
 {
+    const std::vector< std::vector<cv::Point3f> > ARMOR_POINTS = {
+        {
+            cv::Point3f(-rm_data::ARMOR_SMALL_WIDTH/2, rm_data::LIGHTBAR_HEIGHT/2, 0),
+            cv::Point3f(-rm_data::ARMOR_SMALL_WIDTH/2, -rm_data::LIGHTBAR_HEIGHT/2, 0),
+            cv::Point3f(rm_data::ARMOR_SMALL_WIDTH/2, -rm_data::LIGHTBAR_HEIGHT/2, 0),
+            cv::Point3f(rm_data::ARMOR_SMALL_WIDTH/2, rm_data::LIGHTBAR_HEIGHT/2, 0)
+        },
+        {
+            cv::Point3f(-rm_data::ARMOR_BIG_WIDTH/2, rm_data::LIGHTBAR_HEIGHT/2, 0),
+            cv::Point3f(-rm_data::ARMOR_BIG_WIDTH/2, -rm_data::LIGHTBAR_HEIGHT/2, 0),
+            cv::Point3f(rm_data::ARMOR_BIG_WIDTH/2, -rm_data::LIGHTBAR_HEIGHT/2, 0),
+            cv::Point3f(rm_data::ARMOR_BIG_WIDTH/2, rm_data::LIGHTBAR_HEIGHT/2, 0)
+        }
+    };
+
     PnpSolver::PnpSolver(cv::Mat camera_matrix, cv::Mat distortion_coefficients) : camera_matrix_(camera_matrix),
                                                                                    distortion_coefficients_(distortion_coefficients)
     {
@@ -24,7 +41,7 @@ namespace rmcv::predict
          * 即OpenCV坐标系始终为：y为高度轴，xOz为地面平面（z为俯视状态下的纵轴）
          * （x、y、z分别为tvec第1、2、3个数）
          */
-        cv::solvePnP(kArmorPoints[armor_type], points, camera_matrix_, distortion_coefficients_, rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
+        cv::solvePnP(ARMOR_POINTS[armor_type], points, camera_matrix_, distortion_coefficients_, rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
 
         TargetPosition res;
 
