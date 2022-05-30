@@ -8,6 +8,8 @@
 #include "util/util.hpp"
 #include "filter/filter.hpp"
 
+#include "rm_data.hpp"
+
 namespace rmcv::work_thread
 {
     StrategyThread::StrategyThread(const rmcv::config::Config &cfg) : pnp_solver_(cfg.camera.calibration_file)
@@ -33,6 +35,7 @@ namespace rmcv::work_thread
         using namespace predict;
         using namespace util;
         using namespace filter;
+        using namespace rm_data;
 
         // 初始化
 
@@ -50,15 +53,15 @@ namespace rmcv::work_thread
             auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result");
             auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true); // 允许旧数据
 
-            aimer.bullet_speed(robot_status.bullet_speed * 1000);
-            // aimer.bullet_speed(16.2 * 1000);
+            // aimer.bullet_speed(robot_status.bullet_speed * 1000);
+            aimer.bullet_speed(16);
 
             /*
              * 选择目标
              */
             std::unique_ptr<BoundingBox> ptarget = nullptr;
             bool new_target_flag = false; // 是否为新目标
-            bool lost_target_flag = false; // 是否失去目标
+            bool using_kf_predict = false; // 使用卡尔曼预测值代替目标
             // TODO 忽略己方装甲板
             int idx = -1; double cmp = -INFINITY;
             // 上次瞄准的装甲板
@@ -83,6 +86,7 @@ namespace rmcv::work_thread
                 if (std::chrono::steady_clock::now()-lats_found_time<std::chrono::milliseconds(250))
                 {
                     kf_.predict();
+                    using_kf_predict = true;
                 }
                 else
                 {
@@ -123,11 +127,7 @@ namespace rmcv::work_thread
                         }
                     }
 
-                    if (idx < 0)
-                    {
-                        lost_target_flag = 1;
-                    }
-                    else
+                    if (idx >= 0)
                     {
                         new_target_flag = 1;
                     }
@@ -163,35 +163,39 @@ namespace rmcv::work_thread
             }
 
             CmdToEc cmd2ec = { 0, 0 };
-            if (!lost_target_flag)
+            if (ptarget!=nullptr || using_kf_predict)
             {
-                auto ppos = kf_.predict_without_save(0.1);
-                RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
-                // 俯仰角计算（结果为弧度）
-                auto aim = aimer.aim_static({ppos[0], ppos[2], ppos[4]}, robot_status.pitch / 180.0 * M_PI);
+                // 预测，注意：俯仰角计算结果为弧度
+                AimResult aim, last_aim;
+                double t_ms = 0, last_diff = INFINITY;
+                while (true)
+                {
+                    auto ppos = kf_.predict_without_save(t_ms/1000.0);
+                    aim = aimer({ppos[0], ppos[2], ppos[4]}, robot_status.pitch / 180.0 * M_PI);
+                    
+                    if (!aim.ok) break;
+                    
+                    auto diff = std::abs(aim.flying_time-t_ms);
+                    // __LOG_DEBUG("{}", aim.flying_time);
+                    if (diff < 0.1 || t_ms > aim.flying_time) break;
+                    t_ms += diff*0.5;
+                }
+
                 // 转为角度
-                cmd2ec.pitch = aim.pitch*(180.0/M_PI)*0.3;
-                cmd2ec.yaw = aim.yaw*(180.0/M_PI)*0.3;
-            }
-            else
-            {
-                RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {0, 0, 0});
+                cmd2ec.pitch = aim.pitch*(180.0/M_PI);//*0.3;
+                cmd2ec.yaw = aim.yaw*(180.0/M_PI);//*0.3;
             }
             
             /*
              * 发送信号
             */
-            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)cmd2ec.pitch, (float)cmd2ec.yaw});
+            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)cmd2ec.pitch, (float)cmd2ec.yaw});
             RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
             // 状态保存
             if (ptarget!=nullptr)
             {
                 plast_target = std::make_unique<BoundingBox>(*ptarget);
-            }
-            else if (lost_target_flag)
-            {
-                plast_target = nullptr;
             }
         }
     }

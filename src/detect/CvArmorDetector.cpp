@@ -92,28 +92,29 @@ namespace rmcv::detect
         for (int i=25;i<250;i++)
         {
 #define GRAD(x) (std::abs(gray_curve[(x)+1]-gray_curve[(x)-1])/2.0)
-            if (GRAD(i) < 0.1)
+            if (GRAD(i) < 0.05)
             {
                 int j = i+1;
-                while (GRAD(j) < 0.1) j++;
+                while (GRAD(j) < 0.05) j++;
                 thresh = (i+j)*0.3;
-                break;
+                if (j-i>64)
+                    break;
             }
 #undef GRAD
         }
         thresh = std::min(255, thresh);
 
-        // // 灰度直方图
-        // int32_t maxp = 0;
-        // for (int i=0;i<256;i++) if (gray_curve[i]>gray_curve[maxp]) maxp = i;
-        // maxp = gray_curve[maxp];
-        // for (int i=0;i<256;i++) gray_curve[i] = gray_curve[i]/maxp;
-        // // for (int i=0;i<256;i++) std::cout << stat[i] << std::endl;
-        // cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
-        // cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
-        // for (int i=0;i<256;i++)
-        //     cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600-gray_curve[i]*600), cv::Scalar(255));
-        // rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+        // 灰度直方图
+        int32_t maxp = 0;
+        for (int i=0;i<256;i++) if (gray_curve[i]>gray_curve[maxp]) maxp = i;
+        maxp = gray_curve[maxp];
+        for (int i=0;i<256;i++) gray_curve[i] = gray_curve[i]/maxp;
+        // for (int i=0;i<256;i++) std::cout << stat[i] << std::endl;
+        cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
+        cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
+        for (int i=0;i<256;i++)
+            cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600-gray_curve[i]*600), cv::Scalar(255));
+        rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
 
         cv::threshold(img_bin, img_bin, thresh, 255, cv::THRESH_BINARY);
         cv::morphologyEx(img_bin, img_bin, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(8, 4)));

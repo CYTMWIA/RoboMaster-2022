@@ -31,7 +31,7 @@ namespace rmcv::predict
         fs["distortion_coefficients"] >> distortion_coefficients_;
     }
 
-    TargetPosition PnpSolver::solve(ArmorType armor_type, const cv::Point2f pts[])
+    TargetPosition PnpSolver::solve(rm_data::ArmorType armor_type, const cv::Point2f pts[])
     {
         cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
         cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
