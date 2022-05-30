@@ -39,11 +39,6 @@ namespace rmcv
                 // output.yaw *= 0.8;
             }
 
-            // if (abs(output.pitch)>=15 || abs(output.yaw)>=15)
-            // {
-            //     output.pitch = output.yaw = 0;
-            // }
-
             // if (output.pitch!=0 && output.yaw!=0)
             //     __LOG_DEBUG("Sending Pitch {}, Yaw {}", output.pitch, output.yaw);
             serial.send(output);

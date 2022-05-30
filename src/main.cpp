@@ -116,17 +116,6 @@ int main(int, char **)
 
             cmd2ec.pitch = aim_result.pitch / M_PI * 180.0;
             cmd2ec.yaw = aim_result.yaw / M_PI * 180.0;
-
-            float x_center=0, y_center=0;
-            for (int i=0;i<4;i++)
-            {
-                x_center += target.pts[i].x;
-                y_center += target.pts[i].y;
-            }
-            x_center /= 4.0;
-            y_center /= 4.0;
-            cmd2ec.yaw = (img_x_center-x_center)*0.1;
-            cmd2ec.pitch = (img_y_center-y_center)*0.1;
         }
         else // 目标丢失
         {
@@ -134,28 +123,7 @@ int main(int, char **)
             cmd2ec.pitch = cmd2ec.yaw = 0;
         }
 
-        // __LOG_DEBUG("CmdToEe Pitch {}, Yaw {}", cmd2ec.pitch, cmd2ec.yaw);
-        // cmd2ec.pitch *= 0.0;
-        // cmd2ec.yaw *= 0.0;
 
-        pitch_history.push_back(cmd2ec.pitch);
-        yaw_history.push_back(cmd2ec.yaw);
-        if (pitch_history.size()>history_size) 
-        {
-            pitch_history.erase(pitch_history.begin());
-            yaw_history.erase(yaw_history.begin());
-        }
-        float pitch_sum=0, yaw_sum=0;
-        for (int i=0;i<pitch_history.size();i++)
-        {
-            pitch_sum += pitch_history[i];
-            yaw_sum += yaw_history[i];
-        }
-        cmd2ec.pitch = pitch_sum/pitch_history.size();
-        cmd2ec.yaw = yaw_sum/pitch_history.size();
-
-        cmd2ec.pitch = 1.0;
-        cmd2ec.yaw = 0.0;
         RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
 
