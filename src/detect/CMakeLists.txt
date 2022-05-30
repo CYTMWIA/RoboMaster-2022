@@ -22,6 +22,7 @@ target_include_directories( ${PROJECT_NAME}
 target_sources( ${PROJECT_NAME}
     PRIVATE
         model.cpp
+        cv_armor.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

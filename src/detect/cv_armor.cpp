@@ -1,9 +1,6 @@
-#include "threading.hpp"
-#include "detect.hpp"
-
 #include "cv_armor.hpp"
 
-namespace rmcv
+namespace rmcv::detect
 {
     LightBar minAreaRect(cv::InputArray points)
     {
@@ -55,15 +52,15 @@ namespace rmcv
 
         cv::cvtColor(roi, roi, cv::COLOR_BGR2GRAY);
         
-        cv::threshold(roi, roi, 200, 255, cv::THRESH_BINARY); // 阈值
+        cv::threshold(roi, roi, 0, 255, cv::THRESH_OTSU); // 阈值
 
         std::vector<std::vector<cv::Point>> contours;
         std::vector<cv::Vec4i> hierarchy; // unused
         cv::findContours(roi, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
         // 灯条匹配
-        std::vector<rmcv::LightBar> rrects;
-        for (const auto &con : contours) rrects.push_back(rmcv::minAreaRect(con));
+        std::vector<LightBar> rrects;
+        for (const auto &con : contours) rrects.push_back(detect::minAreaRect(con));
         std::sort(rrects.begin(), rrects.end(), // 按照中心x升序（从左到右）
                   [](auto& r1, auto& r2) { return r1.center.x < r2.center.x; });
         // std::cout << rrects.size() << std::endl;
@@ -100,15 +97,15 @@ namespace rmcv
             {
                 const auto& rr = rrects[pairs[0][i]];
                 float dx = rr.width / 2 * cos(rr.rad), dy = rr.width / 2 * sin(rr.rad);
-                res.pts[2*i   + i] = cv::Point2f(range_col.start + rr.center.x + dx, range_row.start + rr.center.y + dy);
-                res.pts[2*i+1 - i] = cv::Point2f(range_col.start + rr.center.x - dx, range_row.start + rr.center.y - dy);
+                res.pts[2*i   + i] = cv::Point2f(range_col.start + rr.center.x - dx, range_row.start + rr.center.y - dy);
+                res.pts[2*i+1 - i] = cv::Point2f(range_col.start + rr.center.x + dx, range_row.start + rr.center.y + dy);
             }
 
-        cv::line(ori_img, res.pts[0], res.pts[1], cv::Scalar{0, 0, 255}, 2);
-        cv::line(ori_img, res.pts[1], res.pts[2], cv::Scalar{0, 0, 255}, 2);
-        cv::line(ori_img, res.pts[2], res.pts[3], cv::Scalar{0, 0, 255}, 2);
-        cv::line(ori_img, res.pts[3], res.pts[0], cv::Scalar{0, 0, 255}, 2);
-        VariableCenter<cv::Mat>::set("debug_fb", roi);
+        // cv::line(ori_img, res.pts[0], res.pts[1], cv::Scalar{0, 0, 255}, 2);
+        // cv::line(ori_img, res.pts[1], res.pts[2], cv::Scalar{0, 0, 255}, 2);
+        // cv::line(ori_img, res.pts[2], res.pts[3], cv::Scalar{0, 0, 255}, 2);
+        // cv::line(ori_img, res.pts[3], res.pts[0], cv::Scalar{0, 0, 255}, 2);
+        // VariableCenter<cv::Mat>::set("debug_fb", roi);
         // // STRATEGY_DEBUG_IMAGE.set(ori_img);
 
         return res;

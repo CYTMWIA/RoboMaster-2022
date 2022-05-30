@@ -3,7 +3,9 @@
 
 #include <opencv2/opencv.hpp>
 
-namespace rmcv
+#include "boundingbox.hpp"
+
+namespace rmcv::detect
 {
     struct LightBar
     {
