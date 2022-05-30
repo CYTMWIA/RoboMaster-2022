@@ -8,8 +8,9 @@
 #include <ceres/jet.h>
 #include <Eigen/Dense>
 
-template<int N_X, int N_Y>
-class AdaptiveEKF {
+template <int N_X, int N_Y>
+class AdaptiveEKF
+{
     using MatrixXX = Eigen::Matrix<double, N_X, N_X>;
     using MatrixYX = Eigen::Matrix<double, N_Y, N_X>;
     using MatrixXY = Eigen::Matrix<double, N_X, N_Y>;
@@ -19,9 +20,10 @@ class AdaptiveEKF {
 
 public:
     explicit AdaptiveEKF(const VectorX &X0 = VectorX::Zero())
-            : Xe(X0), P(MatrixXX::Identity()), Q(MatrixXX::Identity()), R(MatrixYY::Identity()) {}
+        : Xe(X0), P(MatrixXX::Identity()), Q(MatrixXX::Identity()), R(MatrixYY::Identity()) {}
 
-    void init(const VectorX &X0 = VectorX::Zero()) {
+    void init(const VectorX &X0 = VectorX::Zero())
+    {
         Xe = X0;
         Xp = VectorX::Zero();
         F = MatrixXX::Zero();
@@ -31,23 +33,40 @@ public:
         Yp = VectorY::Zero();
     }
 
+    template <typename T>
+    void set_q_diag(std::vector<T> vec)
+    {
+        for (int i = 0; i < N_X; i++)
+            Q(i, i) = vec[i];
+    }
+
+    template <typename T>
+    void set_r_diag(std::vector<T> vec)
+    {
+        for (int i = 0; i < N_Y; i++)
+            R(i, i) = vec[i];
+    }
+
     /**
      * @brief 预测
-     * 
-     * @tparam Func 
+     *
+     * @tparam Func
      * @param func 代替了 状态转移矩阵，用于计算下一时刻状态向量
-     * @return VectorX 
+     * @return VectorX
      */
-    template<class Func>
-    VectorX predict(Func &&func) {
+    template <class Func>
+    VectorX predict(Func &&func)
+    {
         ceres::Jet<double, N_X> Xe_auto_jet[N_X];
-        for (int i = 0; i < N_X; i++) {
+        for (int i = 0; i < N_X; i++)
+        {
             Xe_auto_jet[i].a = Xe[i];
             Xe_auto_jet[i].v[i] = 1;
         }
         ceres::Jet<double, N_X> Xp_auto_jet[N_X];
         func(Xe_auto_jet, Xp_auto_jet);
-        for (int i = 0; i < N_X; i++) {
+        for (int i = 0; i < N_X; i++)
+        {
             Xp[i] = Xp_auto_jet[i].a;
             F.block(i, 0, 1, N_X) = Xp_auto_jet[i].v.transpose();
         }
@@ -57,22 +76,25 @@ public:
 
     /**
      * @brief 更新
-     * 
-     * @tparam Func 
+     *
+     * @tparam Func
      * @param func 代替了测量矩阵，将 状态向量 转为与 测量值 相同意义的矩阵
      * @param Y 测量向量
-     * @return VectorX 
+     * @return VectorX
      */
-    template<class Func>
-    VectorX update(Func &&func, const VectorY &Y) {
+    template <class Func>
+    VectorX update(Func &&func, const VectorY &Y)
+    {
         ceres::Jet<double, N_X> Xp_auto_jet[N_X];
-        for (int i = 0; i < N_X; i++) {
+        for (int i = 0; i < N_X; i++)
+        {
             Xp_auto_jet[i].a = Xp[i];
             Xp_auto_jet[i].v[i] = 1;
         }
         ceres::Jet<double, N_X> Yp_auto_jet[N_Y];
         func(Xp_auto_jet, Yp_auto_jet);
-        for (int i = 0; i < N_Y; i++) {
+        for (int i = 0; i < N_Y; i++)
+        {
             Yp[i] = Yp_auto_jet[i].a;
             H.block(i, 0, 1, N_X) = Yp_auto_jet[i].v.transpose();
         }
@@ -82,20 +104,20 @@ public:
         return Xe;
     }
 
-    void estimate() {
+    void estimate()
+    {
         /// TODO:
     }
 
-    VectorX Xe;     // 估计状态变量
-    VectorX Xp;     // 预测状态变量
-    MatrixXX F;     // 预测雅克比
-    MatrixYX H;     // 观测雅克比
-    MatrixXX P;     // 状态协方差
-    MatrixXX Q;     // 预测过程协方差
-    MatrixYY R;     // 观测过程协方差
-    MatrixXY K;     // 卡尔曼增益
-    VectorY Yp;     // 预测观测量
+    VectorX Xe; // 估计状态变量
+    VectorX Xp; // 预测状态变量
+    MatrixXX F; // 预测雅克比
+    MatrixYX H; // 观测雅克比
+    MatrixXX P; // 状态协方差
+    MatrixXX Q; // 预测过程协方差
+    MatrixYY R; // 观测过程协方差
+    MatrixXY K; // 卡尔曼增益
+    VectorY Yp; // 预测观测量
 };
-
 
 #endif /* _ADAPTIVE_EKF_HPP_ */

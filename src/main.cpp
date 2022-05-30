@@ -47,16 +47,9 @@ int main(int, char **)
     ulm::Measure measure;
 
     // 预测过程协方差
-    ekf.Q(0, 0) = 0.1;
-    ekf.Q(1, 1) = 100;
-    ekf.Q(2, 2) = 0.1;
-    ekf.Q(3, 3) = 100;
-    ekf.Q(4, 4) = 0.1;
-    ekf.Q(5, 5) = 100;
+    ekf.set_q_diag(cfg.ekf.q);
     // 观测过程协方差
-    ekf.R(0, 0) = 1;   // pitch
-    ekf.R(1, 1) = 1;   // yaw
-    ekf.R(2, 2) = 300; // distance
+    ekf.set_r_diag(cfg.ekf.r);
 
     /**********************************
      * 计算 相关

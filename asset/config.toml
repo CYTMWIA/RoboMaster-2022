@@ -13,8 +13,8 @@ path = ""
 
 [camera]
 id = 1
-# exposure_time = 9940.0 # 100FPS
-exposure_time = 20000.0 # calibration
+exposure_time = 9940.0 # 100FPS
+# exposure_time = 20000.0 # calibration
 
 gain = 16.0
 white_balance_red = 1.6
@@ -24,6 +24,10 @@ calibration_file = "./result.xml"
 [model]
 bin_file = "/home/rm/models/model-opt-int8.bin"
 xml_file = "/home/rm/models/model-opt-int8.xml"
+
+[ekf]
+q = [0.1, 100.0, 0.1, 100.0, 0.1, 100.0]
+r = [1.0, 1.0, 300.0]
 
 [serial]
 port = "/dev/ttyUSB0"

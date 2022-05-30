@@ -2,6 +2,7 @@
 #define __CONFIG_CONFIG_HPP__
 
 #include <string>
+#include <vector>
 
 #include <toml.hpp>
 
@@ -55,6 +56,12 @@ namespace rmcv::config
             std::string xml_file;  // xml 模型路径
         } model;
 
+        struct Ekf // 扩展卡尔曼
+        {
+            std::vector<double> q; // 预测过程协方差 对角线
+            std::vector<double> r; // 观测过程协方差 对角线
+        } ekf;
+
         struct Serial // 串口
         {
             std::string port;  // 串口接口
@@ -84,6 +91,14 @@ namespace rmcv::config
 
         template <typename T>
         T dot_find_or(std::string dotkeys, T fallback);
+
+        std::vector<std::string> split_string(const std::string str, const char split_char='.');
+
+        template <typename T>
+        void print_kv(std::string key, const T& value);
+
+        template <typename T>
+        void print_kv(std::string key, const std::vector<T>& vec);
     };
 }
 
