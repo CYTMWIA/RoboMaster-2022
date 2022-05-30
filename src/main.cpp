@@ -17,7 +17,7 @@
 #include "detect/cv_armor.hpp"
 #include "predict/AdaptiveEKF.hpp"
 #include "predict/UniformLinearMotion.hpp"
-#include "io/serial.hpp"
+#include "io/Serial.hpp"
 #include "predict/Aimer.hpp"
 
 // 使用OpenCV窗口调参
@@ -94,6 +94,9 @@ int main(int, char **)
     auto ps = predict::PnpSolver("/home/rm/RMCV/build/BuBinyTou.xml");
     const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
     auto last_time = std::chrono::steady_clock::now();
+    io::RobotStatus robot_status;
+    robot_status.bullet_speed=15;
+    robot_status.pitch = 0;
     while (true)
     {
         auto img = GlobalVariable<cv::Mat>::get("src_image");
@@ -103,10 +106,13 @@ int main(int, char **)
         if (detections.empty())
         {
             // __LOG_DEBUG("NOT THING");
-            cv::imshow("SHOW", img);
-            cv::waitKey(40);
+            // cv::imshow("SHOW", img);
+            // cv::waitKey(40);
             last_time = std::chrono::steady_clock::now();
             ekf_init = false;
+
+            io::CvStatus cs{0, 0};
+            ser.send(cs);
             continue;
         }
         // __LOG_DEBUG("SOME THING");
@@ -144,12 +150,18 @@ int main(int, char **)
         // __LOG_DEBUG("RAW {:.1f}, {:.1f}, {:.1f}", );
         // __LOG_DEBUG("R {:.1f}, {:.1f}, {:.1f} T {:.1f}, {:.1f}, {:.1f}; S {:.2f}, {:.2f}, {:.2f}", pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
         // __LOG_DEBUG("D {:.2f} | P {:.2f} | Y {:.2f} | R {:.2f}", pose.distance(), pose.theta_x, pose.theta_y, pose.theta_z);
-        
-        auto aimd = aimer.aim_static({pose.x, pose.y, pose.z});
+        ser.update(robot_status);
+        aimer.bullet_speed(robot_status.bullet_speed*1000);
+        auto aimd = aimer.aim_static({pose.x, pose.y, pose.z}, robot_status.pitch/180.0*M_PI);
         __LOG_DEBUG("dt {:.2f} AIM {}, {}", predict.delta_t, aimd.yaw*(180/M_PI), aimd.pitch*(180/M_PI));
-        ser.vofa_justfloat(pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
-        cv::imshow("SHOW", img);
-        cv::waitKey(40);
+        io::CvStatus cs{aimd.pitch*(180/M_PI)/2, aimd.yaw*(180/M_PI)/2};
+        // if (abs(cs.yaw)<1) cs.yaw=0;
+        // if(abs(cs.pitch)<2)cs.pitch=0;
+        ser.send(cs);
+        // ser.vofa_justfloat(pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
+        // cv::imshow("SHOW", img);
+        // cv::waitKey(40);
+
         last_time = std::chrono::steady_clock::now();
     }
     // __LOG_INFO("启动捕获线程...");

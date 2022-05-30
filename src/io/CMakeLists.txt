@@ -22,7 +22,8 @@ target_include_directories( ${PROJECT_NAME}
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        serial.cpp
+        Serial.cpp
+        Cmd.c
         ${serial_SOURCES}
 )
 

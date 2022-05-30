@@ -23,10 +23,10 @@ namespace rmcv::predict
     class Aimer
     {
     private:
-        float g_;                 // 重力加速度
-        float bullet_speed_ = 15; // 子弹初速度，单位：m/s
+        float g_;                    // 重力加速度，单位：mm/s^2
+        float bullet_speed_ = 15000; // 子弹初速度，单位：mm/s
     public:
-        Aimer(float g = 9.8);
+        Aimer(float g = 9800);
 
         void bullet_speed(float bs);
         float bullet_speed();

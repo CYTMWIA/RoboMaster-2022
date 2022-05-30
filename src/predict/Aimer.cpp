@@ -13,7 +13,7 @@ namespace rmcv::predict
 
     AimDeviation Aimer::aim_static(const Eigen::Matrix<double, 3, 1> &target_pos, float real_pitch)
     {
-        float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0);
+        float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0)+55;
 
         // Yaw 轴偏差
         float yaw = -atan(tx / ty);
@@ -27,20 +27,27 @@ namespace rmcv::predict
         float x = sqrt(hx * hx + hy * hy); // 与目标在x轴（横轴）的距离
         float y = hz;                      // 与目标在y轴（纵轴）的距离
 
-        float a = (-g_ * x * x) / (2 * bullet_speed_*1000 * y), b = x / y;
-        float d = sqrt(b * b - 4 * a * (a - 1));
-        if (d < 0) // 无解，放弃
-        {
-            __LOG_DEBUG("无解");
-            return AimDeviation(0, 0);
-        }
-        __LOG_DEBUG("{}, {}, {}, {}, {}", x, y, a, b, d);
-        // 选择接近零的结果（角度小）
-        float tan1 = (-b + d) / (2 * a);
-        float tan2 = (-b - d) / (2 * a);
-        float theta = atan((abs(tan1) < abs(tan2)) ? tan1 : tan2);
+        #define __YP(t) ((-g_*x*x)/(2*bullet_speed_*bullet_speed_*cos(t)*cos(t))+tan(t)*x)
 
-        float pitch = theta - real_pitch;
+        if (__YP(M_PI/4.0)<y) return AimDeviation(0, 0);
+
+        // 二分法
+        float lo = -M_PI/4.0, hi = M_PI/4.0, mid=0, last_mid=999;
+        while (abs(mid-last_mid) > 0.001)
+        {
+            float yp = __YP(mid);
+            
+            if (abs(yp-y)<1) break;
+
+            if (yp>y) hi = mid;
+            else lo = mid;
+
+            last_mid = mid;
+            mid = (lo+hi)/2.0;
+        }
+        float pitch = mid - real_pitch;
+
+        #undef __YP
 
         return AimDeviation(yaw, pitch);
     }

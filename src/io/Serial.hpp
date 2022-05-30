@@ -6,21 +6,20 @@
 
 #include "serial/serial.h"
 
+#include "Cmd.hpp"
+
 namespace rmcv::io
 {
     class Serial
     {
-        using Message = std::vector<uint8_t>;
-
     private:
         serial::Serial serial_;
-
+        std::vector<uint8_t> recv_buffer_;
     public:
         Serial(std::string dev = "/dev/ttyUSB0", uint32_t baud_rate = 115200);
 
-        void write(const Message &content);
-        bool has_message();
-        Message read();
+        void send(const CvStatus &status);
+        void update(RobotStatus& status);
 
         template <typename... Args>
         void vofa_justfloat(Args &&...nums)
