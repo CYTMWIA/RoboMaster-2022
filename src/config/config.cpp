@@ -83,7 +83,6 @@ namespace rmcv::config
         READ_CONFIG(capture.target, std::string, "camera");
 
         READ_CONFIG(communicate.enable, toml::boolean, 0);
-        READ_CONFIG(communicate.target, std::string, "serial");
 
         READ_CONFIG(video.path, std::string, "");
 
@@ -104,9 +103,11 @@ namespace rmcv::config
         READ_CONFIG(ekf.q, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
         READ_CONFIG(ekf.r, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
 
+        READ_CONFIG(serial.enable, toml::boolean, 0);
         READ_CONFIG(serial.port, std::string, "/dev/ttyUSB0");
         READ_CONFIG(serial.baud_rate, toml::integer, 115200);
 
+        READ_CONFIG(vofa.enable, toml::boolean, 0);
         READ_CONFIG(vofa.ip, std::string, "192.168.137.1");
         READ_CONFIG(vofa.port, toml::integer, 1347);
 

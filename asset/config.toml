@@ -3,7 +3,6 @@ target = "camera"
 
 [communicate]
 enable = true
-target = "serial"
 
 [video]
 path = ""
@@ -34,6 +33,7 @@ port = "/dev/ttyUSB0"
 baud_rate = 115200
 
 [vofa]
+enable = true
 ip = "192.168.137.1"
 port = 1347
 

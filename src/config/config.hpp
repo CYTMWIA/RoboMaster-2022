@@ -13,6 +13,7 @@ namespace rmcv::config
         // Pimpl: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ri-pimpl
         class Impl;
         std::unique_ptr<Impl> pimpl;
+
     public:
         // 模块参数
 
@@ -23,8 +24,8 @@ namespace rmcv::config
 
         struct Communicate
         {
-            bool enable;        // 是否启用通信线程
-            std::string target; // 通信目标 可选：serial, vofa
+            bool enable; // 是否启用通信线程
+            // std::string target; // 通信目标 可选：serial, vofa
         } communicate;
 
         // 对象参数
@@ -65,12 +66,14 @@ namespace rmcv::config
 
         struct Serial // 串口
         {
+            bool enable;       // 是否启用
             std::string port;  // 串口接口
             int32_t baud_rate; // 波特率
         } serial;
 
         struct Vofa // VOFA+
         {
+            bool enable;    // 是否启用
             std::string ip; // IP
             int32_t port;   // 端口
         } vofa;

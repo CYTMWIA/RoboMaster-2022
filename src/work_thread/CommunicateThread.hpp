@@ -24,11 +24,11 @@ namespace rmcv::work_thread
 
         int32_t freq_;
 
-        bool vofa_enable_=true;
+        bool vofa_enable_;
         std::string vofa_ip_;
         uint16_t vofa_port_;
 
-        bool serial_enable_=true;
+        bool serial_enable_;
         std::string serial_port_;
         uint32_t serial_baud_rate_;
 
