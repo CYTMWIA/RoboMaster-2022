@@ -28,12 +28,19 @@ int main(int, char **)
     /**********************************
      * 启动线程
      */
+    __LOG_INFO("启动捕获线程…");
     work_thread::CaptureThread capture{cfg};
-    work_thread::DetectThread detect{cfg};
-    work_thread::CommunicateThread communicate{cfg};
     capture.up();
+
+    __LOG_INFO("启动检测线程…");
+    work_thread::DetectThread detect{cfg};
     detect.up();
+
+    __LOG_INFO("启动通信线程…");
+    work_thread::CommunicateThread communicate{cfg};
     communicate.up();
+
+    __LOG_INFO("所有线程已启动");
 
     /**********************************
      * EKF 相关

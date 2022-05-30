@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "boundingbox.hpp"
+#include "BoundingBox.hpp"
 
 namespace rmcv::detect
 {

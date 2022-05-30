@@ -6,28 +6,37 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
+
 find_package(OpenCV 4 REQUIRED)
+find_package(fmt REQUIRED)
 
 add_subdirectory(../logging logging_binary_dir)
 
 
 add_library(${PROJECT_NAME})
 
-target_include_directories( ${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME}
     PRIVATE
-        ${OpenCV_INCLUDE_DIRS}
+        ${CMAKE_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}
+)
+
+target_include_directories( ${PROJECT_NAME}
+    SYSTEM PRIVATE
+        ${OpenCV_INCLUDE_DIRS}
+        ${fmt_INCLUDE_DIRS}
 )
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        model.cpp
+        Model.cpp
         cv_armor.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}
     PRIVATE
         logging
+        fmt::fmt
 )
 
 if(NOT DEFINED MODEL_RUNNER)
@@ -41,7 +50,7 @@ if(MODEL_RUNNER STREQUAL "tensorrt_sjtu")
         PUBLIC USE_TENSORRT_SJTU
     )
     target_include_directories( ${PROJECT_NAME}
-        PUBLIC ${TensorRT_INCLUDE_DIRS}
+        SYSTEM PUBLIC ${TensorRT_INCLUDE_DIRS}
     )
     target_sources( ${PROJECT_NAME}
         PRIVATE
@@ -62,7 +71,7 @@ elseif(MODEL_RUNNER STREQUAL "openvino_sjtu")
     )
     target_sources( ${PROJECT_NAME}
         PRIVATE
-            openvino_sjtu/vino_model.cpp
+            openvino_sjtu/VinoModel.cpp
     )
     target_link_libraries( ${PROJECT_NAME}
         PRIVATE

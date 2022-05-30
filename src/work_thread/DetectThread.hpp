@@ -20,7 +20,7 @@ namespace rmcv::work_thread
     private:
         std::thread thread_;
 
-        std::unique_ptr<rmcv::detect::Model> pmodel;
+        rmcv::detect::Model model_;
 
         void run();
     public:

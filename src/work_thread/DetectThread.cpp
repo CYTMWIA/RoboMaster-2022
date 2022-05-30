@@ -11,22 +11,15 @@
 
 namespace rmcv::work_thread
 {
-    DetectThread::DetectThread(const rmcv::config::Config &cfg)
+    DetectThread::DetectThread(const rmcv::config::Config &cfg) :
+#if USE_TENSORRT_SJTU
+                                                                  model_(cfg.model.onnx_file)
+#elif USE_OPENVINO_SJTU
+                                                                  model_(cfg.model.xml_file, cfg.model.bin_file)
+#else
+#pragma message "未指定 MODEL_RUNNER"
+#endif
     {
-        using namespace rmcv::detect;
-
-        if (cfg.model.onnx_file != "")
-        {
-            pmodel = std::make_unique<Model>(cfg.model.onnx_file);
-        }
-        else if (cfg.model.xml_file != "" && cfg.model.bin_file != "")
-        {
-            pmodel = std::make_unique<Model>(cfg.model.xml_file, cfg.model.bin_file);
-        }
-        else
-        {
-            __LOG_ERROR_AND_EXIT("未指定模型文件");
-        }
     }
 
     void DetectThread::run()
@@ -37,8 +30,8 @@ namespace rmcv::work_thread
         {
             RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
 
-            auto res = pmodel->operator()(RoslikeTopic<cv::Mat>::get("capture_image"));
-            RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
+            auto res = model_(RoslikeTopic<cv::Mat>::get("capture_image"));
+            RoslikeTopic<decltype(res)>::set("detect_result", res);
         }
     }
 

@@ -8,7 +8,7 @@
 #include <opencv2/core.hpp>
 #include <NvInfer.h>
 
-#include "../boundingbox.hpp"
+#include "../BoundingBox.hpp"
 
 using BoundingBox = rmcv::detect::BoundingBox;
 
