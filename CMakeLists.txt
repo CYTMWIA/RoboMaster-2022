@@ -33,9 +33,6 @@ target_include_directories( ${PROJECT_NAME}
 target_sources( ${PROJECT_NAME}
     PRIVATE
         src/main.cpp
-        src/capture.cpp
-        src/detect.cpp
-        src/communicate.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}
