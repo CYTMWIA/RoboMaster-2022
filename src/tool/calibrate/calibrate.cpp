@@ -12,6 +12,12 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "capture/capture.hpp"
+#include "config/config.hpp"
+#include "logging/logging.hpp"
+#include "threading/threading.hpp"
+#include "work_thread/CaptureThread.hpp"
+
 using namespace cv;
 using namespace std;
 
@@ -20,7 +26,7 @@ class Settings
 public:
     Settings() : goodInput(false) {}
     enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };
-    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };
+    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST, RM_CAMERA };
 
     void write(FileStorage& fs) const                        //Write serialization for this class
     {
@@ -93,10 +99,14 @@ public:
         }
 
         if (input.empty())      // Check for valid input
-                inputType = INVALID;
+            inputType = INVALID;
         else
         {
-            if (input[0] >= '0' && input[0] <= '9')
+            if (input=="RM_CAMERA")
+            {
+                inputType = RM_CAMERA;
+            }
+            else if (input[0] >= '0' && input[0] <= '9')
             {
                 stringstream ss(input);
                 ss >> cameraID;
@@ -116,12 +126,12 @@ public:
                 inputCapture.open(cameraID);
             if (inputType == VIDEO_FILE)
                 inputCapture.open(input);
-            if (inputType != IMAGE_LIST && !inputCapture.isOpened())
-                    inputType = INVALID;
+            if (inputType != IMAGE_LIST && inputType!=RM_CAMERA && !inputCapture.isOpened() )
+                inputType = INVALID;
         }
         if (inputType == INVALID)
         {
-            cerr << " Input does not exist: " << input;
+            cerr << "Input does not exist: " << input << endl;
             goodInput = false;
         }
 
@@ -159,6 +169,8 @@ public:
     }
     Mat nextImage()
     {
+        if (inputType==RM_CAMERA) return rmcv::threading::RoslikeTopic<cv::Mat>::get("capture_image");
+
         Mat result;
         if( inputCapture.isOpened() )
         {
@@ -309,6 +321,16 @@ int main(int argc, char* argv[])
     const Scalar RED(0,0,255), GREEN(0,255,0);
     const char ESC_KEY = 27;
 
+    unique_ptr<rmcv::work_thread::CaptureThread> pcap;
+    if (s.inputType==Settings::RM_CAMERA)
+    {
+        rmcv::config::Config cfg;
+        __LOG_INFO("读取配置文件");
+        cfg.read("config.toml");
+        pcap = make_unique<rmcv::work_thread::CaptureThread>(cfg);
+        pcap->up();
+    }
+
     //! [get_input]
     for(;;)
     {
@@ -439,7 +461,7 @@ int main(int argc, char* argv[])
         if( key == 'u' && mode == CALIBRATED )
            s.showUndistorted = !s.showUndistorted;
 
-        if( s.inputCapture.isOpened() && key == 'g' )
+        if( (s.inputCapture.isOpened() || s.inputType==Settings::RM_CAMERA) && key == 'g' )
         {
             mode = CAPTURING;
             imagePoints.clear();
