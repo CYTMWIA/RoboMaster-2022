@@ -46,10 +46,10 @@ namespace rmcv::detect
     int32_t CvArmorDetector::match_armor_icon(const cv::Mat &img, const BoundingBox &armor_bbox, const double &thresh)
     {
         cv::Point2f icon_vertexs_dst[4];
-        icon_vertexs_dst[0] = cv::Point2f(0 - 15, 0);
-        icon_vertexs_dst[1] = cv::Point2f(0 - 15, 50);
-        icon_vertexs_dst[2] = cv::Point2f(100 + 15, 50);
-        icon_vertexs_dst[3] = cv::Point2f(100 + 15, 0);
+        icon_vertexs_dst[0] = cv::Point2f(0 - 30, 0);
+        icon_vertexs_dst[1] = cv::Point2f(0 - 30, 50);
+        icon_vertexs_dst[2] = cv::Point2f(100 + 30, 50);
+        icon_vertexs_dst[3] = cv::Point2f(100 + 30, 0);
 
         cv::Mat icon;
         cv::Mat m = cv::getPerspectiveTransform(armor_bbox.pts, icon_vertexs_dst);
@@ -82,43 +82,46 @@ namespace rmcv::detect
         // double scale = 1;
         // src.copyTo(img);
 
-        cv::Mat img_thr;// = awakenlion_threshold(img, 0.3, 0.7);
-        cv::cvtColor(img, img_thr, cv::COLOR_BGR2GRAY);
+        cv::Mat img_bin;// = awakenlion_threshold(img, 0.3, 0.7);
+        cv::cvtColor(img, img_bin, cv::COLOR_BGR2GRAY);
         
-        double gray_count[256], prefix_sum[256];
-        for (int i=0;i<256;i++) gray_count[i] = 0;
-        for (int i=0;i<img_thr.rows;i++)
-            for (int j=0;j<img_thr.cols;j++)
-                gray_count[*(img_thr.data+i*img_thr.cols+j)]+=1;
-        prefix_sum[0] = gray_count[0];
-        for (int i=1;i<256;i++) prefix_sum[i] = prefix_sum[i-1]+gray_count[i];
-        int32_t thresh=255;
-        for (int i=10;i<255;i++) if (gray_count[i]/(img_thr.rows*img_thr.cols)<0.001)
+        double gray_curve[256];
+        calc_gray_hist(img_bin, gray_curve);
+        for (int i=0;i<256;i++) gray_curve[i] = (gray_curve[i]*100)/(img_bin.cols*img_bin.rows);
+        int thresh = 127;
+        for (int i=25;i<250;i++)
         {
-            thresh = i;
-            break;
+#define GRAD(x) (std::abs(gray_curve[(x)+1]-gray_curve[(x)-1])/2.0)
+            if (GRAD(i) < 0.1)
+            {
+                int j = i+1;
+                while (GRAD(j) < 0.1) j++;
+                thresh = (i+j)*0.3;
+                break;
+            }
+#undef GRAD
         }
-        thresh = std::min(255, thresh+25);
-        // std::cout << thresh << std::endl;
-        int32_t maxp = 0;
-        for (int i=0;i<256;i++) if (gray_count[i]>gray_count[maxp]) maxp = i;
-        maxp = gray_count[maxp];
-        for (int i=0;i<256;i++) gray_count[i] = gray_count[i]/maxp;
-        // for (int i=0;i<256;i++) std::cout << stat[i] << std::endl;
-        cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
-        cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
-        for (int i=0;i<256;i++)
-            cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600-gray_count[i]*600), cv::Scalar(255));
-        
-        rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+        thresh = std::min(255, thresh);
 
-        cv::threshold(img_thr, img_thr, thresh, 255, cv::THRESH_BINARY);
-        cv::morphologyEx(img_thr, img_thr, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(8, 4)));
+        // // 灰度直方图
+        // int32_t maxp = 0;
+        // for (int i=0;i<256;i++) if (gray_curve[i]>gray_curve[maxp]) maxp = i;
+        // maxp = gray_curve[maxp];
+        // for (int i=0;i<256;i++) gray_curve[i] = gray_curve[i]/maxp;
+        // // for (int i=0;i<256;i++) std::cout << stat[i] << std::endl;
+        // cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
+        // cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
+        // for (int i=0;i<256;i++)
+        //     cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600-gray_curve[i]*600), cv::Scalar(255));
+        // rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+
+        cv::threshold(img_bin, img_bin, thresh, 255, cv::THRESH_BINARY);
+        cv::morphologyEx(img_bin, img_bin, cv::MORPH_CLOSE, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(8, 4)));
         // cv::morphologyEx(img_thr, img_thr, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2)));
 
-        rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img_thr);
+        rmcv::threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img_bin);
 
-        std::vector<std::vector<cv::Point>> contours = find_external_contours(img_thr);
+        std::vector<std::vector<cv::Point>> contours = find_external_contours(img_bin);
 
         std::vector<RRect> rrects;
         std::vector<LightbarMatchResult> pairs;
@@ -144,8 +147,8 @@ namespace rmcv::detect
             const RRect &left = rrects[pair.left_idx];
             const RRect &right = rrects[pair.right_idx];
 
-            auto armor_left = left; armor_left.width *= 3;
-            auto armor_right = right; armor_right.width *= 3;
+            auto armor_left = left; armor_left.width *= 2.36;
+            auto armor_right = right; armor_right.width *= 2.36;
             int32_t robot_id = match_armor_icon(img, make_boundingbox(armor_left, armor_right), 0.75);
             if (robot_id == -1) continue;
 

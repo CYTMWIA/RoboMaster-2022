@@ -35,6 +35,15 @@ namespace rmcv::detect
 
     BoundingBox make_boundingbox(const RRect &rrect);
 
+    template<typename T>
+    void calc_gray_hist(const cv::Mat &src, T* res)
+    {
+        for (int i=0;i<256;i++) res[i] = 0;
+        for (int i=0;i<src.rows;i++)
+            for (int j=0;j<src.cols;j++)
+                res[*(src.data+i*src.cols+j)] += 1;
+    }
+
     inline double distance(cv::Point2f p1, cv::Point2f p2)
     {
         return abs(cv::norm(p1 - p2));
