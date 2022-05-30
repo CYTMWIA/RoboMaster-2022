@@ -28,9 +28,10 @@ namespace rmcv::predict
         cv::solvePnP(kArmorPoints[armor_type], points, camera_matrix_, distortion_coefficients_, rvec, tvec, false, cv::SOLVEPNP_P3P);
 
         CameraPose cp;
-        cp.x = tvec.at<double>(0, 0);
-        cp.y = tvec.at<double>(1, 0);
-        cp.z = tvec.at<double>(2, 0);
+        // 将相机作为零点
+        cp.x = -tvec.at<double>(0, 0);
+        cp.y = -tvec.at<double>(1, 0);
+        cp.z = -tvec.at<double>(2, 0);
         
         /*******************提取旋转矩阵*********************/
 	    /*

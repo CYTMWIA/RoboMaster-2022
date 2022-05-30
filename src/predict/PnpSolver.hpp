@@ -22,16 +22,16 @@ namespace rmcv::predict
     using ObjectPoints = std::vector<cv::Point3f>;
     const std::vector<ObjectPoints> kArmorPoints = {
         {
-            cv::Point3f(-kSmallArmorWidth/2, kSmallArmorHeight/2, 0),
-            cv::Point3f(-kSmallArmorWidth/2, -kSmallArmorHeight/2, 0),
-            cv::Point3f(kSmallArmorWidth/2, -kSmallArmorHeight/2, 0),
-            cv::Point3f(kSmallArmorWidth/2, kSmallArmorHeight/2, 0)
+            cv::Point3f(-kSmallArmorWidth/2, 0, kSmallArmorHeight/2),
+            cv::Point3f(-kSmallArmorWidth/2, 0, -kSmallArmorHeight/2),
+            cv::Point3f(kSmallArmorWidth/2, 0, -kSmallArmorHeight/2),
+            cv::Point3f(kSmallArmorWidth/2, 0, kSmallArmorHeight/2)
         },
         {
-            cv::Point3f(-kBigArmorWidth/2, kBigArmorHeight/2, 0),
-            cv::Point3f(-kBigArmorWidth/2, -kBigArmorHeight/2, 0),
-            cv::Point3f(kBigArmorWidth/2, -kBigArmorHeight/2, 0),
-            cv::Point3f(kBigArmorWidth/2, kBigArmorHeight/2, 0)
+            cv::Point3f(-kBigArmorWidth/2, 0, kBigArmorHeight/2),
+            cv::Point3f(-kBigArmorWidth/2, 0, -kBigArmorHeight/2),
+            cv::Point3f(kBigArmorWidth/2, 0, -kBigArmorHeight/2),
+            cv::Point3f(kBigArmorWidth/2, 0, kBigArmorHeight/2)
         }
     };
 
