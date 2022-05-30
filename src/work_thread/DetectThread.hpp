@@ -1,6 +1,10 @@
 #ifndef __WORK_THREAD_DETECTTHREAD_HPP__
 #define __WORK_THREAD_DETECTTHREAD_HPP__
 
+/*
+ * 目标检测结果名称为 "detect_result"
+ */
+
 #include "BaseThread.hpp"
 
 #include "config/config.hpp"

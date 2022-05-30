@@ -1,6 +1,12 @@
 #ifndef __WORK_THREAD_COMMUNICATETHREAD_HPP__
 #define __WORK_THREAD_COMMUNICATETHREAD_HPP__
 
+/*
+ * 视觉接收到的信息名为 "robot_status" 类型为 RobotStatus
+ * 发送给电控的信息名为 "cmd_to_ec"    类型为 CmdToEc
+ * （调试用）发送给 vofa 的信息名为 "vofa_justfloat" 类型为 std::vector<float>
+ */
+
 #include "BaseThread.hpp"
 
 #include "config/config.hpp"

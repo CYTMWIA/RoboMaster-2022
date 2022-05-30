@@ -5,13 +5,10 @@
 #include "config/config.hpp"
 #include "logging/logging.hpp"
 #include "threading/threading.hpp"
-#include "detect/boundingbox.hpp"
+#include "detect/detect.hpp"
 #include "predict/predict.hpp"
 #include "communicate/communicate.hpp"
-
-#include "capture.hpp"
-#include "detect.hpp"
-#include "communicate.hpp"
+#include "work_thread/work_thread.hpp"
 
 using namespace rmcv;
 using namespace config;
@@ -29,12 +26,12 @@ int main(int, char **)
     /**********************************
      * 启动线程
      */
-    std::vector<std::thread> thread_pool;
-
-    thread_pool.push_back(std::thread(thread_capture, std::ref(cfg)));
-    thread_pool.push_back(std::thread(thread_detect, std::ref(cfg)));
-    if (cfg.communicate.enable)
-        thread_pool.push_back(std::thread(thread_communicate, std::ref(cfg)));
+    work_thread::CaptureThread capture{cfg};
+    work_thread::DetectThread detect{cfg};
+    work_thread::CommunicateThread communicate{cfg};
+    capture.up();
+    detect.up();
+    communicate.up();
 
     /**********************************
      * EKF 相关

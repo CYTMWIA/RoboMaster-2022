@@ -1,6 +1,10 @@
 #ifndef __WORK_THREAD_CAPTURETHREAD_HPP__
 #define __WORK_THREAD_CAPTURETHREAD_HPP__
 
+/*
+ * 捕获到的图像名称为 "capture_image"
+ */
+
 #include "BaseThread.hpp"
 
 #include "config/config.hpp"
