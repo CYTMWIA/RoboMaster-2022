@@ -12,7 +12,6 @@ add_library(${PROJECT_NAME})
 target_include_directories( ${PROJECT_NAME}
     PUBLIC
         ${CERES_INCLUDE_DIRS}
-        ${EIGEN3_INCLUDE_DIR}
 )
 
 target_sources( ${PROJECT_NAME}
@@ -23,4 +22,5 @@ target_sources( ${PROJECT_NAME}
 target_link_libraries( ${PROJECT_NAME}
     PUBLIC
         ${CERES_LIBRARIES}
+        Eigen3::Eigen
 )

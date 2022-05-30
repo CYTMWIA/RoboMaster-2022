@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace rmcv::util
+namespace rmcv::filter
 {
     template<int N_X, int N_HISTORY>
     class MovingAverageFilter

@@ -10,9 +10,9 @@
 #include <vector>
 #include <string>
 
-#if MODEL_RUNNER_TENSORRT_SJTU
+#if ARMOR_MODEL_TENSORRT_SJTU
 #include "tensorrt_sjtu/TRTModule.hpp"
-#elif MODEL_RUNNER_OPENVINO
+#elif ARMOR_MODEL_OPENVINO
 #include "openvino/VinoModel.hpp"
 #endif
 
@@ -21,11 +21,11 @@ namespace rmcv::detect
     class NnArmorDetector
     {
     private:
-#if MODEL_RUNNER_TENSORRT_SJTU
+#if ARMOR_MODEL_TENSORRT_SJTU
         TRTModule model_;
-#elif MODEL_RUNNER_OPENVINO
+#elif ARMOR_MODEL_OPENVINO
         VinoModel model_;
-#elif MODEL_RUNNER_NONE
+#elif ARMOR_MODEL_NONE
         class NoneModel
         {
         public:
@@ -35,7 +35,7 @@ namespace rmcv::detect
             std::vector<BoundingBox> operator()(T img) { return std::vector<BoundingBox>(); };
         } model_;
 #else
-#pragma message "未指定 MODEL_RUNNER"
+#pragma message "未指定 ARMOR_MODEL"
 #endif
 
         LkOpticalFlowTracker tracker_;

@@ -4,8 +4,6 @@ if (TARGET ${PROJECT_NAME})
     return()
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-
 add_library(${PROJECT_NAME})
 
 target_sources( ${PROJECT_NAME}
@@ -20,27 +18,25 @@ target_sources( ${PROJECT_NAME}
         LkOpticalFlowTracker.cpp
 )
 
-if(NOT DEFINED MODEL_RUNNER)
-    set(MODEL_RUNNER "none")
+# 神经网络：
+#   前缀为使用的加速库：none, openvino, tensorrt
+#   后缀为实际使用的模型
+if(NOT DEFINED ARMOR_MODEL)
+    set(ARMOR_MODEL "none")
 endif()
-message("当前 MODEL_RUNNER : " ${MODEL_RUNNER})
+message("当前 ARMOR_MODEL : " ${ARMOR_MODEL})
 
-if(MODEL_RUNNER MATCHES "none")
+if(ARMOR_MODEL MATCHES "none")
     target_compile_definitions( ${PROJECT_NAME}
-        PUBLIC MODEL_RUNNER_NONE
+        PUBLIC ARMOR_MODEL_NONE
     )
-elseif(MODEL_RUNNER MATCHES "tensorrt.*$")
+elseif(ARMOR_MODEL MATCHES "tensorrt.*$")
     find_package(TensorRT REQUIRED)
     target_compile_definitions( ${PROJECT_NAME}
-        PUBLIC MODEL_RUNNER_TENSORRT_SJTU
+        PUBLIC ARMOR_MODEL_TENSORRT_SJTU
     )
     target_include_directories( ${PROJECT_NAME}
         SYSTEM PUBLIC ${TensorRT_INCLUDE_DIRS}
-    )
-    target_sources( ${PROJECT_NAME}
-        PRIVATE
-            tensorrt_sjtu/TRTLogger.cpp
-            tensorrt_sjtu/TRTModule.cpp
     )
     target_link_libraries( ${PROJECT_NAME}
         PRIVATE
@@ -48,11 +44,16 @@ elseif(MODEL_RUNNER MATCHES "tensorrt.*$")
             nvonnxparser
             cuda
     )
-elseif(MODEL_RUNNER MATCHES "openvino.*$")
+    target_sources( ${PROJECT_NAME}
+        PRIVATE
+            tensorrt_sjtu/TRTLogger.cpp
+            tensorrt_sjtu/TRTModule.cpp
+    )
+elseif(ARMOR_MODEL MATCHES "openvino.*$")
     find_package(ngraph REQUIRED)
     find_package(InferenceEngine REQUIRED)
     target_compile_definitions( ${PROJECT_NAME}
-        PUBLIC MODEL_RUNNER_OPENVINO
+        PUBLIC ARMOR_MODEL_OPENVINO
     )
     target_link_libraries( ${PROJECT_NAME}
         PRIVATE
@@ -60,13 +61,13 @@ elseif(MODEL_RUNNER MATCHES "openvino.*$")
             ${NGRAPH_LIBRARIES}
     )
     target_sources(${PROJECT_NAME} PRIVATE openvino/vino_util.cpp)
-    if(MODEL_RUNNER STREQUAL "openvino_sjtu")
+    if(ARMOR_MODEL STREQUAL "openvino_sjtu")
         target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelSjtu.cpp)
-    elseif(MODEL_RUNNER STREQUAL "openvino_nanodet")
+    elseif(ARMOR_MODEL STREQUAL "openvino_nanodet")
         target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelNanodet.cpp)
-    elseif(MODEL_RUNNER STREQUAL "openvino_yolox")
+    elseif(ARMOR_MODEL STREQUAL "openvino_yolox")
         target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelYolox.cpp)
     endif()
 else()
-    message(FATAL_ERROR "未知 MODEL_RUNNER : " ${MODEL_RUNNER})
+    message(FATAL_ERROR "未知 ARMOR_MODEL : " ${ARMOR_MODEL})
 endif()

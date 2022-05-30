@@ -8,7 +8,7 @@ mkdir -p build && cd build
 
 ln -s ../asset/* ./
 
-cmake -DMODEL_RUNNER=openvino_yolox .. && make -j$(($(nproc) + 1))
+cmake -DARMOR_MODEL=openvino_yolox .. && make -j$(($(nproc) + 1))
 
 if [ $? -eq 0 ] && [ "$1" == "--run" ]; then
     while true

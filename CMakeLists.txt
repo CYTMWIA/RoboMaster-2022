@@ -1,4 +1,11 @@
+# Disable in-source builds to prevent source tree corruption.
+if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+    message(FATAL_ERROR "FATAL: 禁止在源文件目录 build")
+endif()
+
 cmake_minimum_required(VERSION 3.16)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
 
 project(RMCV VERSION 0.1.0)
 

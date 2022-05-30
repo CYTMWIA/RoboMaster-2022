@@ -19,12 +19,6 @@ namespace rmcv::detect
         RRect(const cv::RotatedRect &cvrrect);
     };
 
-    struct LightbarMatchResult
-    {
-        int left_idx, right_idx; // 左右灯条序号
-        double confidence;       // 置信度
-    };
-
     cv::Mat awakenlion_threshold(const cv::Mat &src, double gray_max_ = 0.6, double gray_avg_ = 0.4, double ch0 = 0.1, double ch1 = 0.2, double ch2 = 0.7);
 
     std::vector<std::vector<cv::Point>> find_external_contours(const cv::Mat &src);
