@@ -1,0 +1,26 @@
+capture.target = "camera"
+
+video.path = ""
+
+image.path = ""
+
+[camera]
+id = 1
+exposure_time = 9940.0 # 100FPS
+#exposure_time = 20000.0 # calibration
+# exposure_time = 50000.0
+gain = 16.0
+white_balance_red = 1.6
+white_balance_blue = 1.7
+calibration_file = "/home/rm/RMCV/build/result.xml"
+
+[model]
+bin_file = "/home/rm/models/model-opt-int8.bin"
+xml_file = "/home/rm/models/model-opt-int8.xml"
+
+[serial]
+port = "/dev/ttyUSB0"
+baud_rate = 115200
+
+[debug]
+enable_window = true

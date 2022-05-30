@@ -49,3 +49,7 @@ target_link_libraries( ${PROJECT_NAME}
 
         ${OpenCV_LIBS}
 )
+
+# Tools
+
+add_subdirectory(src/tool/calibrate)
