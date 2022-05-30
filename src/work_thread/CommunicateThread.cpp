@@ -65,10 +65,4 @@ namespace rmcv::work_thread
             } 
         });
     }
-
-    void CommunicateThread::up()
-    {
-        auto running = std::bind(&CommunicateThread::run, this);
-        thread_ = std::thread(running);
-    }
 }

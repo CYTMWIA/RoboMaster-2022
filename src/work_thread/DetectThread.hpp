@@ -15,18 +15,15 @@
 
 namespace rmcv::work_thread
 {
-    class DetectThread : BaseThread
-    {
-    private:
-        std::thread thread_;
+    DECL_WORKTHTREAD(DetectThread)
 
-        rmcv::detect::Model model_;
+private:
+    rmcv::detect::Model model_;
 
-        void run();
-    public:
-        DetectThread(const rmcv::config::Config &cfg);
-        void up();
-    };
+public:
+    DetectThread(const rmcv::config::Config &cfg);
+
+    DECL_WORKTHTREAD_END()
 }
 
 #endif

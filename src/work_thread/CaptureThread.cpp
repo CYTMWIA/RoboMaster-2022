@@ -70,8 +70,8 @@ namespace rmcv::work_thread
         }
     }
 
-    void CaptureThread::up()
+    void CaptureThread::run(void)
     {
-        thread_ = std::thread(target_func_);
+        target_func_();
     }
 }

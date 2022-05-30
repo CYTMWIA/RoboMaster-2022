@@ -17,27 +17,25 @@
 
 namespace rmcv::work_thread
 {
-    class CommunicateThread : BaseThread
-    {
-    private:
-        std::thread thread_;
+    DECL_WORKTHTREAD(CommunicateThread)
 
-        int32_t freq_;
+private:
+    int32_t freq_;
 
-        bool vofa_enable_;
-        std::string vofa_ip_;
-        uint16_t vofa_port_;
+    bool vofa_enable_;
+    std::string vofa_ip_;
+    uint16_t vofa_port_;
 
-        bool serial_enable_;
-        std::string serial_port_;
-        uint32_t serial_baud_rate_;
+    bool serial_enable_;
+    std::string serial_port_;
+    uint32_t serial_baud_rate_;
 
-        void cycle(const std::function<void(void)> &func);
-        void run();
-    public:
-        CommunicateThread(const rmcv::config::Config &cfg);
-        void up();
-    };
+    void cycle(const std::function<void(void)> &func);
+
+public:
+    CommunicateThread(const rmcv::config::Config &cfg);
+
+    DECL_WORKTHTREAD_END()
 }
 
 #endif

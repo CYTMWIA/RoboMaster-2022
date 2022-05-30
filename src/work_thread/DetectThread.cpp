@@ -34,10 +34,4 @@ namespace rmcv::work_thread
             RoslikeTopic<decltype(res)>::set("detect_result", res);
         }
     }
-
-    void DetectThread::up()
-    {
-        auto running = std::bind(&DetectThread::run, this);
-        thread_ = std::thread(running);
-    }
 }

@@ -29,6 +29,7 @@ target_sources( ${PROJECT_NAME}
         CommunicateThread.cpp
         CaptureThread.cpp
         DetectThread.cpp
+        StrategyThread.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

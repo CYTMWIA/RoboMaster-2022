@@ -4,5 +4,6 @@
 #include "CaptureThread.hpp"
 #include "CommunicateThread.hpp"
 #include "DetectThread.hpp"
+#include "StrategyThread.hpp"
 
 #endif
