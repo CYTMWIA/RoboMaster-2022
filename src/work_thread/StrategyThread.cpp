@@ -38,15 +38,15 @@ namespace rmcv::work_thread
         using namespace rm_data;
 
         // 初始化
-
         auto aimer = Aimer();
         cv::Mat first_img = RoslikeTopic<cv::Mat>::get("capture_image");
         cv::Point2f img_center{(float)(first_img.cols/2.0), (float)(first_img.rows/2.0)};
-
         std::unique_ptr<BoundingBox> plast_target = nullptr; // 上一次识别目标
         auto lats_found_time = std::chrono::steady_clock::now(); // 上一次找到目标的时间
+        auto fps = rmcv::util::FpsCounter();
         while (true)
         {
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
             /*
              * 数据更新
              */
@@ -165,6 +165,8 @@ namespace rmcv::work_thread
             CmdToEc cmd2ec = { 0, 0 };
             if (ptarget!=nullptr || using_kf_predict)
             {
+                // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
+
                 // 预测，注意：俯仰角计算结果为弧度
                 AimResult aim, last_aim;
                 double t_ms = 0, last_diff = INFINITY;
@@ -180,10 +182,15 @@ namespace rmcv::work_thread
                     if (diff < 0.1 || t_ms > aim.flying_time) break;
                     t_ms += diff*0.5;
                 }
-
-                // 转为角度
-                cmd2ec.pitch = aim.pitch*(180.0/M_PI);//*0.3;
-                cmd2ec.yaw = aim.yaw*(180.0/M_PI);//*0.3;
+                // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
+                if (aim.ok)
+                {
+                    // 转为角度
+                    cmd2ec.pitch = std::max(-5.0, std::min(aim.pitch*(180.0/M_PI)*0.3, 5.0));
+                    cmd2ec.yaw = std::max(-5.0, std::min(aim.yaw*(180.0/M_PI)*0.3, 5.0));
+                    // cmd2ec.pitch = aim.pitch*(180.0/M_PI);
+                    // cmd2ec.yaw = aim.yaw*(180.0/M_PI);
+                }
             }
             
             /*

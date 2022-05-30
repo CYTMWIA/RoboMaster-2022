@@ -16,8 +16,17 @@ namespace rmcv::predict
     void Aimer::bullet_speed(double bs) { bullet_speed_ = bs; }
     void Aimer::bullet_type(rm_data::BulletType bullet_type)
     {
-        double bd = bullet_type == rm_data::BULLET_SMALL ? rm_data::BULLET_SMALL_DIAMETER : rm_data::BULLET_BIG_DIAMETER;
-        bullet_area_ = 2 * M_PI * (bd / 2) * (bd / 2);
+        using namespace rm_data;
+        if (bullet_type==BULLET_SMALL)
+        {
+            bullet_area_ = 2 * M_PI * (BULLET_SMALL_DIAMETER / 2) * (BULLET_SMALL_DIAMETER / 2);
+            bullet_mass_ = BULLET_SMALL_MASS;
+        }
+        else
+        {
+            bullet_area_ = 2 * M_PI * (BULLET_BIG_DIAMETER / 2) * (BULLET_BIG_DIAMETER / 2);
+            bullet_mass_ = BULLET_BIG_MASS;
+        }
     }
 
     Aimer::TestResult Aimer::test(double target_x, double target_y, double rad, double overtime)
@@ -31,11 +40,14 @@ namespace rmcv::predict
             x += xs;
             y += ys;
 
-            // __LOG_DEBUG("{}, {}, {}, {}, {}, {}", rad, target_x, target_y, x,y,t);
+            // __LOG_DEBUG("{}, {}, {}, {}, {}, {}, {}, {}", rad, target_x, target_y, x, y, xs, ys, t);
 
             if (x >= target_x)
             {
                 res.ok = true;
+                double r = 1 - (target_x-(x-xs))/xs;
+                y -= ys*r;
+                t -= dt*r;
                 break;
             }
             if (t > overtime || (y < target_y && ys < 0))
@@ -44,10 +56,10 @@ namespace rmcv::predict
                 break;
             }
 
-            xs += -0.5 * Rho_Air * xs * xs * Cd_Sphere * bullet_area_;
-            ys += -G * dt - 0.5 * Rho_Air * ys * ys * Cd_Sphere * bullet_area_;
+            xs += (-0.5 * Rho_Air * xs * xs * Cd_Sphere * bullet_area_)/bullet_mass_*dt;
+            ys += (-G*bullet_mass_ - 0.5 * Rho_Air * ys * ys * Cd_Sphere * bullet_area_)/bullet_mass_*dt;
         }
-        res.deviation = target_y - y;
+        res.y_deviation = target_y - y;
         res.time = t;
         return res;
     }
@@ -77,16 +89,16 @@ namespace rmcv::predict
         }
 
         // 二分法
-        float lo = -M_PI / 4.0, hi = M_PI / 4.0, mid = 0;
-        while (hi-lo > 0.01)
+        double lo = -M_PI / 4.0, hi = M_PI / 4.0, mid = 0;
+        while (hi-lo > 0.00001)
         {
             // __LOG_DEBUG("{}, {}, {}", lo, hi, mid);
             tres = test(x, y, mid);
 
-            if (std::abs(tres.deviation) < 1)
+            if (std::abs(tres.y_deviation) < 0.00001)
                 break;
 
-            if (tres.deviation < 0)
+            if (tres.y_deviation < 0)
                 hi = mid;
             else
                 lo = mid;
