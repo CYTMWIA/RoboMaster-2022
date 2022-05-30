@@ -30,8 +30,13 @@ namespace rmcv::work_thread
         {
             RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
 
-            auto res = model_(RoslikeTopic<cv::Mat>::get("capture_image"));
-            RoslikeTopic<decltype(res)>::set("detect_result", res);
+            auto img = RoslikeTopic<cv::Mat>::get("capture_image");
+            auto res = model_(img);
+            for (auto& r: res)
+            {
+                rmcv::detect::fix_boundingbox(r, img);
+            }
+            RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
         }
     }
 }

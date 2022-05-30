@@ -21,20 +21,22 @@ white_balance_blue = 1.7
 calibration_file = "./result.xml"
 
 [model]
-xml_file = "/home/rm/model_zoo/yolox-nano-0406.xml"
+xml_file = "/home/rm/model_zoo/yolox-nano-0406-5k.xml"
 
 [ekf]
 q = [0.1, 100.0, 0.1, 100.0, 0.1, 100.0]
 r = [1.0, 1.0, 300.0]
 
 [serial]
+enable = false
 port = "/dev/ttyUSB0"
 baud_rate = 115200
 
 [vofa]
 enable = false
-ip = "192.168.137.1"
+# ip = "192.168.137.1" # nuc 共享网络
+ip = "192.168.236.1" # vmware 虚拟机
 port = 1347
 
 [debug]
-enable_window = true
+enable_window = false

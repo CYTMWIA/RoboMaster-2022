@@ -3,5 +3,6 @@
 
 #include "BoundingBox.hpp"
 #include "Model.hpp"
+#include "cv_armor.hpp"
 
 #endif

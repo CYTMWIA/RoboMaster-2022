@@ -40,9 +40,9 @@ int main(int, char **)
     work_thread::CommunicateThread communicate{cfg};
     communicate.up();
 
-    __LOG_INFO("启动决策线程…");
-    work_thread::StrategyThread strategy{cfg};
-    strategy.up();
+    // __LOG_INFO("启动决策线程…");
+    // work_thread::StrategyThread strategy{cfg};
+    // strategy.up();
 
     __LOG_INFO("所有线程已启动");
 
