@@ -63,3 +63,4 @@ add_executable(${PROJECT_NAME} src/main.cpp)
 
 add_executable(calibrate src/tool/calibrate/calibrate.cpp) # 来自OpenCV官方的标定工具
 add_executable(capture_camera src/tool/calibrate/capture_camera.cpp) # 相机捕获工具
+add_executable(usbreset src/tool/usbreset/usbreset.c) # 重置USB设备

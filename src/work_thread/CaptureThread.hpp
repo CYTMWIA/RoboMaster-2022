@@ -8,6 +8,7 @@
 #include "BaseThread.hpp"
 
 #include "config/config.hpp"
+#include "capture/capture.hpp"
 
 #include <thread>
 #include <functional>
@@ -20,9 +21,12 @@ private:
     std::string target_;
     std::function<void(void)> target_func_;
 
+    rmcv::config::Config::Camera camera_;
+
     void image(const std::string path);
     void video(const std::string path);
-    void camera(std::string manufacturer, double exposure_time, double gain, double white_balance_red, double white_balance_green, double white_balance_blue);
+    void init_camera(std::unique_ptr<rmcv::capture::BaseCameraCapture> &pcap);
+    void camera();
 
 public:
     CaptureThread(const rmcv::config::Config &cfg);

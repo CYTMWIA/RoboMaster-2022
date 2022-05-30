@@ -110,7 +110,7 @@ namespace rmcv::capture
                 __LOG_ERROR_AND_EXIT("获取设备列表失败");
             if (devices.nDevNum < 1)
                 __LOG_ERROR_AND_EXIT("未发现设备");
-            displayDeviceInfo(devices);
+            // displayDeviceInfo(devices);
 
             unsigned int dev_idx = 0;
             if (IMV_CreateHandle(&dev_, modeByIndex, (void *)&dev_idx) != IMV_OK)
