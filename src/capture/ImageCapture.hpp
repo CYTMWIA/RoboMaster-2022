@@ -1,25 +1,25 @@
 #ifndef __CAPTURE_IMAGE_HPP__
 #define __CAPTURE_IMAGE_HPP__
 
-#include "base.hpp"
+#include "BaseCapture.hpp"
 
 namespace rmcv::capture
 {
-    class ImageCapturer: public BaseCapturer
+    class ImageCapture: public BaseCapture
     {
     private:
         Path path_;
     public:
-        ImageCapturer() = delete;
+        ImageCapture() = delete;
 
         /**
-         * @brief ImageCapturer 构造函数
+         * @brief ImageCapture 构造函数
          * 
          * @param path 路径
          */
-        ImageCapturer(Path path);
+        ImageCapture(Path path);
 
-        cv::Mat next();
+        cv::Mat next() override;
     };    
 }
 

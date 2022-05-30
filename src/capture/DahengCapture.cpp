@@ -1,14 +1,14 @@
 #include <opencv2/opencv.hpp>
 
-#include "logging.hpp"
+#include "logging/logging.hpp"
 
 #include "daheng/DxImageProc.h"
 
-#include "daheng.hpp"
+#include "DahengCapture.hpp"
 
 namespace rmcv::capture
 {
-    DahengCapturer::DahengCapturer(int device_id)
+    DahengCapture::DahengCapture(int device_id)
     {
         if (GXInitLib() != GX_STATUS_SUCCESS)
             __LOG_ERROR_AND_EXIT("初始化库失败");
@@ -23,7 +23,7 @@ namespace rmcv::capture
             __LOG_ERROR_AND_EXIT("开采失败");
     }
 
-    uint32_t DahengCapturer::get_devices_count()
+    uint32_t DahengCapture::get_devices_count()
     {
         uint32_t devices;
         if (GXUpdateDeviceList(&devices, 500) != GX_STATUS_SUCCESS)
@@ -31,7 +31,7 @@ namespace rmcv::capture
         return devices;
     }
 
-    bool DahengCapturer::set_exposure_time(float time)
+    bool DahengCapture::set_exposure_time(float time)
     {
         if (GXSetFloat(dev_, GX_FLOAT_EXPOSURE_TIME, time) == GX_STATUS_SUCCESS)
             return true;
@@ -42,7 +42,7 @@ namespace rmcv::capture
         }
     }
 
-    bool DahengCapturer::set_gain(float gain)
+    bool DahengCapture::set_gain(float gain)
     {
         if (GXSetFloat(dev_, GX_FLOAT_GAIN, gain) == GX_STATUS_SUCCESS)
             return true;
@@ -53,7 +53,7 @@ namespace rmcv::capture
         }
     }
 
-    bool DahengCapturer::set_white_balance(float red, float green, float blue)
+    bool DahengCapture::set_white_balance(float red, float green, float blue)
     {
         if (   GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_RED) == GX_STATUS_SUCCESS
             && GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, red) == GX_STATUS_SUCCESS
@@ -71,7 +71,7 @@ namespace rmcv::capture
         }
     }
 
-    cv::Mat DahengCapturer::next()
+    cv::Mat DahengCapture::next()
     {
         PGX_FRAME_BUFFER buf;
         cv::Mat img;
@@ -92,7 +92,7 @@ namespace rmcv::capture
         return img;
     }
 
-    DahengCapturer::~DahengCapturer()
+    DahengCapture::~DahengCapture()
     {
         GXCloseDevice(dev_);
         GXCloseLib();

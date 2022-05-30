@@ -5,70 +5,67 @@
 
 #include "daheng/GxIAPI.h"
 
-#include "base.hpp"
+#include "BaseCapture.hpp"
 
 namespace rmcv::capture
 {
-    class DahengCapturer: public BaseCapturer
+    class DahengCapture : public BaseCameraCapture
     {
     private:
         GX_DEV_HANDLE dev_;
-    public:
-        DahengCapturer() = delete;
-
-        /**
-         * @brief DahengCapturer 构造函数，会初始化大恒库及打开相机
-         * 
-         * @param device_id 设备编号
-         */
-        DahengCapturer(int device_id);
-
-        /**
-         * @brief DahengCapturer 析构函数，会关闭相机及关闭大恒库
-         * 
-         */
-        ~DahengCapturer();
 
         /**
          * @brief 获取设备数量
-         * 
-         * @return int 
+         *
+         * @return int
          */
         uint32_t get_devices_count();
 
+    public:
+        /**
+         * @brief DahengCapture 构造函数，会初始化大恒库及打开相机
+         *
+         * @param device_id 设备编号
+         */
+        DahengCapture(int device_id = 1);
+
+        /**
+         * @brief DahengCapture 析构函数，会关闭相机及关闭大恒库
+         *
+         */
+        ~DahengCapture();
+
         /**
          * @brief 设置曝光时间
-         * 
+         *
          * @param time 时间
          * @return true 成功
          * @return false 失败
          */
-        bool set_exposure_time(float time);
+        bool set_exposure_time(float time) override;
 
         /**
          * @brief 设置增益
-         * 
+         *
          * @param gain 增益
          * @return true 成功
          * @return false 失败
          */
-        bool set_gain(float gain);
+        bool set_gain(float gain) override;
 
         /**
          * @brief 设置白平衡
-         * 
+         *
          * @param red 红色通道
          * @param green 绿色通道
          * @param blue 蓝色通道
          * @return true 成功
          * @return false 失败
          */
-        bool set_white_balance(float red, float green, float blue);
+        bool set_white_balance(float red, float green, float blue) override;
 
-        cv::Mat next();
-    private:
-
-    };    
+        cv::Mat next() override;
+    };
 }
 
 #endif

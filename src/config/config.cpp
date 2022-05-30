@@ -89,6 +89,7 @@ namespace rmcv::config
         READ_CONFIG(image.path, std::string, "");
 
         READ_CONFIG(camera.id, toml::integer, 0);
+        READ_CONFIG(camera.manufacturer, std::string, "");
         READ_CONFIG(camera.exposure_time, toml::floating, 10000);
         READ_CONFIG(camera.gain, toml::floating, 0);
         READ_CONFIG(camera.white_balance_red, toml::floating, 1);

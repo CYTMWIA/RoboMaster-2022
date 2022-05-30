@@ -22,7 +22,7 @@ private:
 
     void image(const std::string path);
     void video(const std::string path);
-    void camera(int32_t id, double exposure_time, double gain, double white_balance_red, double white_balance_green, double white_balance_blue);
+    void camera(std::string manufacturer, double exposure_time, double gain, double white_balance_red, double white_balance_green, double white_balance_blue);
 
 public:
     CaptureThread(const rmcv::config::Config &cfg);

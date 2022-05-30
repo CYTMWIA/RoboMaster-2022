@@ -25,10 +25,10 @@ namespace rmcv::work_thread
     void DetectThread::run()
     {
         using namespace rmcv::threading;
-        auto fps = rmcv::util::FpsCounter();
+        // auto fps = rmcv::util::FpsCounter();
         while (true)
         {
-            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
 
             auto img = RoslikeTopic<cv::Mat>::get("capture_image");
             auto res = model_(img);

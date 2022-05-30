@@ -21,7 +21,7 @@ int main()
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
 
-    auto cp = capture::DahengCapturer(cfg.camera.id);
+    auto cp = capture::DahengCapture(cfg.camera.id);
     cp.set_exposure_time(cfg.camera.exposure_time);
     cp.set_gain(cfg.camera.gain);
     cp.set_white_balance(cfg.camera.white_balance_red, cfg.camera.white_balance_green, cfg.camera.white_balance_blue);

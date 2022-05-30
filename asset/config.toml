@@ -1,5 +1,5 @@
 [capture]
-target = "video"
+target = "camera"
 
 [communicate]
 enable = true
@@ -11,10 +11,10 @@ path = "/home/rm/dataset/Video/哨兵移动.mp4"
 path = ""
 
 [camera]
-id = 1
-exposure_time = 9940.0 # 100FPS
+manufacturer = "dahua"
+exposure_time = 3000.0
+# exposure_time = 9940.0 # 100FPS
 # exposure_time = 20000.0 # calibration
-
 gain = 16.0
 white_balance_red = 1.6
 white_balance_blue = 1.7
@@ -33,10 +33,10 @@ port = "/dev/ttyUSB0"
 baud_rate = 115200
 
 [vofa]
-enable = false
-# ip = "192.168.137.1" # nuc 共享网络
-ip = "192.168.236.1" # vmware 虚拟机
+enable = true
+ip = "192.168.137.1" # nuc 共享网络
+# ip = "192.168.236.1" # vmware 虚拟机
 port = 1347
 
 [debug]
-enable_window = false
+enable_window = true

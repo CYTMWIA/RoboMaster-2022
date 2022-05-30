@@ -23,7 +23,7 @@ namespace rmcv::work_thread
         }
         else if (target_ == "camera")
         {
-            target_func_ = std::bind(&CaptureThread::camera, this, cfg.camera.id, cfg.camera.exposure_time, cfg.camera.gain, cfg.camera.white_balance_red, cfg.camera.white_balance_green, cfg.camera.white_balance_blue);
+            target_func_ = std::bind(&CaptureThread::camera, this, cfg.camera.manufacturer, cfg.camera.exposure_time, cfg.camera.gain, cfg.camera.white_balance_red, cfg.camera.white_balance_green, cfg.camera.white_balance_blue);
         }
         else
         {
@@ -44,7 +44,7 @@ namespace rmcv::work_thread
     {
         using namespace rmcv::threading;
 
-        auto cp = rmcv::capture::VideoCapturer(path);
+        auto cp = rmcv::capture::VideoCapture(path);
 
         while (true)
         {
@@ -52,21 +52,35 @@ namespace rmcv::work_thread
         }
     }
 
-    void CaptureThread::camera(int32_t id, double exposure_time, double gain, double white_balance_red, double white_balance_green, double white_balance_blue)
+    void CaptureThread::camera(std::string manufacturer, double exposure_time, double gain, double white_balance_red, double white_balance_green, double white_balance_blue)
     {
         using namespace rmcv::threading;
+        using namespace rmcv::capture;
 
-        auto cp = rmcv::capture::DahengCapturer(id);
-        cp.set_exposure_time(exposure_time);
-        cp.set_gain(gain);
-        cp.set_white_balance(white_balance_red, white_balance_green, white_balance_blue);
+        std::unique_ptr<BaseCameraCapture> pcap;
+        if (manufacturer=="dahua")
+        {
+            pcap = std::make_unique<DahuaCapture>();
+        }
+        else if (manufacturer=="daheng")
+        {
+            pcap = std::make_unique<DahengCapture>();
+        }
+        else
+        {
+            __LOG_ERROR_AND_EXIT("未指定相机厂商");
+        }
+
+        pcap->set_exposure_time(exposure_time);
+        pcap->set_gain(gain);
+        pcap->set_white_balance(white_balance_red, white_balance_green, white_balance_blue);
 
         // auto fps = rmcv::util::FpsCounter();
         while (true)
         {
             // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {fps.tick()});
 
-            threading::RoslikeTopic<cv::Mat>::set("capture_image", cp.next());
+            threading::RoslikeTopic<cv::Mat>::set("capture_image", pcap->next());
         }
     }
 

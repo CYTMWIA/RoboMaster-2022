@@ -32,9 +32,9 @@ int main(int, char **)
     work_thread::CaptureThread capture{cfg};
     capture.up();
 
-    __LOG_INFO("启动检测线程…");
-    work_thread::DetectThread detect{cfg};
-    detect.up();
+    // __LOG_INFO("启动检测线程…");
+    // work_thread::DetectThread detect{cfg};
+    // detect.up();
 
     __LOG_INFO("启动通信线程…");
     work_thread::CommunicateThread communicate{cfg};
@@ -61,7 +61,7 @@ int main(int, char **)
         }
 
         // 可视化检测结果
-        auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result");
+        auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result", true);
         auto img = RoslikeTopic<cv::Mat>::get("capture_image");
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
         for (const auto &b : detections)

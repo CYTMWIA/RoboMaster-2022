@@ -2,13 +2,13 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "logging.hpp"
+#include "logging/logging.hpp"
 
-#include "video.hpp"
+#include "VideoCapture.hpp"
 
 namespace rmcv::capture
 {
-    VideoCapturer::VideoCapturer(Path path, bool loop):
+    VideoCapture::VideoCapture(Path path, bool loop):
         path_(path),
         loop_(loop)
     {
@@ -20,7 +20,7 @@ namespace rmcv::capture
         frame_interval_ = std::chrono::duration_cast<std::chrono::milliseconds>(1000ms / fps);
     }
 
-    cv::Mat VideoCapturer::next()
+    cv::Mat VideoCapture::next()
     {
         std::this_thread::sleep_until(next_frame_time_);
         next_frame_time_ += frame_interval_;

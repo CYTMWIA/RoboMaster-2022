@@ -4,30 +4,31 @@
 #include <string>
 #include <chrono>
 
-#include "base.hpp"
+#include "BaseCapture.hpp"
 
 namespace rmcv::capture
 {
-    class VideoCapturer: public BaseCapturer
+    class VideoCapture : public BaseCapture
     {
     private:
         Path path_;
         bool loop_;
         cv::VideoCapture cap_;
         std::chrono::milliseconds frame_interval_;
-        std::chrono::time_point<std::chrono::steady_clock> next_frame_time_=std::chrono::steady_clock::now();
+        std::chrono::time_point<std::chrono::steady_clock> next_frame_time_ = std::chrono::steady_clock::now();
+
     public:
-        VideoCapturer() = delete;
+        VideoCapture() = delete;
 
         /**
-         * @brief VideoCapturer 构造函数
-         * 
+         * @brief VideoCapture 构造函数
+         *
          * @param path 视频路径
          * @param loop 是否循环播放
          */
-        VideoCapturer(Path path, bool loop=true);
+        VideoCapture(Path path, bool loop = true);
 
-        cv::Mat next();
+        cv::Mat next() override;
     };
 }
 

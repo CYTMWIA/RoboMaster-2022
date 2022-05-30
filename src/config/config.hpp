@@ -42,7 +42,8 @@ namespace rmcv::config
 
         struct Camera // 相机，当 capture.target 为 camera 时生效
         {
-            int32_t id;                   // 相机id
+            int32_t id;                   // 相机id（弃用）
+            std::string manufacturer;     // 制造商 可选：dahua、daheng
             double exposure_time;         // 相机曝光时间
             double gain;                  // 相机增益
             double white_balance_red;     // 相机白平衡 - 红色通道
