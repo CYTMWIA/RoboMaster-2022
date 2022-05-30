@@ -40,7 +40,7 @@ target_link_libraries( ${PROJECT_NAME}
 )
 
 if(NOT DEFINED MODEL_RUNNER)
-    set(MODEL_RUNNER "openvino_nanodet")
+    set(MODEL_RUNNER "openvino_yolox")
 endif()
 message("当前 MODEL_RUNNER : " ${MODEL_RUNNER})
 
@@ -74,10 +74,13 @@ elseif(MODEL_RUNNER MATCHES "openvino.*$")
             ${InferenceEngine_LIBRARIES}
             ${NGRAPH_LIBRARIES}
     )
+    target_sources(${PROJECT_NAME} PRIVATE openvino/vino_util.cpp)
     if(MODEL_RUNNER STREQUAL "openvino_sjtu")
         target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelSjtu.cpp)
     elseif(MODEL_RUNNER STREQUAL "openvino_nanodet")
         target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelNanodet.cpp)
+    elseif(MODEL_RUNNER STREQUAL "openvino_yolox")
+        target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelYolox.cpp)
     endif()
 else()
     message(FATAL_ERROR "未知 MODEL_RUNNER : " ${MODEL_RUNNER})

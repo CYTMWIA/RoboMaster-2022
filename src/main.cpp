@@ -42,6 +42,8 @@ int main(int, char **)
 
     __LOG_INFO("所有线程已启动");
 
+    // while (true) std::this_thread::sleep_for(std::chrono::seconds(1));
+
     /**********************************
      * EKF 相关
      */

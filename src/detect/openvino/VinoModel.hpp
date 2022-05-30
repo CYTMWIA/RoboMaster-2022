@@ -9,6 +9,13 @@
 
 #include "../BoundingBox.hpp"
 
+#define MODEL_NUM_CLASSES 18
+#define MODEL_INPUT_W 416
+#define MODEL_INPUT_H 416
+
+#define MODEL_NMS_THRESH 0.3
+#define MODEL_BBOX_CONF_THRESH 0.5
+
 namespace rmcv::detect
 {
     class VinoModel

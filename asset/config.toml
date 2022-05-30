@@ -21,7 +21,7 @@ white_balance_blue = 1.7
 calibration_file = "./result.xml"
 
 [model]
-xml_file = "/home/rm/model_zoo/nanodet-416-0403.xml"
+xml_file = "/home/rm/model_zoo/yolox-nano-0406.xml"
 
 [ekf]
 q = [0.1, 100.0, 0.1, 100.0, 0.1, 100.0]
