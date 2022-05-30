@@ -24,7 +24,7 @@ namespace rmcv::predict
     {
     private:
         float g_;                 // 重力加速度
-        float bullet_speed_ = 15; // 子弹初速度
+        float bullet_speed_ = 15; // 子弹初速度，单位：m/s
     public:
         Aimer(float g = 9.8);
 
@@ -35,10 +35,10 @@ namespace rmcv::predict
          * @brief 瞄准静态目标
          *
          * @param target_pos 目标相对于相机的坐标
-         * @param current_pitch 目前机器人实际pitch轴角度
+         * @param real_pitch 目前机器人实际pitch轴角度
          * @return AimDeviation
          */
-        AimDeviation aim_static(const Eigen::Matrix<double, 3, 1> &target_pos, float current_pitch = 0);
+        AimDeviation aim_static(const Eigen::Matrix<double, 3, 1> &target_pos, float real_pitch = 0);
     };
 }
 

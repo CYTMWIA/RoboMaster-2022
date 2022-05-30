@@ -16,8 +16,9 @@
 #include "predict/PnpSolver.hpp"
 #include "detect/cv_armor.hpp"
 #include "predict/AdaptiveEKF.hpp"
-#include "predict/UniformLinearMotionR.hpp"
+#include "predict/UniformLinearMotion.hpp"
 #include "io/serial.hpp"
+#include "predict/Aimer.hpp"
 
 // 使用OpenCV窗口调参
 #define DEBUG_WITH_OPENCV_WINDOW 0
@@ -61,7 +62,7 @@ int main(int, char **)
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
 
-    io::Serial ser{};
+    io::Serial ser{"/dev/ttyUSB0"};
 
     std::unordered_map<ThreadCode, std::thread> threads_pool;
     MessageBus& msgbus = MessageBus::connect();
@@ -74,22 +75,22 @@ int main(int, char **)
     AdaptiveEKF<6,3> ekf;
 
     // 预测过程协方差
-    ekf.Q(0, 0) = 1;
-    ekf.Q(1, 1) = 10;
-    ekf.Q(2, 2) = 1;
-    ekf.Q(3, 3) = 10;
-    ekf.Q(4, 4) = 1;
-    ekf.Q(5, 5) = 10;
+    ekf.Q(0, 0) = 0.1;
+    ekf.Q(1, 1) = 100;
+    ekf.Q(2, 2) = 0.1;
+    ekf.Q(3, 3) = 100;
+    ekf.Q(4, 4) = 0.1;
+    ekf.Q(5, 5) = 100;
     // 观测过程协方差
-    ekf.R(0, 0) = 20;
-    ekf.R(1, 1) = 20;
-    ekf.R(2, 2) = 20;
+    ekf.R(0, 0) = 1;
+    ekf.R(1, 1) = 1;
+    ekf.R(2, 2) = 500;
 	
     bool ekf_init = false;
-    predict::ulmr::Predict predict;
-    predict::ulmr::Measure measure;
+    predict::ulm::Predict predict;
+    predict::ulm::Measure measure;
 
-
+    predict::Aimer aimer;
     auto ps = predict::PnpSolver("/home/rm/RMCV/build/BuBinyTou.xml");
     const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
     auto last_time = std::chrono::steady_clock::now();
@@ -126,7 +127,7 @@ int main(int, char **)
         if (!ekf_init)
         {
             Eigen::Matrix<double, 6, 1> Xr;
-            Xr << pose.x,0,pose.y,0,pose.z,0;
+            Xr << pose.x, 0, pose.y, 0, pose.z, 0;
             ekf.init(Xr);
             ekf_init = true;
         }
@@ -136,16 +137,16 @@ int main(int, char **)
 
         ekf.predict(predict);
         Eigen::Matrix<double, 3, 1> Yr;
-        Yr(0,0) = pose.x;
-        Yr(1,0) = pose.y;
-        Yr(2,0) = pose.z;
+        Yr<< pose.pitch, pose.yaw, pose.distance;
         ekf.update(measure, Yr);
 
         // std::cout << ekf.Xe << std::endl;
         // __LOG_DEBUG("RAW {:.1f}, {:.1f}, {:.1f}", );
-        __LOG_DEBUG("R {:.1f}, {:.1f}, {:.1f} T {:.1f}, {:.1f}, {:.1f}; S {:.2f}, {:.2f}, {:.2f}", pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
+        // __LOG_DEBUG("R {:.1f}, {:.1f}, {:.1f} T {:.1f}, {:.1f}, {:.1f}; S {:.2f}, {:.2f}, {:.2f}", pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
         // __LOG_DEBUG("D {:.2f} | P {:.2f} | Y {:.2f} | R {:.2f}", pose.distance(), pose.theta_x, pose.theta_y, pose.theta_z);
         
+        auto aimd = aimer.aim_static({pose.x, pose.y, pose.z});
+        __LOG_DEBUG("dt {:.2f} AIM {}, {}", predict.delta_t, aimd.yaw*(180/M_PI), aimd.pitch*(180/M_PI));
         ser.vofa_justfloat(pose.x, pose.y, pose.z, ekf.Xe[0], ekf.Xe[2], ekf.Xe[4], ekf.Xe[1], ekf.Xe[3], ekf.Xe[5]);
         cv::imshow("SHOW", img);
         cv::waitKey(40);
