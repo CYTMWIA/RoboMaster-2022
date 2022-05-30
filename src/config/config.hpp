@@ -3,15 +3,16 @@
 
 #include <string>
 #include <vector>
-
-#include <toml.hpp>
+#include <memory>
 
 namespace rmcv::config
 {
-    using config_path = std::string;
-
     class Config
     {
+    private:
+        // Pimpl: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ri-pimpl
+        class Impl;
+        std::unique_ptr<Impl> pimpl;
     public:
         // 模块参数
 
@@ -82,23 +83,9 @@ namespace rmcv::config
         } debug;
 
         // 函数
-
-        void read(const config_path &path);
-
-    private:
-        toml::value data_;
-        config_path path_;
-
-        template <typename T>
-        T dot_find_or(std::string dotkeys, T fallback);
-
-        std::vector<std::string> split_string(const std::string str, const char split_char='.');
-
-        template <typename T>
-        void print_kv(std::string key, const T& value);
-
-        template <typename T>
-        void print_kv(std::string key, const std::vector<T>& vec);
+        Config();
+        ~Config();
+        void read(const std::string &path);
     };
 }
 

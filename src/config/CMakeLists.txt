@@ -10,11 +10,10 @@ add_subdirectory(../logging logging_binary_dir)
 
 add_library(${PROJECT_NAME})
 
-target_include_directories( ${PROJECT_NAME}
-    PUBLIC
-        ${CMAKE_SOURCE_DIR}/3rdparty/toml11
+target_include_directories( ${PROJECT_NAME} 
     PRIVATE
         ${PROJECT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/3rdparty/toml11
 )
 
 target_sources( ${PROJECT_NAME}
