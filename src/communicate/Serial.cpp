@@ -1,6 +1,6 @@
 #include "Serial.hpp"
 
-namespace rmcv::io
+namespace rmcv::communicate
 {
     Serial::Serial(std::string dev, uint32_t baud_rate) : serial_(dev, baud_rate), recv_buffer_(kCmdToCvSize * 2)
     {

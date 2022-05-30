@@ -12,14 +12,13 @@ find_package(OpenCV 4 REQUIRED)
 
 # 模块
 
-add_subdirectory(src/config)
-add_subdirectory(src/logging)
-add_subdirectory(src/threading)
 add_subdirectory(src/capture)
-add_subdirectory(src/io)
+add_subdirectory(src/communicate)
+add_subdirectory(src/config)
 add_subdirectory(src/detect)
+add_subdirectory(src/logging)
 add_subdirectory(src/predict)
-# add_subdirectory(src/web)
+add_subdirectory(src/threading)
 
 # RMCV
 
@@ -33,22 +32,19 @@ target_include_directories( ${PROJECT_NAME}
 target_sources( ${PROJECT_NAME}
     PRIVATE
         src/main.cpp
-        # src/capture.cpp
+        src/capture.cpp
+        src/detect.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}
     PRIVATE 
-        config
-        logging
-        threading
         capture
-        # thread_capture
-        # thread_communicate
+        communicate
+        config
         detect
+        logging
         predict
-        io
-        # thread_strategy
-        # thread_web
+        threading
 
         ${OpenCV_LIBS}
 )

@@ -1,5 +1,5 @@
-#ifndef __RMCV_SERIAL_HPP__
-#define __RMCV_SERIAL_HPP__
+#ifndef __COMMUNICATE_SERIAL_HPP__
+#define __COMMUNICATE_SERIAL_HPP__
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 
 #include "Cmd.hpp"
 
-namespace rmcv::io
+namespace rmcv::communicate
 {
     class Serial
     {

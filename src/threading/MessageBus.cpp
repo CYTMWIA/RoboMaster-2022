@@ -1,8 +1,8 @@
-#include "threading.hpp"
-
 #include "logging.hpp"
 
-namespace rmcv
+#include "MessageBus.hpp"
+
+namespace rmcv::threading
 {
     Message::Message(MessageContent content_, ThreadCode from_)
         :content(content_), from(from_)

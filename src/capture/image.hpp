@@ -1,5 +1,5 @@
-#ifndef __IMAGE_HPP__
-#define __IMAGE_HPP__
+#ifndef __CAPTURE_IMAGE_HPP__
+#define __CAPTURE_IMAGE_HPP__
 
 #include "base.hpp"
 

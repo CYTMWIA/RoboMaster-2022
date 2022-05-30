@@ -1,5 +1,5 @@
-#ifndef __BASE_HPP__
-#define __BASE_HPP__
+#ifndef __CAPTURE_BASE_HPP__
+#define __CAPTURE_BASE_HPP__
 
 #include <opencv2/opencv.hpp>
 

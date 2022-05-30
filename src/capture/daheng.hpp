@@ -1,5 +1,5 @@
-#ifndef __DAHENG_HPP__
-#define __DAHENG_HPP__
+#ifndef __CAPTURE_DAHENG_HPP__
+#define __CAPTURE_DAHENG_HPP__
 
 #include <opencv2/opencv.hpp>
 

@@ -1,78 +1,74 @@
-#ifndef __CONFIG_HPP__
-#define __CONFIG_HPP__
+#ifndef __CONFIG_CONFIG_HPP__
+#define __CONFIG_CONFIG_HPP__
 
 #include <string>
 
 #include <toml.hpp>
 
-namespace rmcv
+namespace rmcv::config
 {
     using config_path = std::string;
 
     class Config
     {
     public:
-        struct Record
-        {
-            bool        enable;     // 是否启动录像
-            std::string folder;     // 录像储存目录
-        } record;
-        
+        // 模块参数
+
         struct Capture
         {
-            std::string target;         // 捕获目标 可选：video, image, camera
-            struct Video
-            {
-                std::string path;       // 视频路径
-            } video;
-            struct Image
-            {
-                std::string path;       // 图片路径
-            } image;
-            struct Camera
-            {
-                int32_t id;             // 相机id
-                double exposure_time;   // 相机增益
-                double gain;            // 相机曝光时间
-                double white_balance_red;   // 相机白平衡 - 红色通道
-                double white_balance_green; // 相机白平衡 - 绿色通道
-                double white_balance_blue;  // 相机白平衡 - 蓝色通道
-            } camera;
+            std::string target; // 捕获目标 可选：video, image, camera
         } capture;
-
-        struct Detect
-        {
-            std::string model_path;     // 模型路径
-        } detect;
-        
-        struct Strategy
-        {
-            std::string robot;                      // 机器人代号
-            std::string camera_calibration_file;    // 相机标定文件
-        } strategy;
 
         struct Communicate
         {
-            bool            enable;     // 是否启用通信线程
-            std::string     port;       // 串口接口
-            int32_t         baud_rate;  // 波特率
+            bool enable; // 是否启用通信线程
         } communicate;
-        
-        struct Web
+
+        // 对象参数
+
+        struct Video // 视频，当 capture.target 为 video 时生效
         {
-            bool            enable;     // 是否启用Web线程
-            std::string     ip;         // IP
-            uint16_t        port;       // 端口
-        } web;
-        
-        
-        void read(const config_path& path);
-    
+            std::string path; // 视频路径
+        } video;
+
+        struct Image // 图像，当 capture.target 为 image 时生效
+        {
+            std::string path; // 图片路径
+        } image;
+
+        struct Camera // 相机，当 capture.target 为 camera 时生效
+        {
+            int32_t id;                   // 相机id
+            double exposure_time;         // 相机曝光时间
+            double gain;                  // 相机增益
+            double white_balance_red;     // 相机白平衡 - 红色通道
+            double white_balance_green;   // 相机白平衡 - 绿色通道
+            double white_balance_blue;    // 相机白平衡 - 蓝色通道
+            std::string calibration_file; // 相机标定文件
+        } camera;
+
+        struct Model // 目标检测模型
+        {
+            std::string onnx_file; // onnx 模型路径
+            std::string bin_file;  // bin 模型路径
+            std::string xml_file;  // xml 模型路径
+        } model;
+
+        struct Serial // 串口
+        {
+            std::string port;  // 串口接口
+            int32_t baud_rate; // 波特率
+        } serial;
+
+        // 函数
+
+        void read(const config_path &path);
+
     private:
         toml::value data_;
         config_path path_;
 
-        template<typename T>
+        template <typename T>
         T dot_find_or(std::string dotkeys, T fallback);
     };
 }

@@ -1,5 +1,5 @@
-#ifndef __VIDEO_HPP__
-#define __VIDEO_HPP__
+#ifndef __CAPTURE_VIDEO_HPP__
+#define __CAPTURE_VIDEO_HPP__
 
 #include <string>
 #include <chrono>
