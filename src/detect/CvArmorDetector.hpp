@@ -4,6 +4,7 @@
 #include "MatchsClassifier.hpp"
 #include "BoundingBox.hpp"
 #include "cv_util.hpp"
+#include "LkOpticalFlowTracker.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -16,7 +17,9 @@ namespace rmcv::detect
     private:
         MatchsClassifier armor_classifier_;
 
-        int32_t match_armor_icon(const cv::Mat &img, const Lightbar &left, const Lightbar &right, const double &thresh);
+        LkOpticalFlowTracker tracker_;
+
+        int32_t match_armor_icon(const cv::Mat &img, const BoundingBox &armor_bbox, const double &thresh);
     public:
         CvArmorDetector();
 

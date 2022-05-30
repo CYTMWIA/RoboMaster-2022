@@ -14,11 +14,6 @@ namespace rmcv::detect
         bool operator==(const BoundingBox&) const = default;
         bool operator!=(const BoundingBox&) const = default;
     };
-
-    inline cv::Rect2f to_rect(const BoundingBox& bbox)
-    {
-        return cv::boundingRect(std::vector<cv::Point2f>{&bbox.pts[0], &bbox.pts[4]});
-    }
 }
 
 #endif

@@ -12,8 +12,8 @@
 namespace rmcv::work_thread
 {
     DetectThread::DetectThread(const rmcv::config::Config &cfg) : 
-    detector(cfg.model.path)
-    // detector()
+    // detector(cfg.model.path)
+    detector()
     {
     }
 

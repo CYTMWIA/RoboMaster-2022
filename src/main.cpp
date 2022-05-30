@@ -95,7 +95,7 @@ int main(int, char **)
             cv::line(img, b.pts[1], b.pts[2], colors[2], 2);
             cv::line(img, b.pts[2], b.pts[3], colors[2], 2);
             cv::line(img, b.pts[3], b.pts[0], colors[2], 2);
-            cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id]);
+            cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id], 3);
         }
         debug_imshow("SHOW", img);
         if (RoslikeTopic<cv::Mat>::exist("debug_img_1")) debug_imshow("debug_img_1", RoslikeTopic<cv::Mat>::get("debug_img_1", true));

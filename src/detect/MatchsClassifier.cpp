@@ -21,9 +21,9 @@ namespace rmcv::detect
         std::sort(id2conf.begin(), id2conf.end(), [](auto &p1, auto &p2)
                   { return std::get<1>(p2) < std::get<1>(p1); }); // 降序
 
-        for (int i=0;i<id2conf.size();i++)
-            std::cout << std::get<0>(id2conf[i]) << " " << std::get<1>(id2conf[i]) << " | ";
-        std::cout << std::endl;
+        // for (int i=0;i<id2conf.size();i++)
+        //     std::cout << std::get<0>(id2conf[i]) << " " << std::get<1>(id2conf[i]) << " | ";
+        // std::cout << std::endl;
 
         if (std::get<1>(id2conf[0]) >= thresh)
             return std::get<0>(id2conf[0]);

@@ -3,6 +3,8 @@
 
 #include "BoundingBox.hpp"
 
+#include "LkOpticalFlowTracker.hpp"
+
 #include <opencv2/opencv.hpp>
 
 #include <vector>
@@ -36,8 +38,7 @@ namespace rmcv::detect
 #pragma message "未指定 MODEL_RUNNER"
 #endif
 
-        cv::Mat last_frame_;
-        std::vector<BoundingBox> last_detect_result_;
+        LkOpticalFlowTracker tracker_;
 
     public:
         NnArmorDetector(const std::string &model_path);

@@ -101,7 +101,7 @@ namespace rmcv::work_thread
             // cmd2ec.pitch = ma_pitch.update(cmd2ec.pitch);
             // cmd2ec.yaw = ma_yaw.update(cmd2ec.yaw);
 
-            RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {cmd2ec.pitch, cmd2ec.yaw, ((float)detections.size())*10});
+            // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {cmd2ec.pitch, cmd2ec.yaw, ((float)detections.size())*10});
             RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
         }
     }
