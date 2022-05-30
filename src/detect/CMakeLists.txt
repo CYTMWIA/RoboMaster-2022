@@ -30,7 +30,10 @@ target_include_directories( ${PROJECT_NAME}
 target_sources( ${PROJECT_NAME}
     PRIVATE
         Model.cpp
-        cv_armor.cpp
+        cv_util.cpp
+        HammingMatch.cpp
+        MatchsClassifier.cpp
+        CvArmorDetector.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

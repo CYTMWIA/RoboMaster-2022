@@ -12,10 +12,13 @@ path = ""
 
 [camera]
 manufacturer = "dahua"
-exposure_time = 3000.0
+# 传统视觉
+exposure_time = 10000.0 # 100FPS
+gain = 1.6 # 大恒16.0，大华1.6
+# 神经网络
 # exposure_time = 9940.0 # 100FPS
-# exposure_time = 20000.0 # calibration
-gain = 16.0
+# gain = 1.60 # 大恒16.0，大华1.6
+
 white_balance_red = 1.6
 white_balance_blue = 1.7
 calibration_file = "./result.xml"

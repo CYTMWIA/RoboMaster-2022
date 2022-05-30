@@ -19,6 +19,18 @@ using namespace communicate;
 using namespace predict;
 using namespace util;
 
+#define DEBUG_IMSHOW_WIDTH 320.0 // 调试图像宽度
+
+void debug_imshow(const std::string name, const cv::Mat &img)
+{
+    cv::Mat show;
+    if (img.cols>DEBUG_IMSHOW_WIDTH)
+        cv::resize(img, show, cv::Size(DEBUG_IMSHOW_WIDTH, img.rows*(1.0*DEBUG_IMSHOW_WIDTH/img.cols)));
+    else
+        show = img;
+    cv::imshow(name, show);
+}
+
 int main(int, char **)
 {
     Config cfg;
@@ -32,9 +44,9 @@ int main(int, char **)
     work_thread::CaptureThread capture{cfg};
     capture.up();
 
-    // __LOG_INFO("启动检测线程…");
-    // work_thread::DetectThread detect{cfg};
-    // detect.up();
+    __LOG_INFO("启动检测线程…");
+    work_thread::DetectThread detect{cfg};
+    detect.up();
 
     __LOG_INFO("启动通信线程…");
     work_thread::CommunicateThread communicate{cfg};
@@ -62,7 +74,9 @@ int main(int, char **)
 
         // 可视化检测结果
         auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result", true);
-        auto img = RoslikeTopic<cv::Mat>::get("capture_image");
+        auto ori_img = RoslikeTopic<cv::Mat>::get("capture_image");
+        cv::Mat img; // 避免引用源图像
+        ori_img.copyTo(img);
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
         for (const auto &b : detections)
         {
@@ -82,7 +96,9 @@ int main(int, char **)
             cv::line(img, b.pts[3], b.pts[0], colors[2], 2);
             cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id]);
         }
-        cv::imshow("SHOW", img);
+        debug_imshow("SHOW", img);
+        if (RoslikeTopic<cv::Mat>::exist("debug_img_1")) debug_imshow("debug_img_1", RoslikeTopic<cv::Mat>::get("debug_img_1", true));
+        if (RoslikeTopic<cv::Mat>::exist("debug_img_2")) debug_imshow("debug_img_2", RoslikeTopic<cv::Mat>::get("debug_img_2", true));
         cv::waitKey(5);
     }
 
