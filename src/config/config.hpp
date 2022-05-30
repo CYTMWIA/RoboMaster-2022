@@ -60,6 +60,13 @@ namespace rmcv::config
             int32_t baud_rate; // 波特率
         } serial;
 
+        // 其他参数
+
+        struct Debug
+        {
+            bool enable_window; // 是否启动窗口（可视化检测结果）
+        } debug;
+
         // 函数
 
         void read(const config_path &path);

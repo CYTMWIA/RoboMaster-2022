@@ -66,16 +66,23 @@ int main(int, char **)
     auto pnp = PnpSolver(cfg.camera.calibration_file);
     auto aimer = Aimer();
 
+    int history_size = 5;
+    std::vector<float> pitch_history;
+    std::vector<float> yaw_history;
+
+    auto first_img = RoslikeTopic<cv::Mat>::get("capture_image");
+    auto img_width=first_img.cols, img_height=first_img.rows;
+    auto img_x_center = img_width/2.0, img_y_center = img_height/2.0;
     while (true)
     {
         // 数据更新
-        auto img = RoslikeTopic<cv::Mat>::get("capture_image");
         auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result");
         auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true); // 允许旧数据
         // __LOG_DEBUG("RobotStatus Pitch {}", robot_status.pitch);
+        // __LOG_DEBUG("RobotStatus BS {}", robot_status.bullet_speed);
 
         // aimer.bullet_speed(robot_status.bullet_speed * 1000);
-        aimer.bullet_speed(15 * 1000);
+        aimer.bullet_speed(16.2 * 1000);
 
         CmdToEc cmd2ec;
 
@@ -83,27 +90,43 @@ int main(int, char **)
         if (!detections.empty())
         {
             auto target = detections[0];
+            __LOG_DEBUG("{:.1f} {:.1f}, {:.1f} {:.1f}, {:.1f} {:.1f}, {:.1f} {:.1f}", target.pts[0].x, target.pts[0].y, target.pts[1].x, target.pts[1].y, target.pts[2].x, target.pts[2].y, target.pts[3].x, target.pts[3].y);
 
             auto pnp_result = pnp.solve(kSmallArmor, target.pts);
             // __LOG_DEBUG("PnP X {}, Y {}, Z {}", pnp_result.x, pnp_result.y, pnp_result.z);
+            __LOG_DEBUG("PnP P {}, Y {}, D {}", pnp_result.pitch, pnp_result.yaw, pnp_result.distance);
 
             if (!ekf_init)
             {
+                // __LOG_DEBUG("EKF Init");
                 Eigen::Matrix<double, 6, 1> Xr;
                 Xr << pnp_result.x, 0, pnp_result.y, 0, pnp_result.z, 0;
                 ekf.init(Xr);
                 ekf_init = true;
             }
 
+            ekf.predict(predict);
             Eigen::Matrix<double, 3, 1> Yr;
             Yr << pnp_result.pitch, pnp_result.yaw, pnp_result.distance;
             ekf.update(measure, Yr);
-            ekf.predict(predict);
+            // __LOG_DEBUG("EKF X {}, Y {}, Z {}", ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]);
 
+            // auto aim_result = aimer.aim_static({ekf.Xe[0], ekf.Xe[2], ekf.Xe[4]}, robot_status.pitch / 180.0 * M_PI);
             auto aim_result = aimer.aim_static({pnp_result.x, pnp_result.y, pnp_result.z}, robot_status.pitch / 180.0 * M_PI);
 
             cmd2ec.pitch = aim_result.pitch / M_PI * 180.0;
             cmd2ec.yaw = aim_result.yaw / M_PI * 180.0;
+
+            float x_center=0, y_center=0;
+            for (int i=0;i<4;i++)
+            {
+                x_center += target.pts[i].x;
+                y_center += target.pts[i].y;
+            }
+            x_center /= 4.0;
+            y_center /= 4.0;
+            cmd2ec.yaw = (img_x_center-x_center)*0.1;
+            cmd2ec.pitch = (img_y_center-y_center)*0.1;
         }
         else // 目标丢失
         {
@@ -111,14 +134,35 @@ int main(int, char **)
             cmd2ec.pitch = cmd2ec.yaw = 0;
         }
 
-        __LOG_DEBUG("Sending Pitch {}, Yaw {}", cmd2ec.pitch, cmd2ec.yaw);
+        // __LOG_DEBUG("CmdToEe Pitch {}, Yaw {}", cmd2ec.pitch, cmd2ec.yaw);
+        // cmd2ec.pitch *= 0.0;
+        // cmd2ec.yaw *= 0.0;
+
+        pitch_history.push_back(cmd2ec.pitch);
+        yaw_history.push_back(cmd2ec.yaw);
+        if (pitch_history.size()>history_size) 
+        {
+            pitch_history.erase(pitch_history.begin());
+            yaw_history.erase(yaw_history.begin());
+        }
+        float pitch_sum=0, yaw_sum=0;
+        for (int i=0;i<pitch_history.size();i++)
+        {
+            pitch_sum += pitch_history[i];
+            yaw_sum += yaw_history[i];
+        }
+        cmd2ec.pitch = pitch_sum/pitch_history.size();
+        cmd2ec.yaw = yaw_sum/pitch_history.size();
+
+        cmd2ec.pitch = 1.0;
+        cmd2ec.yaw = 0.0;
         RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
-#if !DEBUG_WITH_OPENCV_WINDOW
-        continue;
-#endif
 
+        if (!cfg.debug.enable_window) continue;
+        
         // 可视化检测结果
+        auto img = RoslikeTopic<cv::Mat>::get("capture_image");
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
         for (const auto &b : detections)
         {

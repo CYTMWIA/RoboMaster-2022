@@ -35,11 +35,19 @@ namespace rmcv
             else
             {
                 // 衰减输出
-                output.yaw *= 0.6;
-                output.pitch *= 0.6;
+                // output.pitch *= 0.8;
+                // output.yaw *= 0.8;
             }
 
+            // if (abs(output.pitch)>=15 || abs(output.yaw)>=15)
+            // {
+            //     output.pitch = output.yaw = 0;
+            // }
+
+            // if (output.pitch!=0 && output.yaw!=0)
+            //     __LOG_DEBUG("Sending Pitch {}, Yaw {}", output.pitch, output.yaw);
             serial.send(output);
+
             serial.update(robot_status);
 
             RoslikeTopic<RobotStatus>::set("robot_status", robot_status);

@@ -13,13 +13,14 @@ namespace rmcv::predict
 
     AimDeviation Aimer::aim_static(const Eigen::Matrix<double, 3, 1> &target_pos, float real_pitch)
     {
-        float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0)+55;
+        float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0)+58;
 
         // Yaw 轴偏差
         float yaw = -atan(tx / ty);
 
         // Pitch 轴偏差（枪口仰角）
         // 计算过程还请看笔记《弹丸运动学》
+
         // 将xOy平面转到水平面
         float dis = sqrt(ty * ty + tz * tz), target_pitch = atan(tz/ty)+real_pitch;
         float hx = tx, hy = dis * cos(target_pitch), hz = dis * sin(target_pitch);
@@ -37,7 +38,7 @@ namespace rmcv::predict
         {
             float yp = __YP(mid);
             
-            if (abs(yp-y)<1) break;
+            if (abs(yp-y)<1) break; // 误差小于 1mm 时，结束计算
 
             if (yp>y) hi = mid;
             else lo = mid;

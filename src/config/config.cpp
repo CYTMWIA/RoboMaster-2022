@@ -39,6 +39,8 @@ namespace rmcv::config
         READ_CONFIG(serial.port, std::string, "/dev/ttyUSB0");
         READ_CONFIG(serial.baud_rate, toml::integer, 115200);
 
+        READ_CONFIG(debug.enable_window, toml::boolean, 0);
+
 #undef READ_CONFIG
     }
 
