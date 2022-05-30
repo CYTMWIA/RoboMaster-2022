@@ -7,6 +7,7 @@
 #include "serial/serial.h"
 
 #include "Cmd.hpp"
+#include "Vofa.hpp"
 
 namespace rmcv::communicate
 {
@@ -26,25 +27,8 @@ namespace rmcv::communicate
         template <typename... Args>
         void vofa_justfloat(Args &&...nums)
         {
-            const uint8_t tail[] = {0x00, 0x00, 0x80, 0x7f};
-            
-            std::vector<float> fs = {nums..., 0};
-            memcpy(&fs[sizeof...(nums)], tail, 4);
-
-            serial_.write((uint8_t *)(fs.data()), sizeof(float) * (sizeof...(nums)) + 4);
-        }
-
-        template <typename T=std::vector<float>>
-        void vofa_justfloat(T&& nums)
-        {
-            const uint8_t tail[] = {0x00, 0x00, 0x80, 0x7f};
-
-            int n = nums.size();
-            std::vector<float> fs = std::forward(nums);
-            fs.push_back(0);
-            memcpy(&fs[n], tail, 4);
-
-            serial_.write((uint8_t *)(fs.data()), sizeof(float) * (n) + 4);
+            std::vector<uint8_t> data = Vofa::to_justfloat({nums...});
+            serial_.write(data);
         }
     };
 }

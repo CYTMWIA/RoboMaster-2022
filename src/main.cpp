@@ -13,9 +13,6 @@
 #include "detect.hpp"
 #include "communicate.hpp"
 
-// 使用OpenCV窗口调参
-#define DEBUG_WITH_OPENCV_WINDOW 0
-
 using namespace rmcv;
 using namespace config;
 using namespace threading;
@@ -25,6 +22,16 @@ using namespace predict;
 
 int main(int, char **)
 {
+    Vofa vofa("192.168.137.1", 1347);
+
+    std::vector<double> a = {1,2,3,4};
+    while (true)
+    {
+        vofa.justfloat(a);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    
+
     Config cfg;
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
@@ -32,10 +39,12 @@ int main(int, char **)
     /**********************************
      * 启动线程
      */
+    std::vector<std::thread> thread_pool;
 
-    auto t1 = std::thread(thread_capture, std::ref(cfg));
-    auto t2 = std::thread(thread_detect, std::ref(cfg));
-    auto t3 = std::thread(thread_communicate, std::ref(cfg));
+    thread_pool.push_back(std::thread(thread_capture, std::ref(cfg)));
+    thread_pool.push_back(std::thread(thread_detect, std::ref(cfg)));
+    if (cfg.communicate.enable)
+        thread_pool.push_back(std::thread(thread_communicate, std::ref(cfg)));
 
     /**********************************
      * EKF 相关
@@ -71,8 +80,8 @@ int main(int, char **)
     std::vector<float> yaw_history;
 
     auto first_img = RoslikeTopic<cv::Mat>::get("capture_image");
-    auto img_width=first_img.cols, img_height=first_img.rows;
-    auto img_x_center = img_width/2.0, img_y_center = img_height/2.0;
+    auto img_width = first_img.cols, img_height = first_img.rows;
+    auto img_x_center = img_width / 2.0, img_y_center = img_height / 2.0;
     while (true)
     {
         // 数据更新
@@ -123,12 +132,11 @@ int main(int, char **)
             cmd2ec.pitch = cmd2ec.yaw = 0;
         }
 
-
         RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
+        if (!cfg.debug.enable_window)
+            continue;
 
-        if (!cfg.debug.enable_window) continue;
-        
         // 可视化检测结果
         auto img = RoslikeTopic<cv::Mat>::get("capture_image");
         const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
