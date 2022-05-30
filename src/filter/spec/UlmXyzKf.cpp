@@ -35,6 +35,8 @@ namespace rmcv::filter::spec
 
     void UlmXyzKf::update(double x, double y, double z)
     {
+        last_predict_ = std::chrono::steady_clock::now();
+
         Eigen::Matrix<double, 3, 1> yr;
         yr << x, y, z;
         KalmanFilter<6, 3>::update(yr);
