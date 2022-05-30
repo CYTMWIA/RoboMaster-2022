@@ -97,9 +97,7 @@ namespace rmcv::config
         READ_CONFIG(camera.white_balance_blue, toml::floating, 1);
         READ_CONFIG(camera.calibration_file, std::string, "");
 
-        READ_CONFIG(model.bin_file, std::string, "");
-        READ_CONFIG(model.xml_file, std::string, "");
-        READ_CONFIG(model.onnx_file, std::string, "");
+        READ_CONFIG(model.path, std::string, "");
 
         READ_CONFIG(ekf.q, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));
         READ_CONFIG(ekf.r, std::vector<double>, std::vector<double>({1, 1, 1, 1, 1, 1}));

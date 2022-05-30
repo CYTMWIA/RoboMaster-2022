@@ -54,9 +54,7 @@ namespace rmcv::config
 
         struct Model // 目标检测模型
         {
-            std::string onnx_file; // onnx 模型路径
-            std::string bin_file;  // bin 模型路径
-            std::string xml_file;  // xml 模型路径
+            std::string path; // 模型路径
         } model;
 
         struct Ekf // 扩展卡尔曼

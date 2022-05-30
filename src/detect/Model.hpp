@@ -18,22 +18,17 @@ namespace rmcv::detect
 {
     class Model
     {
+    private:
 #if USE_TENSORRT_SJTU
-    private:
         TRTModule model_;
-
-    public:
-        Model(std::string onnx_path) : model_{onnx_path} {};
 #elif USE_OPENVINO
-    private:
         VinoModel model_;
-
-    public:
-        Model(std::string xml_path, std::string bin_path) : model_{xml_path, bin_path} {};
 #else
 #pragma message "未指定 MODEL_RUNNER"
 #endif
+
     public:
+        Model(std::string path) : model_{path} {};
         std::vector<BoundingBox> operator()(cv::Mat img);
     };
 }
