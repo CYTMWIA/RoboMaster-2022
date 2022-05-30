@@ -4,7 +4,7 @@
 #include "config/config.hpp"
 
 /*
- * 捕获到的图像名称为 "capture/image"
+ * 捕获到的图像名称为 "capture_image"
  */
 
 namespace rmcv

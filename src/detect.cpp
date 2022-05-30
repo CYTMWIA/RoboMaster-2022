@@ -21,11 +21,15 @@ namespace rmcv
         {
             model = new detect::Model{cfg.model.xml_file, cfg.model.bin_file};
         }
+        else
+        {
+            __LOG_ERROR_AND_EXIT("未指定模型文件");
+        }
 
         while (true)
         {
-            auto res = model->operator()(RoslikeTopic<cv::Mat>::get("capture/image"));
-            RoslikeTopic<decltype(res)>::set("detect/result", std::move(res));
+            auto res = model->operator()(RoslikeTopic<cv::Mat>::get("capture_image"));
+            RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
         }
 
         delete model;

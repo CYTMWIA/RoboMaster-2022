@@ -52,6 +52,11 @@ namespace rmcv::threading
             return *ptr_output_;
         };
 
+        bool updated()
+        {
+            return updated_[get_this_thread_idx()];
+        }
+
     private:
         DataType *ptr_output_;
         DataType *ptr_input_;

@@ -34,6 +34,7 @@ target_sources( ${PROJECT_NAME}
         src/main.cpp
         src/capture.cpp
         src/detect.cpp
+        src/communicate.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

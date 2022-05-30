@@ -4,7 +4,7 @@
 #include "config/config.hpp"
 
 /*
- * 目标检测结果名称为 "detect/result"
+ * 目标检测结果名称为 "detect_result"
  */
 
 namespace rmcv

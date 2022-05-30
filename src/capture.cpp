@@ -15,7 +15,7 @@ namespace rmcv
     {
         cv::Mat img = cv::imread(cfg.image.path);
 
-        RoslikeTopic<cv::Mat>::set("capture/image", img);
+        RoslikeTopic<cv::Mat>::set("capture_image", img);
     }
 
     void capture_video(const Config &cfg)
@@ -33,7 +33,7 @@ namespace rmcv
 
         while (true)
         {
-            threading::RoslikeTopic<cv::Mat>::set("capture/image", cp.next());
+            threading::RoslikeTopic<cv::Mat>::set("capture_image", cp.next());
         }
     }
 

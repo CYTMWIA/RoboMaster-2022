@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+/* ！！！注意！！！
+ * 通信中，所有角度单位都是角度（angle），而非弧度！
+ */
+
 extern const uint8_t kHeadingBytesCount;
 extern const uint8_t kHeadingBytes[];
 extern const uint8_t kTailingBytesCount;

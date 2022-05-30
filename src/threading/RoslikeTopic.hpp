@@ -43,6 +43,11 @@ namespace rmcv::threading
             // https://stackoverflow.com/questions/16447951/how-to-forward-variable-number-of-arguments-to-another-function
             return instance_.varmap_[name].get(std::forward<Args>(args)...);
         };
+
+        static bool updated(std::string name)
+        {
+            return instance_.varmap_[name].updated();
+        }
     };
     template <typename T>
 
