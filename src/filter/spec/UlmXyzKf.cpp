@@ -33,6 +33,12 @@ namespace rmcv::filter::spec
         KalmanFilter<6, 3>::predict();
     }
 
+    KalmanFilter<6, 3>::VectorX UlmXyzKf::predict_without_save(double dt)
+    {
+        F(0, 1) = F(2, 3) = F(4, 5) = dt;
+        return F * X;
+    }
+
     void UlmXyzKf::update(double x, double y, double z)
     {
         last_predict_ = std::chrono::steady_clock::now();

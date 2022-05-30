@@ -23,6 +23,8 @@ namespace rmcv::filter::spec
 
         void predict(double dt = -1);
 
+        KalmanFilter<6, 3>::VectorX predict_without_save(double dt);
+
         void update(double x, double y, double z);
 
         inline double x() { return X[0]; }
