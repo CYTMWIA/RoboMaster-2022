@@ -2,7 +2,6 @@
 #define __UTIL_UTIL_HPP__
 
 #include "FpsCounter.hpp"
-#include "MovingAverageFilter.hpp"
 
 namespace rmcv::util
 {
