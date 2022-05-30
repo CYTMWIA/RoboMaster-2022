@@ -38,13 +38,33 @@ int main(int, char **)
 
     msgbus.checkin(ThreadCode::main);
 
-    // auto vc = capture::DahengCapturer(1);
-    // vc.set_exposure_time(cfg.capture.camera.exposure_time);
-    // vc.set_gain(cfg.capture.camera.gain);
-    // vc.set_white_balance(cfg.capture.camera.white_balance_red, cfg.capture.camera.white_balance_green, cfg.capture.camera.white_balance_blue);
-    // while(1) {cv::imshow("SHOW", vc.next()); cv::waitKey(5);}
-
+    auto vc = capture::DahengCapturer(1);
+    vc.set_exposure_time(cfg.capture.camera.exposure_time);
+    vc.set_gain(cfg.capture.camera.gain);
+    vc.set_white_balance(cfg.capture.camera.white_balance_red, cfg.capture.camera.white_balance_green, cfg.capture.camera.white_balance_blue);
+    
     auto md = detect::Model("/home/rm/models/model-opt-int8.xml", "/home/rm/models/model-opt-int8.bin");
+
+    while (true)
+    {
+        auto img = vc.next();
+        auto detections = md(img);
+
+        const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};
+        for (const auto &b: detections)
+        {
+            // for (int i=0;i<4;i++) std::cout<< b.pts[i].x << " " << b.pts[i].y << std::endl;
+            cv::line(img, b.pts[0], b.pts[1], colors[2], 2);
+            cv::line(img, b.pts[1], b.pts[2], colors[2], 2);
+            cv::line(img, b.pts[2], b.pts[3], colors[2], 2);
+            cv::line(img, b.pts[3], b.pts[0], colors[2], 2);
+            cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id]);
+        }
+        cv::imshow("SHOW", img);
+        cv::waitKey(5);
+    }
+
+    
 
     // __LOG_INFO("启动捕获线程...");
     // threads_pool[ThreadCode::capture] = std::thread(start_capture, std::ref(cfg.capture));

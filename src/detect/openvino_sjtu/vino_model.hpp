@@ -35,10 +35,10 @@ namespace rmcv::detect
         /**
          * @brief 推理
          * 
-         * @param src 图像
+         * @param img 图像
          * @return std::vector<BoundingBox> 检测结果
          */
-        std::vector<BoundingBox> operator()(const cv::Mat &src) const;
+        std::vector<BoundingBox> operator()(const cv::Mat &img);
      };
 }
 
