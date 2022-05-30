@@ -38,7 +38,7 @@ namespace rmcv::predict
     struct CameraPose
     {
         double x, y, z;
-        double rx, ry, rz;
+        double theta_x, theta_y, theta_z;
         double distance();
     };
 

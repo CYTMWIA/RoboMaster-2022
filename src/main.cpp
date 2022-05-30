@@ -61,7 +61,7 @@ int main(int, char **)
             cv::putText(img, std::to_string(b.tag_id), b.pts[0], cv::FONT_HERSHEY_SIMPLEX, 1, colors[b.color_id]);
 
             auto pose = ps.solve(predict::ArmorType::kSmallArmor, b.pts);
-            __LOG_DEBUG("DIS {:.2f}; R {:.2f}, {:.2f}, {:.2f}", pose.distance(), pose.rx, pose.ry, pose.rz);
+            __LOG_DEBUG("DIS {:.2f}; R {:.2f}, {:.2f}, {:.2f}", pose.distance(), pose.theta_x, pose.theta_y, pose.theta_z);
         }
         cv::imshow("SHOW", img);
         cv::waitKey(5);
