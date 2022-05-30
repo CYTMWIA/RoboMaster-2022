@@ -15,6 +15,10 @@ set(CMAKE_CXX_STANDARD 20)
 
 # 全局启用的外部库
 
+find_package(Boost REQUIRED)
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+link_libraries(${Boost_LIBRARIES})
+
 find_package(OpenCV 4 REQUIRED)
 include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
