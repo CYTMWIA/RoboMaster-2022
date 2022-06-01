@@ -10,12 +10,12 @@ target_sources( ${PROJECT_NAME}
     PRIVATE
         cv_util.cpp
         cv_armor_util.cpp
-        HammingMatch.cpp
-        MatchsClassifier.cpp
-        CvArmorDetector.cpp
-        NnArmorDetector.cpp
-        BoundingBox.cpp
-        LkOpticalFlowTracker.cpp
+        hamming_match.cpp
+        matchs_classifier.cpp
+        cv_armor_detector.cpp
+        nn_armor_detector.cpp
+        bounding_box.cpp
+        lk_optical_flow_tracker.cpp
 )
 
 # 神经网络：
@@ -46,8 +46,8 @@ elseif(ARMOR_MODEL MATCHES "tensorrt.*$")
     )
     target_sources( ${PROJECT_NAME}
         PRIVATE
-            tensorrt_sjtu/TRTLogger.cpp
-            tensorrt_sjtu/TRTModule.cpp
+            tensorrt_sjtu/trtlogger.cpp
+            tensorrt_sjtu/trtmodule.cpp
     )
 elseif(ARMOR_MODEL MATCHES "openvino.*$")
     find_package(ngraph REQUIRED)
@@ -62,11 +62,11 @@ elseif(ARMOR_MODEL MATCHES "openvino.*$")
     )
     target_sources(${PROJECT_NAME} PRIVATE openvino/vino_util.cpp)
     if(ARMOR_MODEL STREQUAL "openvino_sjtu")
-        target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelSjtu.cpp)
+        target_sources(${PROJECT_NAME} PRIVATE openvino/vino_model_sjtu.cpp)
     elseif(ARMOR_MODEL STREQUAL "openvino_nanodet")
-        target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelNanodet.cpp)
+        target_sources(${PROJECT_NAME} PRIVATE openvino/vino_model_nanodet.cpp)
     elseif(ARMOR_MODEL STREQUAL "openvino_yolox")
-        target_sources(${PROJECT_NAME} PRIVATE openvino/VinoModelYolox.cpp)
+        target_sources(${PROJECT_NAME} PRIVATE openvino/vino_model_yolox.cpp)
     endif()
 else()
     message(FATAL_ERROR "未知 ARMOR_MODEL : " ${ARMOR_MODEL})

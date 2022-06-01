@@ -1,12 +1,10 @@
 #ifndef __FILTER_FILTER_HPP__
 #define __FILTER_FILTER_HPP__
 
-#include "DynamicLowpassFilter.hpp"
-#include "MovingAverageFilter.hpp"
+#include "adaptive_ekf.hpp"
+#include "dynamic_lowpass_filter.hpp"
+#include "kalman_filter.hpp"
+#include "moving_average_filter.hpp"
+#include "spec/ulm_xyz_kf.hpp"
 
-#include "KalmanFilter.hpp"
-#include "AdaptiveEKF.hpp"
-
-#include "spec/UlmXyzKf.hpp"
-
-#endif // __FILTER_FILTER_HPP__
+#endif  // __FILTER_FILTER_HPP__

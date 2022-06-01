@@ -16,7 +16,7 @@ target_include_directories( ${PROJECT_NAME}
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        spec/UlmXyzKf.cpp
+        spec/ulm_xyz_kf.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

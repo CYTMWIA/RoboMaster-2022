@@ -8,7 +8,7 @@ add_library(${PROJECT_NAME})
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        MessageBus.cpp
+        message_bus.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

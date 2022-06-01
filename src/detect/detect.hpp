@@ -1,11 +1,9 @@
 #ifndef __DETECT_DETECT_HPP__
 #define __DETECT_DETECT_HPP__
 
-#include "BoundingBox.hpp"
-
-#include "NnArmorDetector.hpp"
-
+#include "bounding_box.hpp"
+#include "cv_armor_detector.hpp"
 #include "cv_util.hpp"
-#include "CvArmorDetector.hpp"
+#include "nn_armor_detector.hpp"
 
 #endif

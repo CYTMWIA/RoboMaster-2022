@@ -21,9 +21,9 @@ target_include_directories( ${PROJECT_NAME}
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        Serial.cpp
-        Cmd.c
-        Vofa.cpp
+        serial.cpp
+        cmd.c
+        vofa.cpp
         ${serial_SOURCES}
 )
 

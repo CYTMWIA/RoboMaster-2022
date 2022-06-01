@@ -1,8 +1,8 @@
-#ifndef __THREADING_HPP__
-#define __THREADING_HPP__
+#ifndef __THREADING_THREADING_HPP__
+#define __THREADING_THREADING_HPP__
 
-#include "MessageBus.hpp"
-#include "RoslikeTopic.hpp"
-#include "SharedVariable.hpp"
+#include "message_bus.hpp"
+#include "roslike_topic.hpp"
+#include "shared_variable.hpp"
 
 #endif

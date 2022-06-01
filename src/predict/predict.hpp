@@ -1,7 +1,7 @@
-#ifndef __PREDICT_HPP__
-#define __PREDICT_HPP__
+#ifndef __PREDICT_PREDICT_HPP__
+#define __PREDICT_PREDICT_HPP__
 
-#include "Aimer.hpp"
-#include "PnpSolver.hpp"
+#include "aimer.hpp"
+#include "pnp_solver.hpp"
 
 #endif

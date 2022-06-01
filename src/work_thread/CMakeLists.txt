@@ -8,8 +8,8 @@ add_library(${PROJECT_NAME})
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        CommunicateThread.cpp
-        CaptureThread.cpp
-        DetectThread.cpp
-        StrategyThread.cpp
+        communicate_thread.cpp
+        capture_thread.cpp
+        detect_thread.cpp
+        strategy_thread.cpp
 )

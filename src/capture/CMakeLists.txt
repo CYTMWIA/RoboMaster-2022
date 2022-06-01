@@ -15,10 +15,10 @@ target_include_directories( ${PROJECT_NAME}
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        VideoCapture.cpp
-        ImageCapture.cpp
-        DahengCapture.cpp
-        DahuaCapture.cpp
+        video_capture.cpp
+        image_capture.cpp
+        daheng_capture.cpp
+        dahua_capture.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}
