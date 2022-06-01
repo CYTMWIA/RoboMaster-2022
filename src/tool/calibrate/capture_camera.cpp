@@ -5,17 +5,16 @@
 #include <string>
 
 #include "capture/capture.hpp"
+#include "common/logging.hpp"
+#include "common/threading.hpp"
 #include "config/config.hpp"
-#include "logging/logging.hpp"
-#include "threading/threading.hpp"
 #include "work_thread/capture_thread.hpp"
 
 #define IMAGE_DIR "./image/"
 #define IMAGE_XML "./image_list.xml"
 
-using namespace rmcv;
-using namespace config;
-using namespace threading;
+using namespace rm_config;
+using namespace rm_threading;
 
 int main()
 {
@@ -24,7 +23,7 @@ int main()
   cfg.read("config.toml");
 
   __LOG_INFO("启动捕获线程…");
-  work_thread::CaptureThread capture{cfg};
+  rm_work_thread::CaptureThread capture{cfg};
   capture.up();
 
   std::filesystem::remove_all(IMAGE_DIR);

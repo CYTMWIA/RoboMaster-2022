@@ -6,10 +6,18 @@ endif()
 
 add_library(${PROJECT_NAME})
 
+target_include_directories( ${PROJECT_NAME}
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        communicate_thread.cpp
-        capture_thread.cpp
-        detect_thread.cpp
-        strategy_thread.cpp
+        src/communicate_thread.cpp
+        src/capture_thread.cpp
+        src/detect_thread.cpp
+        src/strategy_thread.cpp
+        src/ulm_xyz_kf.cpp
 )

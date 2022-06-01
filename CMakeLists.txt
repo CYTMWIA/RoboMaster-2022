@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
 
-project(RMCV VERSION 0.1.0)
+project(REDO VERSION 0.1.0)
 
 # C++标准
 
@@ -27,19 +27,12 @@ find_package(fmt REQUIRED)
 include_directories(SYSTEM ${fmt_INCLUDE_DIRS})
 link_libraries(fmt::fmt)
 
-# 全局include
-
-include_directories(src)
-
 # 模块
 
 ## 全局模块
 
-add_subdirectory(src/logging)
-link_libraries(logging)
-
-add_subdirectory(src/threading)
-link_libraries(threading)
+add_subdirectory(src/common)
+link_libraries(common)
 
 ## 普通模块
 
@@ -47,9 +40,7 @@ add_subdirectory(src/capture)
 add_subdirectory(src/communicate)
 add_subdirectory(src/config)
 add_subdirectory(src/detect)
-add_subdirectory(src/filter)
 add_subdirectory(src/predict)
-add_subdirectory(src/util)
 
 ## 将普通模块也全局链接（供线程、主程序、工具使用）
 
@@ -57,18 +48,16 @@ link_libraries(capture)
 link_libraries(communicate)
 link_libraries(config)
 link_libraries(detect)
-link_libraries(filter)
 link_libraries(predict)
-link_libraries(util)
 
 # 线程
 
 add_subdirectory(src/work_thread)
 link_libraries(work_thread)
 
-# 主程序 RMCV
+# 主程序
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(REDO src/main.cpp)
 
 # Tools
 

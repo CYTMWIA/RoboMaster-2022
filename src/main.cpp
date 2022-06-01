@@ -1,22 +1,19 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
+#include "common/logging.hpp"
+#include "common/threading.hpp"
 #include "communicate/communicate.hpp"
 #include "config/config.hpp"
 #include "detect/detect.hpp"
-#include "logging/logging.hpp"
 #include "predict/predict.hpp"
-#include "threading/threading.hpp"
-#include "util/util.hpp"
 #include "work_thread/work_thread.hpp"
 
-using namespace rmcv;
-using namespace config;
-using namespace threading;
-using namespace detect;
-using namespace communicate;
-using namespace predict;
-using namespace util;
+using namespace rm_config;
+using namespace rm_threading;
+using namespace rm_detect;
+using namespace rm_communicate;
+using namespace rm_predict;
 
 #define DEBUG_IMSHOW_WIDTH 720.0  // 调试图像宽度
 
@@ -41,19 +38,19 @@ int main(int, char **)
    * 启动线程
    */
   __LOG_INFO("启动捕获线程…");
-  work_thread::CaptureThread capture{cfg};
+  rm_work_thread::CaptureThread capture{cfg};
   capture.up();
 
   __LOG_INFO("启动检测线程…");
-  work_thread::DetectThread detect{cfg};
+  rm_work_thread::DetectThread detect{cfg};
   detect.up();
 
   __LOG_INFO("启动通信线程…");
-  work_thread::CommunicateThread communicate{cfg};
+  rm_work_thread::CommunicateThread communicate{cfg};
   communicate.up();
 
   __LOG_INFO("启动决策线程…");
-  work_thread::StrategyThread strategy{cfg};
+  rm_work_thread::StrategyThread strategy{cfg};
   strategy.up();
 
   __LOG_INFO("所有线程已启动");

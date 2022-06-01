@@ -12,9 +12,9 @@
 #include <string>
 
 #include "capture/capture.hpp"
+#include "common/logging.hpp"
+#include "common/threading.hpp"
 #include "config/config.hpp"
-#include "logging/logging.hpp"
-#include "threading/threading.hpp"
 #include "work_thread/capture_thread.hpp"
 
 using namespace cv;
@@ -174,7 +174,7 @@ class Settings
   }
   Mat nextImage()
   {
-    if (inputType == RM_CAMERA) return rmcv::threading::RoslikeTopic<cv::Mat>::get("capture_image");
+    if (inputType == RM_CAMERA) return rm_threading::RoslikeTopic<cv::Mat>::get("capture_image");
 
     Mat result;
     if (inputCapture.isOpened())
@@ -334,13 +334,13 @@ int main(int argc, char* argv[])
   const Scalar RED(0, 0, 255), GREEN(0, 255, 0);
   const char ESC_KEY = 27;
 
-  unique_ptr<rmcv::work_thread::CaptureThread> pcap;
+  unique_ptr<rm_work_thread::CaptureThread> pcap;
   if (s.inputType == Settings::RM_CAMERA)
   {
-    rmcv::config::Config cfg;
+    rm_config::Config cfg;
     __LOG_INFO("读取配置文件");
     cfg.read("config.toml");
-    pcap = make_unique<rmcv::work_thread::CaptureThread>(cfg);
+    pcap = make_unique<rm_work_thread::CaptureThread>(cfg);
     pcap->up();
   }
 

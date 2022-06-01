@@ -14,6 +14,8 @@ find_package(Boost)
 add_library(${PROJECT_NAME})
 
 target_include_directories( ${PROJECT_NAME}
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
         ${Boost_INCLUDE_DIR}
         ${CMAKE_SOURCE_DIR}/3rdparty/serial/include
@@ -21,9 +23,9 @@ target_include_directories( ${PROJECT_NAME}
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        serial.cpp
-        cmd.c
-        vofa.cpp
+        src/serial.cpp
+        src/cmd.c
+        src/vofa.cpp
         ${serial_SOURCES}
 )
 

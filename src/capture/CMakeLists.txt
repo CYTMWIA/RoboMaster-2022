@@ -9,16 +9,17 @@ add_library(${PROJECT_NAME})
 target_include_directories( ${PROJECT_NAME}
     PUBLIC 
         ${CMAKE_SOURCE_DIR}/3rdparty/
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
         /opt/HuarayTech/MVviewer/include
 )
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        video_capture.cpp
-        image_capture.cpp
-        daheng_capture.cpp
-        dahua_capture.cpp
+        src/video_capture.cpp
+        src/image_capture.cpp
+        src/daheng_capture.cpp
+        src/dahua_capture.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}

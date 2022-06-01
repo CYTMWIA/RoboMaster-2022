@@ -16,7 +16,7 @@ def build(rebuild):
 def run(debug, auto_restart):
     os.system("ln -s ../asset/* ./")
 
-    cmd = "./RMCV"
+    cmd = "./REDO"
     if debug:
         cmd += " --debug"
 

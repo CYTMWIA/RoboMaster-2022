@@ -13,14 +13,15 @@ add_library(${PROJECT_NAME})
 
 target_include_directories( ${PROJECT_NAME}
     PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CERES_INCLUDE_DIRS}
         ${EIGEN3_INCLUDE_DIR}
 )
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-        pnp_solver.cpp
-        aimer.cpp
+        src/pnp_solver.cpp
+        src/aimer.cpp
 )
 
 target_link_libraries( ${PROJECT_NAME}
