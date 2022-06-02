@@ -1,0 +1,4 @@
+#ifndef __RM_CAPTURE_CAPTURE_NODE_HPP__
+#define __RM_CAPTURE_CAPTURE_NODE_HPP__
+
+#endif

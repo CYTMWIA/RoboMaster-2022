@@ -2,6 +2,8 @@
 
 # Build Files
 build
+install
+log
 
 # Python Byte-compiled / optimized / DLL files
 __pycache__/

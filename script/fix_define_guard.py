@@ -2,18 +2,7 @@
 
 import os
 
-def ls(path):
-    return [os.path.join(path, p) for p in os.listdir(path)]
-
-def ls_all_file(path):
-    paths = ls(path)
-    res = []
-    for p in paths:
-        if os.path.isdir(p):
-            res += ls_all_file(p)
-        else:
-            res.append(p)
-    return res
+import common
 
 def make_guard(path):
     parts = path.strip().split('/')
@@ -33,10 +22,7 @@ def make_guard(path):
     return guard
 
 def main():
-    project_dir = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
-    os.chdir(project_dir)
-    
-    files = ls_all_file("src")
+    files = common.ls_sources()
     headers = list(filter(lambda p:p.endswith(".hpp"), files))
     
     for header in headers:

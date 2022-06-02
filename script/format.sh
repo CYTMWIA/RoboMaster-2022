@@ -9,4 +9,4 @@ then
     exit
 fi
 
-find src/ -iname *.hpp -o -iname *.h -o -iname *.cpp -o -iname *.c | xargs clang-format -style=file -i
+python3 ./script/ls_sources.py | xargs clang-format -style=file -i
