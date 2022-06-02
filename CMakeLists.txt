@@ -31,29 +31,29 @@ link_libraries(fmt::fmt)
 
 ## 全局模块
 
-add_subdirectory(src/common)
-link_libraries(common)
+add_subdirectory(src/rm_common)
+link_libraries(rm_common)
 
 ## 普通模块
 
-add_subdirectory(src/capture)
-add_subdirectory(src/communicate)
-add_subdirectory(src/config)
-add_subdirectory(src/detect)
-add_subdirectory(src/predict)
+add_subdirectory(src/rm_capture)
+add_subdirectory(src/rm_communicate)
+add_subdirectory(src/rm_config)
+add_subdirectory(src/rm_detect)
+add_subdirectory(src/rm_predict)
 
 ## 将普通模块也全局链接（供线程、主程序、工具使用）
 
-link_libraries(capture)
-link_libraries(communicate)
-link_libraries(config)
-link_libraries(detect)
-link_libraries(predict)
+link_libraries(rm_capture)
+link_libraries(rm_communicate)
+link_libraries(rm_config)
+link_libraries(rm_detect)
+link_libraries(rm_predict)
 
 # 线程
 
-add_subdirectory(src/work_thread)
-link_libraries(work_thread)
+add_subdirectory(src/rm_node)
+link_libraries(rm_node)
 
 # 主程序
 

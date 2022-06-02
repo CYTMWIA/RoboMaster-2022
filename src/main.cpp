@@ -1,13 +1,13 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
-#include "common/logging.hpp"
-#include "common/threading.hpp"
-#include "communicate/communicate.hpp"
-#include "config/config.hpp"
-#include "detect/detect.hpp"
-#include "predict/predict.hpp"
-#include "work_thread/work_thread.hpp"
+#include "rm_common/logging.hpp"
+#include "rm_common/threading.hpp"
+#include "rm_communicate/communicate.hpp"
+#include "rm_config/config.hpp"
+#include "rm_detect/detect.hpp"
+#include "rm_node/node.hpp"
+#include "rm_predict/predict.hpp"
 
 using namespace rm_config;
 using namespace rm_threading;
@@ -32,25 +32,25 @@ int main(int, char **)
 {
   Config cfg;
   __LOG_INFO("读取配置文件");
-  cfg.read("config.toml");
+  cfg.read("rm_config/.toml");
 
   /**********************************
    * 启动线程
    */
   __LOG_INFO("启动捕获线程…");
-  rm_work_thread::CaptureThread capture{cfg};
+  rm_node::CaptureThread capture{cfg};
   capture.up();
 
   __LOG_INFO("启动检测线程…");
-  rm_work_thread::DetectThread detect{cfg};
+  rm_node::DetectThread detect{cfg};
   detect.up();
 
   __LOG_INFO("启动通信线程…");
-  rm_work_thread::CommunicateThread communicate{cfg};
+  rm_node::CommunicateThread communicate{cfg};
   communicate.up();
 
   __LOG_INFO("启动决策线程…");
-  rm_work_thread::StrategyThread strategy{cfg};
+  rm_node::StrategyThread strategy{cfg};
   strategy.up();
 
   __LOG_INFO("所有线程已启动");

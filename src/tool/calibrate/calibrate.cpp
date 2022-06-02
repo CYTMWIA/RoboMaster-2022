@@ -11,11 +11,11 @@
 #include <sstream>
 #include <string>
 
-#include "capture/capture.hpp"
-#include "common/logging.hpp"
-#include "common/threading.hpp"
-#include "config/config.hpp"
-#include "work_thread/capture_thread.hpp"
+#include "rm_capture/capture.hpp"
+#include "rm_common/logging.hpp"
+#include "rm_common/threading.hpp"
+#include "rm_config/config.hpp"
+#include "rm_node/capture_thread.hpp"
 
 using namespace cv;
 using namespace std;
@@ -334,13 +334,13 @@ int main(int argc, char* argv[])
   const Scalar RED(0, 0, 255), GREEN(0, 255, 0);
   const char ESC_KEY = 27;
 
-  unique_ptr<rm_work_thread::CaptureThread> pcap;
+  unique_ptr<rm_node::CaptureThread> pcap;
   if (s.inputType == Settings::RM_CAMERA)
   {
     rm_config::Config cfg;
     __LOG_INFO("读取配置文件");
-    cfg.read("config.toml");
-    pcap = make_unique<rm_work_thread::CaptureThread>(cfg);
+    cfg.read("rm_config/.toml");
+    pcap = make_unique<rm_node::CaptureThread>(cfg);
     pcap->up();
   }
 

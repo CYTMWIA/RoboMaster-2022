@@ -15,6 +15,23 @@ def ls_all_file(path):
             res.append(p)
     return res
 
+def make_guard(path):
+    parts = path.strip().split('/')
+    for i in range(len(parts)-1, -1,-1):
+        if parts[i] in ["include", "src"]:
+            parts = parts[i+1:]
+            break
+    guard = "_".join(parts)
+    for c in [".", "\\", "/"]:
+        guard = guard.replace(c, "_")
+    guard = guard.upper()
+    while not guard.startswith("__"):
+        guard = "_"+guard
+    while not guard.endswith("__"):
+        guard = guard+"_"
+
+    return guard
+
 def main():
     project_dir = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
     os.chdir(project_dir)
@@ -26,14 +43,7 @@ def main():
         with open(header, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
-        guard = header.replace("src", "", 1)
-        for c in [".", "\\", "/"]:
-            guard = guard.replace(c, "_")
-        guard = guard.upper()
-        while not guard.startswith("__"):
-            guard = "_"+guard
-        while not guard.endswith("__"):
-            guard = guard+"_"
+        guard = make_guard(header)
 
         break_count = 2
         for l in range(len(lines)):

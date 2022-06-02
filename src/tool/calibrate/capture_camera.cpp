@@ -4,11 +4,11 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-#include "capture/capture.hpp"
-#include "common/logging.hpp"
-#include "common/threading.hpp"
-#include "config/config.hpp"
-#include "work_thread/capture_thread.hpp"
+#include "rm_capture/capture.hpp"
+#include "rm_common/logging.hpp"
+#include "rm_common/threading.hpp"
+#include "rm_config/config.hpp"
+#include "rm_node/capture_thread.hpp"
 
 #define IMAGE_DIR "./image/"
 #define IMAGE_XML "./image_list.xml"
@@ -23,7 +23,7 @@ int main()
   cfg.read("config.toml");
 
   __LOG_INFO("启动捕获线程…");
-  rm_work_thread::CaptureThread capture{cfg};
+  rm_node::CaptureThread capture{cfg};
   capture.up();
 
   std::filesystem::remove_all(IMAGE_DIR);
