@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "rm_common/threading.hpp"
-
 namespace rm_detect
 {
 double judge_lightbars_pair(const BoundingBox &lightbars_bbox)
@@ -58,8 +56,8 @@ void match_lightbars(std::vector<RRect> &rrects, std::vector<LightbarMatchResult
     return r1.center.x < r2.center.x;
   });  // 按照中心x升序（从左到右）
 
-  for (int i = 0; i < rrects.size() - 1; i++)
-    for (int j = i + 1; j < rrects.size(); j++)
+  for (int i = 0; static_cast<size_t>(i) < rrects.size() - 1; i++)
+    for (int j = i + 1; static_cast<size_t>(j) < rrects.size(); j++)
     {
       LightbarMatchResult res = {i, j, judge_lightbars_pair(rrects[i], rrects[j])};
 
@@ -73,7 +71,6 @@ void match_lightbars(std::vector<RRect> &rrects, std::vector<LightbarMatchResult
 
 void fix_boundingbox(BoundingBox &bbox, const cv::Mat &img)
 {
-  using namespace rm_threading;
   /*
    * 使用OpenCV重新定位检测结果中的四个点
    */

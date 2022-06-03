@@ -33,7 +33,7 @@ class NnArmorDetector
     std::vector<BoundingBox> operator()(T img)
     {
       return std::vector<BoundingBox>();
-    };
+    }
   } model_;
 #else
 #pragma message "未指定 ARMOR_MODEL"

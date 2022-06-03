@@ -8,7 +8,7 @@ namespace rm_detect
 void LkOpticalFlowTracker::track(const cv::Mat& frame, std::vector<BoundingBox>& detect_result)
 {
   std::vector<bool> founds(last_detect_result_.size(), 0);
-  for (int i = 0; i < founds.size(); i++)
+  for (size_t i = 0; i < founds.size(); i++)
   {
     auto& det_prev = last_detect_result_[i];
     for (auto& det : detect_result)
@@ -25,7 +25,7 @@ void LkOpticalFlowTracker::track(const cv::Mat& frame, std::vector<BoundingBox>&
     }
   }
 
-  for (int i = 0; i < founds.size(); i++)
+  for (size_t i = 0; i < founds.size(); i++)
   {
     if (!founds[i])
     {

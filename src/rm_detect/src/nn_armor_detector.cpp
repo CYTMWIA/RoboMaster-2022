@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include "rm_common/logging.hpp"
-#include "rm_common/threading.hpp"
 #include "rm_detect/cv_armor_util.hpp"
 #include "rm_detect/cv_util.hpp"
 

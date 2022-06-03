@@ -1,6 +1,5 @@
 #include "rm_detect/hamming_match.hpp"
 
-#include "rm_common/threading.hpp"
 #include "rm_detect/cv_util.hpp"
 
 namespace rm_detect

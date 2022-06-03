@@ -18,13 +18,20 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
+
+find_package(sensor_msgs REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(fmt REQUIRED)
 
-add_library(rm_common src/rm_common.cpp)
+add_library(rm_common
+  src/rm_common.cpp
+  src/image_msg.cpp
+)
 
 ament_target_dependencies(rm_common
+  sensor_msgs
+  OpenCV
   fmt
-  
 )
 
 target_include_directories(rm_common PUBLIC
@@ -45,6 +52,9 @@ install(
   RUNTIME DESTINATION bin
 )
 
+ament_export_dependencies(
+  fmt
+)
 ament_export_include_directories(
   include
 )

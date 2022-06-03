@@ -27,13 +27,13 @@ find_package(OpenCV REQUIRED)
 find_package(rm_common REQUIRED)
 
 
-add_executable(capture_node
+add_library(rm_capture
   src/capture_node.cpp
   src/daheng_capture.cpp
   src/dahua_capture.cpp
 )
 
-ament_target_dependencies(capture_node
+ament_target_dependencies(rm_capture
   builtin_interfaces
   rclcpp
   sensor_msgs
@@ -42,23 +42,49 @@ ament_target_dependencies(capture_node
   rm_common
 )
 
-target_include_directories(capture_node
+target_include_directories(rm_capture
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/daheng/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/daheng/include>
   PRIVATE
     /opt/HuarayTech/MVviewer/include
 )
 
-target_link_libraries(capture_node
+target_link_libraries(rm_capture
   ${CMAKE_SOURCE_DIR}/3rdparty/daheng/lib/libgxiapi.so
   /opt/HuarayTech/MVviewer/lib/libMVSDK.so
 )
 
-install(TARGETS
-  capture_node
-  DESTINATION lib/${PROJECT_NAME}
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+install(
+  TARGETS rm_capture
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+ament_export_dependencies(
+  builtin_interfaces
+  rclcpp
+  sensor_msgs
+  std_msgs
+  OpenCV
+  rm_common
+)
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  rm_capture
+)
+ament_export_targets(
+  export_${PROJECT_NAME}
 )
 
 ament_package()

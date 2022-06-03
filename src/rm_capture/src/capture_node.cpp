@@ -29,9 +29,7 @@ void CaptureNode::loop_videocapture()
       continue;
     }
 
-    sensor_msgs::msg::Image::UniquePtr msg(new sensor_msgs::msg::Image());
-    rm_common::make_image_msg(frame, msg);
-    pub_->publish(std::move(msg));
+    pub_->publish(std::move(rm_common::image2msg(frame)));
   }
 }
 
@@ -69,37 +67,8 @@ void CaptureNode::loop_camera(const CameraSettings settings)
       continue;
     }
 
-    sensor_msgs::msg::Image::UniquePtr msg(new sensor_msgs::msg::Image());
-    rm_common::make_image_msg(frame, msg);
-    pub_->publish(std::move(msg));
+    pub_->publish(std::move(rm_common::image2msg(frame)));
   }
 }
 }  // namespace rm_capture
 
-int main(int argc, char **argv)
-{
-  using namespace rm_capture;
-
-  rclcpp::init(argc, argv);
-  std::shared_ptr<CaptureNode> cap_node;
-  CameraSettings cs;
-  cs.manufacturer = "dahua";
-  cs.exposure_time = 9940;
-  cs.gain = 1.6;
-  cs.white_balance_blue = cs.white_balance_green = cs.white_balance_red = 1;
-  try
-  {
-    cap_node = std::make_shared<CaptureNode>(cs, "capture_frame");
-  }
-  catch (const std::exception &e)
-  {
-    __LOG_ERROR("创建节点失败 {}", e.what());
-    return 1;
-  }
-
-  rclcpp::spin(cap_node);
-
-  rclcpp::shutdown();
-
-  return 0;
-}

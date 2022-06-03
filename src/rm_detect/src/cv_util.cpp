@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include "rm_common/logging.hpp"
-#include "rm_common/threading.hpp"
 
 namespace rm_detect
 {

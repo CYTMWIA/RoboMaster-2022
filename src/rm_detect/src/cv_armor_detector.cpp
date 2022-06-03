@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "rm_common/threading.hpp"
 #include "rm_detect/cv_armor_util.hpp"
 #include "rm_detect/cv_util.hpp"
 #include "rm_detect/hamming_match.hpp"
@@ -35,11 +34,11 @@ int32_t lightbar_color(const cv::Mat &img, const RRect &lb)
 
 CvArmorDetector::CvArmorDetector()
 {
-  armor_classifier_.add_match(1, make_icon_hammimg_match("icon/1.png"));
-  armor_classifier_.add_match(2, make_icon_hammimg_match("icon/2.png"));
-  armor_classifier_.add_match(3, make_icon_hammimg_match("icon/3.png"));
-  armor_classifier_.add_match(4, make_icon_hammimg_match("icon/4.png"));
-  armor_classifier_.add_match(5, make_icon_hammimg_match("icon/5.png"));
+  armor_classifier_.add_match(1, make_icon_hammimg_match("asset/icon/1.png"));
+  armor_classifier_.add_match(2, make_icon_hammimg_match("asset/icon/2.png"));
+  armor_classifier_.add_match(3, make_icon_hammimg_match("asset/icon/3.png"));
+  armor_classifier_.add_match(4, make_icon_hammimg_match("asset/icon/4.png"));
+  armor_classifier_.add_match(5, make_icon_hammimg_match("asset/icon/5.png"));
 }
 
 int32_t CvArmorDetector::match_armor_icon(const cv::Mat &img, const BoundingBox &armor_bbox,
@@ -115,7 +114,7 @@ std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
   cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
   for (int i = 0; i < 256; i++)
     cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600 - gray_curve[i] * 600), cv::Scalar(255));
-  rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+  // rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
 
   cv::threshold(img_bin, img_bin, thresh, 255, cv::THRESH_BINARY);
   cv::morphologyEx(img_bin, img_bin, cv::MORPH_CLOSE,
@@ -123,7 +122,7 @@ std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
   // cv::morphologyEx(img_thr, img_thr, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_RECT,
   // cv::Size(2, 2)));
 
-  rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img_bin);
+  // rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img_bin);
 
   std::vector<std::vector<cv::Point>> contours = find_external_contours(img_bin);
 
