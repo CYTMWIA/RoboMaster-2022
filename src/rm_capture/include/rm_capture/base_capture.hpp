@@ -53,6 +53,17 @@ class BaseCameraCapture : public BaseCapture
    */
   virtual bool set_white_balance(float red, float green, float blue) = 0;
 };
+
+struct CameraSettings
+{
+  std::string manufacturer;    // 制造商 可选：dahua、daheng
+  double exposure_time;        // 相机曝光时间
+  double gain;                 // 相机增益
+  double white_balance_red;    // 相机白平衡 - 红色通道
+  double white_balance_green;  // 相机白平衡 - 绿色通道
+  double white_balance_blue;   // 相机白平衡 - 蓝色通道
+};
+
 }  // namespace rm_capture
 
 #endif

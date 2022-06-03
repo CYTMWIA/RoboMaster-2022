@@ -31,8 +31,6 @@ add_executable(capture_node
   src/capture_node.cpp
   src/daheng_capture.cpp
   src/dahua_capture.cpp
-  src/image_capture.cpp
-  src/video_capture.cpp
 )
 
 ament_target_dependencies(capture_node
