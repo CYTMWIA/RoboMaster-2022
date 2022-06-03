@@ -8,6 +8,7 @@
 #include <ceres/jet.h>
 
 #include <Eigen/Dense>
+#include <vector>
 
 namespace rm_filter
 {

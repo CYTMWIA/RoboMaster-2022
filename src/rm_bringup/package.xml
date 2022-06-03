@@ -8,8 +8,7 @@
   <license>TODO: License declaration</license>
 
   <depend>rm_common</depend>
-  <depend>rm_capture</depend>
-  <depend>rm_detect</depend>
+  <depend>rm_autoaim</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

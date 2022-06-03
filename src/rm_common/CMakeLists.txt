@@ -21,17 +21,14 @@ find_package(ament_cmake_ros REQUIRED)
 
 find_package(sensor_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(fmt REQUIRED)
+# find_package(spdlog REQUIRED)
 
 add_library(rm_common
   src/rm_common.cpp
-  src/image_msg.cpp
 )
 
 ament_target_dependencies(rm_common
-  sensor_msgs
-  OpenCV
-  fmt
+# spdlog
 )
 
 target_include_directories(rm_common PUBLIC
@@ -53,7 +50,7 @@ install(
 )
 
 ament_export_dependencies(
-  fmt
+  # spdlog
 )
 ament_export_include_directories(
   include

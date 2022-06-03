@@ -20,8 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
 find_package(rm_common REQUIRED)
-find_package(rm_capture REQUIRED)
-find_package(rm_detect REQUIRED)
+find_package(rm_autoaim REQUIRED)
 
 include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -34,8 +33,7 @@ add_executable(legacy_control
 ament_target_dependencies(legacy_control
   rclcpp
   rm_common
-  rm_capture
-  rm_detect
+  rm_autoaim
 )
 
 install(TARGETS 
