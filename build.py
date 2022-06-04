@@ -8,9 +8,9 @@ import time
 
 def build(rebuild):
     if rebuild:
-        os.system("rm -rf CMake* src")
+        os.system("rm -rf build install log")
 
-    return os.system("cmake -DARMOR_MODEL=openvino_yolox .. && make -j$(($(nproc) + 1))")
+    return os.system("colcon build --symlink-install --packages-up-to rm_bringup")
 
 
 def run(debug, auto_restart):
@@ -39,7 +39,7 @@ def main():
     arg = parser.parse_args()
 
     this_path = sys.argv[0]
-    work_dir = os.path.join(os.path.dirname(this_path), "build")
+    work_dir = os.path.join(os.path.dirname(this_path))
     os.makedirs(work_dir, exist_ok=True)
     os.chdir(work_dir)
 

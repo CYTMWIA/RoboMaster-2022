@@ -24,6 +24,9 @@ PredictNode::PredictNode(const PredictNodeSettings &settings, const std::string 
     : Node(node_name, rclcpp::NodeOptions().use_intra_process_comms(true)),
       pimpl(std::make_unique<Impl>(settings))
 {
+  // Parameter
+  
+  // Topic
   sub_ = this->create_subscription<rm_interfaces::msg::BoundingBoxesWithImageSize>(
       settings.input, rclcpp::SensorDataQoS(),
       std::bind(&PredictNode::predict, this, std::placeholders::_1));
@@ -157,6 +160,13 @@ void PredictNode::predict(rm_interfaces::msg::BoundingBoxesWithImageSize::ConstS
         pimpl->kf.update(pos.x, pos.y, pos.z);
       }
     }
+
+    geometry_msgs::msg::PointStamped ps;
+    ps.header.stamp = this->now();
+    ps.point.x = pimpl->kf.X[0];
+    ps.point.x = pimpl->kf.X[2];
+    ps.point.x = pimpl->kf.X[4];
+    pub_debug_target_point_->publish(ps);
 
     rm_interfaces::msg::Angle3 cmd2ec;
     if (ptarget != nullptr || using_kf_predict)
