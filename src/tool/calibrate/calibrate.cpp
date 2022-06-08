@@ -465,7 +465,9 @@ int main(int argc, char* argv[])
     //! [output_undistorted]
     //------------------------------ Show image and check for input commands -------------------
     //! [await_input]
-    imshow("Image View", view);
+    cv::Mat show;
+    cv::resize(view, show, cv::Size(720, view.rows*(1.0*720/view.cols)));
+    imshow("Image View", show);
     char key = (char)waitKey(s.inputCapture.isOpened() ? 50 : s.delay);
 
     if (key == ESC_KEY) break;
