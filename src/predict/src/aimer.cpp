@@ -30,6 +30,13 @@ void Aimer::bullet_type(rm_data::BulletType bullet_type)
 
 Aimer::TestResult Aimer::test(double target_x, double target_y, double rad, double overtime)
 {
+  // 斜抛公式
+  // TestResult res;
+  // res.y_deviation = target_y - ((-G*target_x*target_x)/(2*bullet_speed_*bullet_speed_*cos(rad)*cos(rad))+tan(rad)*target_x);
+  // res.ok = res.y_deviation<=0;
+  // return res;
+
+  // 空气阻力模型
   // 迭代法计算弹道
   double t = 0, x = 0, y = 0, xs = bullet_speed_ * cos(rad), ys = bullet_speed_ * sin(rad);
   TestResult res;
@@ -66,7 +73,7 @@ Aimer::TestResult Aimer::test(double target_x, double target_y, double rad, doub
 
 AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos, float real_pitch)
 {
-  float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0) + 58;
+  float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0) + 60;
 
   // Yaw 轴偏差
   float yaw = -atan(tx / ty);

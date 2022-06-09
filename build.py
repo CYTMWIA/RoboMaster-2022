@@ -23,7 +23,7 @@ def build(rebuild):
 
 
 def run(debug, auto_restart):
-    os.system("ln -s ../asset/* ./")
+    # os.system("ln -s ../asset/* ./")
 
     cmd = "./REDO"
     if debug:

@@ -166,20 +166,20 @@ void StrategyThread::run()
 
       // 预测，注意：俯仰角计算结果为弧度
       AimResult aim, last_aim;
-      double t_ms = 0, last_diff = INFINITY;
-      while (true)
-      {
-        auto ppos = kf_.predict_without_save(t_ms / 1000.0);
-        aim = aimer({ppos[0], ppos[2], ppos[4]}, robot_status.pitch / 180.0 * M_PI);
+      // double t_ms = 0, last_diff = INFINITY;
+      // while (true)
+      // {
+      //   auto ppos = kf_.predict_without_save(t_ms / 1000.0);
+      //   aim = aimer({ppos[0], ppos[2], ppos[4]}, robot_status.pitch / 180.0 * M_PI);
 
-        if (!aim.ok) break;
+      //   if (!aim.ok) break;
 
-        auto diff = std::abs(aim.flying_time - t_ms);
-        // __LOG_DEBUG("{}", aim.flying_time);
-        if (diff < 0.1 || t_ms > aim.flying_time) break;
-        t_ms += diff * 0.5;
-      }
-      // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
+      //   auto diff = std::abs(aim.flying_time - t_ms);
+      //   // __LOG_DEBUG("{}", aim.flying_time);
+      //   if (diff < 0.1 || t_ms > aim.flying_time) break;
+      //   t_ms += diff * 0.5;
+      // }
+      aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
       if (aim.ok)
       {
         // 转为角度

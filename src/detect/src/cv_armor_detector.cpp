@@ -57,7 +57,7 @@ int32_t CvArmorDetector::match_armor_icon(const cv::Mat &img, const BoundingBox 
   cv::cvtColor(icon, icon, cv::COLOR_BGR2GRAY);
   cv::threshold(icon, icon, 0, 255, cv::THRESH_OTSU);
 
-  // rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", icon);
+  rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", icon);
 
   std::vector<std::vector<cv::Point>> contours = find_external_contours(icon);
 
@@ -111,11 +111,12 @@ std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
   maxp = gray_curve[maxp];
   for (int i = 0; i < 256; i++) gray_curve[i] = gray_curve[i] / maxp;
   // for (int i=0;i<256;i++) std::cout << stat[i] << std::endl;
-  cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
-  cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
-  for (int i = 0; i < 256; i++)
-    cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600 - gray_curve[i] * 600), cv::Scalar(255));
-  rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+  // 灰度图
+  // cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
+  // cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
+  // for (int i = 0; i < 256; i++)
+  //   cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600 - gray_curve[i] * 600), cv::Scalar(255));
+  // rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
 
   cv::threshold(img_bin, img_bin, thresh, 255, cv::THRESH_BINARY);
   cv::morphologyEx(img_bin, img_bin, cv::MORPH_CLOSE,
