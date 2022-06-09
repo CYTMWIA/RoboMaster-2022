@@ -9,8 +9,17 @@ import time
 def build(rebuild):
     if rebuild:
         os.system("rm -rf CMake* src")
-
-    return os.system("cmake -DARMOR_MODEL=openvino_yolox .. && make -j$(($(nproc) + 1))")
+    # 使用指定版本 gcc/g++
+    # https://stackoverflow.com/questions/17275348/how-to-specify-new-gcc-path-for-cmake
+    compiler = ""
+    for v in ["11", "9"]:
+        if os.path.exists(f"/usr/bin/g++-{v}"):
+            compiler = f"export CC=/usr/bin/gcc-{v} && export CXX=/usr/bin/g++-{v} && "
+            break
+    if len(compiler)==0:
+        print("低版本的编译器！")
+        return 1
+    return os.system(f"{compiler} cmake -DARMOR_MODEL=none .. && make -j$(($(nproc) + 1))")
 
 
 def run(debug, auto_restart):

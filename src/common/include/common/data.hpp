@@ -34,6 +34,6 @@ const double BULLET_SMALL_DIAMETER = 17;  // 小弹丸直径
 const double BULLET_SMALL_MASS = 3.2;     // 小弹丸质量
 const double BULLET_BIG_DIAMETER = 42;    // 大弹丸直径
 const double BULLET_BIG_MASS = 41;        // 大弹丸质量
-}  // namespace rm_rm_data
+}  // namespace rm_data
 
 #endif  // __RM_DATA_HPP__

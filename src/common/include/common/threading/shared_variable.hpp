@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <condition_variable>
 #include <shared_mutex>
+#include <thread>
 
 namespace rm_threading
 {

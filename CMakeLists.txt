@@ -11,7 +11,7 @@ project(REDO VERSION 0.1.0)
 
 # C++标准
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 # 全局启用的外部库
 

@@ -22,7 +22,7 @@ class RoslikeTopic
   // std::shared_mutex varmap_mu_;
 
  public:
-  static bool exist(const std::string &name) { return instance_.varmap_.contains(name); };
+  static bool exist(const std::string &name) { return instance_.varmap_.count(name); };
 
   template <typename T = DataType>
   static void set(std::string name, T &&var)

@@ -24,6 +24,6 @@ target_sources( ${PROJECT_NAME}
 
 target_link_libraries( ${PROJECT_NAME}
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/3rdparty/daheng/libs/libgxiapi.so
+        /usr/lib/libgxiapi.so
         /opt/HuarayTech/MVviewer/lib/libMVSDK.so
 )
