@@ -20,17 +20,23 @@ int32_t lightbar_color(const cv::Mat &img, const RRect &lb)
 
   std::vector<cv::Mat> chs;
   cv::split(roi, chs);
-  int32_t diff = 0;
+  int32_t rc = 0, bc = 0;
   for (int i = 0; i < roi.rows; i++)
   {
     uint8_t *r = chs[2].data + i * roi.cols;
     uint8_t *b = chs[0].data + i * roi.cols;
     for (int j = 0; j < roi.cols; j++)
     {
-      diff += r[j] - b[j];
+      rc += r[j];
+      bc += b[j];
     }
   }
-  return diff > 0;
+  if (rc > 2 * bc)
+    return 1;
+  else if (bc > 2 * rc)
+    return 0;
+  else
+    return -1;
 }
 
 CvArmorDetector::CvArmorDetector()
@@ -104,23 +110,23 @@ std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
   }
   thresh = std::min(255, thresh);
 
-  // 灰度直方图
+#if 0  // 灰度直方图
   int32_t maxp = 0;
   for (int i = 0; i < 256; i++)
     if (gray_curve[i] > gray_curve[maxp]) maxp = i;
   maxp = gray_curve[maxp];
   for (int i = 0; i < 256; i++) gray_curve[i] = gray_curve[i] / maxp;
-  // for (int i=0;i<256;i++) std::cout << stat[i] << std::endl;
-  // 灰度图
-  // cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
-  // cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
-  // for (int i = 0; i < 256; i++)
-  //   cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600 - gray_curve[i] * 600), cv::Scalar(255));
-  // rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+
+  cv::Mat stat_img{cv::Size(256, 600), CV_8UC1, cv::Scalar(0)};
+  cv::line(stat_img, cv::Point(thresh, 0), cv::Point(thresh, 600), cv::Scalar(125));
+  for (int i = 0; i < 256; i++)
+    cv::line(stat_img, cv::Point(i, 600), cv::Point(i, 600 - gray_curve[i] * 600), cv::Scalar(255));
+  rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", stat_img);
+#endif
 
   cv::threshold(img_bin, img_bin, thresh, 255, cv::THRESH_BINARY);
   cv::morphologyEx(img_bin, img_bin, cv::MORPH_CLOSE,
-                   cv::getStructuringElement(cv::MORPH_RECT, cv::Size(8, 4)));
+                   cv::getStructuringElement(cv::MORPH_RECT, cv::Size(6, 2)));
   // cv::morphologyEx(img_thr, img_thr, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_RECT,
   // cv::Size(2, 2)));
 
@@ -133,9 +139,9 @@ std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
   for (const auto &con : contours)
   {
     // 筛选轮廓
-    if (cv::contourArea(con) < 1) continue;
-
-    rrects.push_back(RRect(cv::minAreaRect(con)));
+    if (cv::contourArea(con) < 9) continue;
+    RRect rr = RRect(cv::minAreaRect(con));
+    if (M_PI / 4.0 < rr.rad && rr.rad < M_PI * 3.0 / 4.0) rrects.push_back(std::move(rr));
   }
   match_lightbars(rrects, pairs);
 
@@ -143,22 +149,26 @@ std::vector<BoundingBox> CvArmorDetector::operator()(const cv::Mat &src)
   std::vector<BoundingBox> armors;
   for (const auto &pair : pairs)
   {
-    if (pair.confidence < 0.75) break;
+    if (pair.confidence < 0.9) break;
     if (vis[pair.left_idx] || vis[pair.right_idx]) continue;
 
     const RRect &left = rrects[pair.left_idx];
     const RRect &right = rrects[pair.right_idx];
 
-    auto armor_left = left;
-    armor_left.width *= 2.36;
-    auto armor_right = right;
-    armor_right.width *= 2.36;
-    int32_t robot_id = match_armor_icon(img, make_boundingbox(armor_left, armor_right), 0.75);
-    if (robot_id == -1) continue;
+    // auto armor_left = left;
+    // armor_left.width *= 2.36;
+    // auto armor_right = right;
+    // armor_right.width *= 2.36;
+    // int32_t robot_id = match_armor_icon(img, make_boundingbox(armor_left, armor_right), 0.75);
+    // if (robot_id == -1) continue;
 
     BoundingBox bbox = make_boundingbox(left, right);
-    bbox.tag_id = robot_id;
+
+    bbox.tag_id = 0;
+
     bbox.color_id = lightbar_color(img, left);
+    if (bbox.color_id == -1) continue;
+
     for (int i = 0; i < 4; i++)
     {
       bbox.pts[i].x /= scale;

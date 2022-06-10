@@ -14,9 +14,14 @@ double judge_lightbars_pair(const BoundingBox &lightbars_bbox)
   using namespace std;
   double c = 0, total_score = 0;
 
-#define ADD_CONFIDENCE(weight, x) \
-  total_score += weight;          \
-  c += (double)(weight) * (x);
+  double tmp_c;
+#define ADD_CONFIDENCE(weight, minv, x) \
+  total_score += weight;                \
+  tmp_c = (double)(weight) * (x);       \
+  if (tmp_c < minv)                     \
+    return 0;                           \
+  else                                  \
+    c += tmp_c;
 
   const cv::Point2f *pts = lightbars_bbox.pts;
   auto v1 = pts[0] - pts[1];
@@ -27,20 +32,20 @@ double judge_lightbars_pair(const BoundingBox &lightbars_bbox)
   auto l3 = cv::norm(v3);
 
   // 两灯条角度差
-  ADD_CONFIDENCE(100, (v1 / l1).dot(v2 / l2));
+  ADD_CONFIDENCE(300, 150, (v1 / l1).dot(v2 / l2));
 
   // 两灯条连接端点后应接近矩形而非平行四边形
-  ADD_CONFIDENCE(100, 1 - (v1 / l1).dot(v3 / l3));
+  ADD_CONFIDENCE(100, 30, 1 - (v1 / l1).dot(v3 / l3));
 
   // 两灯条间距应在一定范围内
-  ADD_CONFIDENCE(100, 1 - (l3 / min(l1, l2) - 1) / 5);
+  ADD_CONFIDENCE(100, 30, 1 - (l3 / min(l1, l2) - 1) / 5);
 
   // 两灯条长度比应在一定范围内
-  ADD_CONFIDENCE(100, 1 - (max(l1, l2) / min(l1, l2) - 1) / 2.0);
+  ADD_CONFIDENCE(100, 30, 1 - (max(l1, l2) / min(l1, l2) - 1) / 2.0);
 
 #undef ADD_CONFIDENCE
   c = max(0.0, c) / total_score;
-  // std::cout << "CONF: " << c << std::endl;
+  std::cout << "CONF: " << c << std::endl;
 
   return c;
 }

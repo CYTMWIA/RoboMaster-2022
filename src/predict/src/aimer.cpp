@@ -32,44 +32,47 @@ Aimer::TestResult Aimer::test(double target_x, double target_y, double rad, doub
 {
   TestResult res;
 
+#if 1
   // 斜抛公式
-  res.y_deviation = target_y - ((-G*target_x*target_x)/(2*bullet_speed_*bullet_speed_*cos(rad)*cos(rad))+tan(rad)*target_x);
-  res.time = target_x/(bullet_speed_*cos(rad));
-  res.ok = res.y_deviation<=0;
+  // clang-format off
+  res.y_deviation = target_y-((-G*target_x*target_x)/(2*bullet_speed_*bullet_speed_*cos(rad)*cos(rad))+tan(rad)*target_x);
+  // clang-format on
+  res.time = target_x / (bullet_speed_ * cos(rad));
+  res.ok = res.y_deviation <= 0;
   return res;
-
+#else
   // 空气阻力模型
   // 迭代法计算弹道
-  // double t = 0, x = 0, y = 0, vx = bullet_speed_ * cos(rad), vy = bullet_speed_ * sin(rad);
-  // while (1)
-  // {
-  //   t += dt;
-  //   x += vx;
-  //   y += vy;
+  double t = 0, x = 0, y = 0, vx = bullet_speed_ * cos(rad), vy = bullet_speed_ * sin(rad);
+  while (1)
+  {
+    t += dt;
+    x += vx;
+    y += vy;
 
-  //   // __LOG_DEBUG("{}, {}, {}, {}, {}, {}, {}, {}", rad, target_x, target_y, x, y, vx, vy, t);
+    // __LOG_DEBUG("{}, {}, {}, {}, {}, {}, {}, {}", rad, target_x, target_y, x, y, vx, vy, t);
 
-  //   if (x >= target_x)
-  //   {
-  //     res.ok = true;
-  //     double r = 1 - (target_x - (x - vx)) / vx;
-  //     y -= vy * r;
-  //     t -= dt * r;
-  //     break;
-  //   }
-  //   if (t > overtime || (y < target_y && vy < 0))
-  //   {
-  //     res.ok = false;
-  //     break;
-  //   }
-
-  //   vx += (-0.5 * Rho_Air * vx * vx * Cd_Sphere * bullet_area_) / bullet_mass_ * dt;
-  //   vy += (-G * bullet_mass_ - 0.5 * Rho_Air * vy * vy * Cd_Sphere * bullet_area_) / bullet_mass_ *
-  //         dt;
-  // }
-  // res.y_deviation = target_y - y;
-  // res.time = t;
-
+    if (x >= target_x)
+    {
+      res.ok = true;
+      double r = 1 - (target_x - (x - vx)) / vx;
+      y -= vy * r;
+      t -= dt * r;
+      break;
+    }
+    if (t > overtime || (y < target_y && vy < 0))
+    {
+      res.ok = false;
+      break;
+    }
+    // clang-format off
+    vx += (-0.5 * Rho_Air * vx * vx * Cd_Sphere * bullet_area_) / bullet_mass_ * dt;
+    vy += (-G * bullet_mass_ - 0.5 * Rho_Air * vy * vy * Cd_Sphere * bullet_area_) / bullet_mass_ * dt;
+    // clang-format on
+  }
+  res.y_deviation = target_y - y;
+  res.time = t;
+#endif
   return res;
 }
 
