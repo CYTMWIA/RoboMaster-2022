@@ -76,9 +76,9 @@ Aimer::TestResult Aimer::test(double target_x, double target_y, double rad, doub
   return res;
 }
 
-AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos, float real_pitch)
+AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos)
 {
-  float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0) + 60;
+  float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0);
 
   // Yaw 轴偏差
   float yaw = -atan(tx / ty);
@@ -87,7 +87,7 @@ AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos, float
   // 计算过程还请看笔记《弹丸运动学》
 
   // 将xOy平面“转”到水平面
-  float dis = sqrt(ty * ty + tz * tz), target_pitch = atan(tz / ty) + real_pitch;
+  float dis = sqrt(ty * ty + tz * tz), target_pitch = atan(tz / ty);
   float hx = tx, hy = dis * cos(target_pitch), hz = dis * sin(target_pitch);
   // 假设现在是竖直平面，平面上有【枪口】与【目标】两个点
   float x = sqrt(hx * hx + hy * hy);  // 与目标在x轴（横轴）的距离
@@ -117,8 +117,6 @@ AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos, float
     mid = (lo + hi) / 2.0;
   }
 
-  float pitch = mid - real_pitch;
-
-  return AimResult(true, yaw, pitch, tres.time);
+  return AimResult(true, yaw, mid, tres.time);
 }
 }  // namespace rm_predict

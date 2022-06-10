@@ -57,7 +57,7 @@ class Aimer
    * @param real_pitch 目前机器人实际pitch轴角度
    * @return AimResult
    */
-  AimResult operator()(const Eigen::Matrix<double, 3, 1> &target_pos, float real_pitch = 0);
+  AimResult operator()(const Eigen::Matrix<double, 3, 1> &target_pos);
 };
 }  // namespace rm_predict
 

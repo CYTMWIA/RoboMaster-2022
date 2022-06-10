@@ -46,6 +46,9 @@ void StrategyThread::run()
      */
     auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result");
     auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true);  // 允许旧数据
+    // 转为 弧度
+    robot_status.yaw *= M_PI / 180.0;
+    robot_status.pitch *= M_PI / 180.0;
 
     // aimer.bullet_speed(robot_status.bullet_speed * 1000);
     aimer.bullet_speed(16);
@@ -141,8 +144,23 @@ void StrategyThread::run()
      */
     if (ptarget != nullptr)
     {
-      // PNP
+      // PNP（相机坐标系）
       auto pos = pnp_solver_.solve(ARMOR_SMALL, ptarget->pts);
+      // 转换为 机器人坐标系
+      // 机器人中心
+      pos.y += 130;
+      pos.z += 60;
+      // Pitch 轴
+      double sqr = pos.y * pos.y + pos.z * pos.z;
+      double rad = atan2(pos.z, pos.y) + robot_status.pitch;
+      pos.y = sqr * cos(rad);
+      pos.z = sqr * sin(rad);
+      // Yaw 轴
+      sqr = pos.x * pos.x + pos.y * pos.y;
+      rad = atan2(pos.y, pos.x) + robot_status.yaw;
+      pos.x = sqr * cos(rad);
+      pos.y = sqr * sin(rad);
+
       // __LOG_DEBUG("{:.2f}, {:.2f}, {:.2f}", pos.x, pos.y, pos.z);
 
       if (new_target_flag)
@@ -166,25 +184,27 @@ void StrategyThread::run()
 
       // 预测，注意：俯仰角计算结果为弧度
       AimResult aim, last_aim;
-      // double t_ms = 0, last_diff = INFINITY;
-      // while (true)
-      // {
-      //   auto ppos = kf_.predict_without_save(t_ms / 1000.0);
-      //   aim = aimer({ppos[0], ppos[2], ppos[4]}, robot_status.pitch / 180.0 * M_PI);
+      double t_ms = 0, last_diff = INFINITY;
+      while (true)
+      {
+        auto ppos = kf_.predict_without_save(t_ms / 1000.0);
+        aim = aimer({ppos[0], ppos[2], ppos[4]});
 
-      //   if (!aim.ok) break;
+        if (!aim.ok) break;
 
-      //   auto diff = std::abs(aim.flying_time - t_ms);
-      //   // __LOG_DEBUG("{}", aim.flying_time);
-      //   if (diff < 0.1 || t_ms > aim.flying_time) break;
-      //   t_ms += diff * 0.5;
-      // }
-      aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
+        auto diff = std::abs(aim.flying_time - t_ms);
+        // __LOG_DEBUG("{}", aim.flying_time);
+        if (diff < 0.1 || t_ms > aim.flying_time) break;
+        t_ms += diff * 0.5;
+      }
+      // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
       if (aim.ok)
       {
+        aim.pitch -= robot_status.pitch;
+        aim.yaw -= robot_status.yaw;
         // 转为角度
-        cmd2ec.pitch = std::max(-5.0, std::min(aim.pitch * (180.0 / M_PI) * 0.3, 5.0));
-        cmd2ec.yaw = std::max(-5.0, std::min(aim.yaw * (180.0 / M_PI) * 0.3, 5.0));
+        cmd2ec.pitch = std::max(-10.0, std::min(aim.pitch * (180.0 / M_PI) * 0.3, 10.0));
+        cmd2ec.yaw = std::max(-10.0, std::min(aim.yaw * (180.0 / M_PI) * 0.3, 10.0));
         // cmd2ec.pitch = aim.pitch*(180.0/M_PI);
         // cmd2ec.yaw = aim.yaw*(180.0/M_PI);
       }
