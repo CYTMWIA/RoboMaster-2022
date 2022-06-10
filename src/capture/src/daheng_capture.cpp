@@ -29,12 +29,20 @@ uint32_t DahengCapture::get_devices_count()
 
 bool DahengCapture::set_exposure_time(float time)
 {
-  if (GXSetFloat(dev_, GX_FLOAT_EXPOSURE_TIME, time) == GX_STATUS_SUCCESS)
-    return true;
-  else
+  int err = 0;
+  err += GXSetEnum(dev_, GX_ENUM_EXPOSURE_MODE, GX_EXPOSURE_MODE_TIMED);
+  err += GXSetEnum(dev_, GX_ENUM_EXPOSURE_TIME_MODE, GX_EXPOSURE_TIME_MODE_STANDARD);
+  err += GXSetEnum(dev_, GX_ENUM_EXPOSURE_AUTO, GX_EXPOSURE_AUTO_OFF);
+  err += GXSetFloat(dev_, GX_FLOAT_EXPOSURE_TIME, time);
+
+  if (err)
   {
     __LOG_WARNING("曝光时间设置失败");
     return false;
+  }
+  else
+  {
+    return true;
   }
 }
 
@@ -51,22 +59,22 @@ bool DahengCapture::set_gain(float gain)
 
 bool DahengCapture::set_white_balance(float red, float green, float blue)
 {
-  if (GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_RED) ==
-          GX_STATUS_SUCCESS &&
-      GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, red) == GX_STATUS_SUCCESS &&
-      GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_GREEN) ==
-          GX_STATUS_SUCCESS &&
-      GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, green) == GX_STATUS_SUCCESS &&
-      GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_BLUE) ==
-          GX_STATUS_SUCCESS &&
-      GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, blue) == GX_STATUS_SUCCESS)
-  {
-    return true;
-  }
-  else
+  int err = 0;
+  err += GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_RED);
+  err += GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, red);
+  err += GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_GREEN);
+  err += GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, green);
+  err += GXSetEnum(dev_, GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_BLUE);
+  err += GXSetFloat(dev_, GX_FLOAT_BALANCE_RATIO, blue);
+
+  if (err)
   {
     __LOG_WARNING("白平衡设置失败\n");
     return false;
+  }
+  else
+  {
+    return true;
   }
 }
 
