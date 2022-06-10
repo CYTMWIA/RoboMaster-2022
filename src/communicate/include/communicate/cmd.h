@@ -7,12 +7,16 @@
  * 通信中，所有角度单位都是角度（angle），而非弧度！
  */
 
-extern const uint8_t kHeadingBytesCount;
-extern const uint8_t kHeadingBytes[];
-extern const uint8_t kTailingBytesCount;
-extern const uint8_t kTailingBytes[];
-extern const uint32_t kCmdToCvSize;
-extern const uint32_t kCmdToEcSize;
+#define CMD_HEADING_BYTES ("IR")
+#define CMD_HEADING_BYTES_LENGTH (2)
+#define CMD_TAILING_BYTES ("ON")
+#define CMD_TAILING_BYTES_LENGTH (2)
+#define CMD_TO_CV_CONTENT_LENGTH (14)
+#define CMD_TO_CV_SIZE \
+  (CMD_HEADING_BYTES_LENGTH + CMD_TO_CV_CONTENT_LENGTH + CMD_TAILING_BYTES_LENGTH)
+#define CMD_TO_EC_CONTENT_LENGTH (9)
+#define CMD_TO_EC_SIZE \
+  (CMD_HEADING_BYTES_LENGTH + CMD_TO_EC_CONTENT_LENGTH + CMD_TAILING_BYTES_LENGTH)
 
 typedef enum
 {
@@ -36,11 +40,9 @@ typedef struct CmdToCv
 {
   EnemyColor enemy_color;  // 【敌方颜色】0-蓝 1-红
   AimTarget target;  // 【打击目标】00-关闭自瞄 01-装甲板 10-小能量机关 11-大能量机关
-  uint8_t tactic;  // 【战术编号】000-当前打击目标下的默认战术 （其他之后再说）
   float bullet_speed;  // 子弹初速度（m/s）
   float pitch;         // 当前pitch轴角度（水平为零，向上为正）
-  float x_acc;         // 云台横向轴加速度（左右）
-  float y_acc;         // 云台纵向轴加速度（前后）
+  float yaw;           // 当前yaw轴角度（正前为零，向左为正）
 } CmdToCv;
 
 /**
@@ -57,7 +59,7 @@ void CmdToCv_make(const CmdToCv *cmd, uint8_t *data);
  * @param cmd
  * @param data
  * @param data_len 数组长度
- * @return int32_t 负数表示未找到头字节，0表示解析成功，正数表示头字节的下标（解析失败）
+ * @return int32_t 负数表示解析失败，0表示解析成功
  */
 int32_t CmdToCv_parse(CmdToCv *cmd, uint8_t *data, uint32_t data_len);
 
@@ -67,8 +69,9 @@ int32_t CmdToCv_parse(CmdToCv *cmd, uint8_t *data, uint32_t data_len);
  */
 typedef struct CmdToEc
 {
-  float pitch;  // pitch轴偏差（当前pitch+偏差pitch=目标pitch）
-  float yaw;    // yaw轴偏差，与pitch轴同理
+  float pitch;   // pitch轴偏差（当前pitch+偏差pitch=目标pitch）
+  float yaw;     // yaw轴偏差，与pitch轴同理
+  uint8_t fire;  // 是否推荐发射
 } CmdToEc;
 
 /**
@@ -85,7 +88,7 @@ void CmdToEc_make(const CmdToEc *cmd, uint8_t *data);
  * @param cmd
  * @param data
  * @param data_len 数组长度
- * @return int32_t 负数表示未找到头字节，0表示解析成功，正数表示头字节的下标（解析失败）
+ * @return int32_t 负数表示解析失败，0表示解析成功
  */
 int32_t CmdToEc_parse(CmdToEc *cmd, uint8_t *data, uint32_t data_len);
 

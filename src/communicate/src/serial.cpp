@@ -13,16 +13,15 @@ class Serial::Impl
   serial::Serial serial_;
   std::vector<uint8_t> recv_buffer_;
 
-  Impl(std::string dev, uint32_t baud_rate)
-      : serial_(dev, baud_rate), recv_buffer_(kCmdToCvSize * 2)
+  Impl(std::string dev, uint32_t baud_rate) : serial_(dev, baud_rate), recv_buffer_(CMD_TO_CV_SIZE)
   {
   }
 
   void send(const CvStatus &status)
   {
-    uint8_t data[kCmdToEcSize];
+    uint8_t data[CMD_TO_EC_SIZE];
     CmdToEc_make(&status, data);
-    serial_.write(data, kCmdToEcSize);
+    serial_.write(data, CMD_TO_EC_SIZE);
   }
 
   void update(RobotStatus &status)
@@ -37,13 +36,14 @@ class Serial::Impl
     // std::cout << std::endl;
 
     auto res = CmdToCv_parse(&status, recv_buffer_.data(), recv_buffer_.size());
-    if (res < 0)
+    if (res != 0)
     {
-      recv_buffer_.clear();
       __LOG_WARNING("串口数据解析失败");
     }
     else
-      recv_buffer_.erase(recv_buffer_.begin(), recv_buffer_.begin() + res);
+    {
+      recv_buffer_.clear();
+    }
   }
 };
 
