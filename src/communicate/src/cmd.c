@@ -11,9 +11,20 @@
 #define PUSH(pod_lv) __PUSH(&(pod_lv), sizeof(pod_lv));
 
 #define PULL_HEADING_BYTES() idx = (idx + CMD_HEADING_BYTES_LENGTH) % data_len;
-#define PULL(pod_lv)                             \
-  memcpy(&(pod_lv), data + idx, sizeof(pod_lv)); \
-  idx = (idx + sizeof(pod_lv)) % data_len;
+#define PULL(pod_lv)                               \
+  if (idx + sizeof(pod_lv) <= data_len)            \
+  {                                                \
+    memcpy(&(pod_lv), data + idx, sizeof(pod_lv)); \
+    idx = (idx + sizeof(pod_lv)) % data_len;       \
+  }                                                \
+  else                                             \
+  {                                                \
+    for (int i = 0; i < sizeof(pod_lv); i++)       \
+    {                                              \
+      memcpy(&(pod_lv) + i, data + idx, 1);        \
+      idx = (idx + 1) % data_len;                  \
+    }                                              \
+  }
 
 /*
  * CmdToCv 数组顺序与声明顺序相同
