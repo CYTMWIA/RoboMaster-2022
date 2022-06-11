@@ -35,8 +35,8 @@ class Serial::Impl
     // for (const auto &c: recv_buffer_) std::cout << c << " | ";
     // std::cout << std::endl;
 
-    auto res = CmdToCv_parse(&status, recv_buffer_.data(), recv_buffer_.size());
-    if (res != 0)
+    auto err = CmdToCv_parse(&status, recv_buffer_.data(), recv_buffer_.size());
+    if (err != 0)
     {
       __LOG_WARNING("串口数据解析失败");
     }

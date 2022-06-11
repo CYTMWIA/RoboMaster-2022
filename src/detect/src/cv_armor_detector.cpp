@@ -31,9 +31,9 @@ int32_t lightbar_color(const cv::Mat &img, const RRect &lb)
       bc += b[j];
     }
   }
-  if (rc > 2 * bc)
+  if (rc > 1.2 * bc)
     return 1;
-  else if (bc > 2 * rc)
+  else if (bc > 1.2 * rc)
     return 0;
   else
     return -1;

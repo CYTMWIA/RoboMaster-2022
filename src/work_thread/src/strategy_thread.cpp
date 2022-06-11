@@ -46,9 +46,11 @@ void StrategyThread::run()
      */
     auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result");
     auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true);  // 允许旧数据
+    // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", { robot_status.pitch, robot_status.yaw});
+    // __LOG_DEBUG("{}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
     // 转为 弧度
     robot_status.yaw *= M_PI / 180.0;
-    robot_status.pitch *= M_PI / 180.0;
+    robot_status.pitch *= -M_PI / 180.0; // 取反满足抽象
 
     // aimer.bullet_speed(robot_status.bullet_speed * 1000);
     aimer.bullet_speed(16);
@@ -151,15 +153,15 @@ void StrategyThread::run()
       pos.y += 130;
       pos.z += 60;
       // Pitch 轴
-      double sqr = pos.y * pos.y + pos.z * pos.z;
+      double len = sqrt(pos.y * pos.y + pos.z * pos.z);
       double rad = atan2(pos.z, pos.y) + robot_status.pitch;
-      pos.y = sqr * cos(rad);
-      pos.z = sqr * sin(rad);
+      pos.y = len * cos(rad);
+      pos.z = len * sin(rad);
       // Yaw 轴
-      sqr = pos.x * pos.x + pos.y * pos.y;
+      len = sqrt(pos.x * pos.x + pos.y * pos.y);
       rad = atan2(pos.y, pos.x) + robot_status.yaw;
-      pos.x = sqr * cos(rad);
-      pos.y = sqr * sin(rad);
+      pos.x = len * cos(rad);
+      pos.y = len * sin(rad);
 
       // __LOG_DEBUG("{:.2f}, {:.2f}, {:.2f}", pos.x, pos.y, pos.z);
 
@@ -179,8 +181,7 @@ void StrategyThread::run()
     CmdToEc cmd2ec = {0, 0};
     if (ptarget != nullptr || using_kf_predict)
     {
-      // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)kf_.X[0], (float)kf_.X[2],
-      // (float)kf_.X[4]});
+      RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
 
       // 预测，注意：俯仰角计算结果为弧度
       AimResult aim, last_aim;
@@ -213,8 +214,8 @@ void StrategyThread::run()
     /*
      * 发送信号
      */
-    RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
-                                          {(float)cmd2ec.pitch, (float)cmd2ec.yaw});
+    // RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
+    //                                       {(float)cmd2ec.pitch, (float)cmd2ec.yaw});
     RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
     // 状态保存

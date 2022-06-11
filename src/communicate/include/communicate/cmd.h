@@ -38,8 +38,8 @@ typedef enum
  */
 typedef struct CmdToCv
 {
-  EnemyColor enemy_color;  // 【敌方颜色】0-蓝 1-红
-  AimTarget target;  // 【打击目标】00-关闭自瞄 01-装甲板 10-小能量机关 11-大能量机关
+  uint8_t enemy_color;  // 【敌方颜色】0-蓝 1-红
+  uint8_t target;  // 【打击目标】00-关闭自瞄 01-装甲板 10-小能量机关 11-大能量机关
   float bullet_speed;  // 子弹初速度（m/s）
   float pitch;         // 当前pitch轴角度（水平为零，向上为正）
   float yaw;           // 当前yaw轴角度（正前为零，向左为正）

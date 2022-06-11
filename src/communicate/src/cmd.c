@@ -55,7 +55,7 @@ int32_t CmdToCv_parse(CmdToCv *cmd, uint8_t *data, uint32_t data_len)
 
     if (head_eq_flag &&
         memcmp(data + (idx + CMD_HEADING_BYTES_LENGTH + CMD_TO_CV_CONTENT_LENGTH) % data_len,
-               CMD_TAILING_BYTES, CMD_TAILING_BYTES_LENGTH) != 0)
+               CMD_TAILING_BYTES, CMD_TAILING_BYTES_LENGTH) == 0)
     {
       PULL_HEADING_BYTES();
       PULL(cmd->enemy_color);
@@ -99,7 +99,7 @@ int32_t CmdToEc_parse(CmdToEc *cmd, uint8_t *data, uint32_t data_len)
 
     if (head_eq_flag &&
         memcmp(data + (idx + CMD_HEADING_BYTES_LENGTH + CMD_TO_EC_CONTENT_LENGTH) % data_len,
-               CMD_TAILING_BYTES, CMD_TAILING_BYTES_LENGTH) != 0)
+               CMD_TAILING_BYTES, CMD_TAILING_BYTES_LENGTH) == 0)
     {
       PULL_HEADING_BYTES();
       PULL(cmd->pitch);

@@ -27,7 +27,7 @@ CommunicateThread::CommunicateThread(const rm_config::Config &cfg)
       serial_port_(cfg.serial.port),
       serial_baud_rate_(cfg.serial.baud_rate)
 {
-  freq_ = 100;
+  freq_ = 500;
 }
 
 void CommunicateThread::run()
@@ -51,10 +51,11 @@ void CommunicateThread::run()
       pvofa->justfloat(RoslikeTopic<std::vector<float>>::get("vofa_justfloat", true));
     }
 
-    if (serial_enable_)
+    if (serial_enable_ && RoslikeTopic<CmdToEc>::updated("cmd_to_ec"))
     {
       output = RoslikeTopic<CmdToEc>::get("cmd_to_ec", true);
-
+      // output.pitch = 2;
+      // output.yaw = 2;
       // if (output.pitch!=0 && output.yaw!=0)
       // __LOG_DEBUG("Sending Pitch {}, Yaw {}", output.pitch, output.yaw);
       pserial->send(output);
