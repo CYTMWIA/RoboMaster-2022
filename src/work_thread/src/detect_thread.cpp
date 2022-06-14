@@ -10,8 +10,7 @@
 namespace rm_work_thread
 {
 DetectThread::DetectThread(const rm_config::Config &cfg)
-    :  // detector(cfg.model.path)
-      detector()
+    : detector(rm_detect::OcvArmorDetectorSettings{cfg.model.path})
 {
 }
 

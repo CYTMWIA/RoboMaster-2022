@@ -17,7 +17,7 @@ namespace rm_work_thread
 DECL_WORKTHTREAD(DetectThread)
 
 private:
-rm_detect::CvArmorDetector detector;
+rm_detect::OcvArmorDetector detector;
 // rm_detect::NnArmorDetector detector;
 
 public:

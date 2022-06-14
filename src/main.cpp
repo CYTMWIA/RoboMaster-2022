@@ -71,7 +71,7 @@ int main(int, char **)
 
     // 可视化检测结果
     auto ori_img = RoslikeTopic<cv::Mat>::get("capture_image");
-    auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result", true);
+    auto detections = RoslikeTopic<std::vector<Armor>>::get("detect_result", true);
     cv::Mat img;  // 避免引用源图像
     ori_img.copyTo(img);
     const cv::Scalar colors[3] = {{255, 0, 0}, {0, 0, 255}, {0, 255, 0}};

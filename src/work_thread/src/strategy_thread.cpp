@@ -35,7 +35,7 @@ void StrategyThread::run()
   auto aimer = Aimer();
   cv::Mat first_img = RoslikeTopic<cv::Mat>::get("capture_image");
   cv::Point2f img_center{(float)(first_img.cols / 2.0), (float)(first_img.rows / 2.0)};
-  std::unique_ptr<BoundingBox> plast_target = nullptr;      // 上一次识别目标
+  std::unique_ptr<Armor> plast_target = nullptr;            // 上一次识别目标
   auto lats_found_time = std::chrono::steady_clock::now();  // 上一次找到目标的时间
   // auto fps = rm_util::FpsCounter();
   while (true)
@@ -44,13 +44,14 @@ void StrategyThread::run()
     /*
      * 数据更新
      */
-    auto detections = RoslikeTopic<std::vector<BoundingBox>>::get("detect_result");
+    auto detections = RoslikeTopic<std::vector<Armor>>::get("detect_result");
     auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true);  // 允许旧数据
-    // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", { robot_status.pitch, robot_status.yaw});
+    // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", { robot_status.pitch,
+    // robot_status.yaw});
     // __LOG_DEBUG("{}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
     // 转为 弧度
     robot_status.yaw *= M_PI / 180.0;
-    robot_status.pitch *= -M_PI / 180.0; // 取反满足抽象
+    robot_status.pitch *= -M_PI / 180.0;  // 取反满足抽象
 
     // aimer.bullet_speed(robot_status.bullet_speed * 1000);
     aimer.bullet_speed(16);
@@ -58,7 +59,7 @@ void StrategyThread::run()
     /*
      * 选择目标
      */
-    std::unique_ptr<BoundingBox> ptarget = nullptr;
+    std::unique_ptr<Armor> ptarget = nullptr;
     bool new_target_flag = false;   // 是否为新目标
     bool using_kf_predict = false;  // 使用卡尔曼预测值代替目标
     // TODO 忽略己方装甲板
@@ -137,7 +138,7 @@ void StrategyThread::run()
 
     if (idx >= 0)
     {
-      ptarget = std::make_unique<BoundingBox>(detections[idx]);
+      ptarget = std::make_unique<Armor>(detections[idx]);
       lats_found_time = std::chrono::steady_clock::now();
     }
 
@@ -181,7 +182,8 @@ void StrategyThread::run()
     CmdToEc cmd2ec = {0, 0};
     if (ptarget != nullptr || using_kf_predict)
     {
-      RoslikeTopic<std::vector<float>>::set("vofa_justfloat", {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
+      RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
+                                            {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
 
       // 预测，注意：俯仰角计算结果为弧度
       AimResult aim, last_aim;
@@ -221,7 +223,7 @@ void StrategyThread::run()
     // 状态保存
     if (ptarget != nullptr)
     {
-      plast_target = std::make_unique<BoundingBox>(*ptarget);
+      plast_target = std::make_unique<Armor>(*ptarget);
     }
   }
 }
