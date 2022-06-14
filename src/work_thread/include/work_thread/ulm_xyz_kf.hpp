@@ -1,5 +1,5 @@
-#ifndef __FILTER_SPEC_ULM_XYZ_KF_HPP__
-#define __FILTER_SPEC_ULM_XYZ_KF_HPP__
+#ifndef __WORK_THREAD_ULM_XYZ_KF_HPP__
+#define __WORK_THREAD_ULM_XYZ_KF_HPP__
 
 /*
  * 基于XYZ坐标系的匀速直线运动模型普通卡尔曼滤波

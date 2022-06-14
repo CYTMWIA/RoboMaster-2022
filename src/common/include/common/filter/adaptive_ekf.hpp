@@ -2,8 +2,8 @@
 // Created by xinyang on 2021/3/15.
 //
 
-#ifndef __FILTER_ADAPTIVE_EKF_HPP__
-#define __FILTER_ADAPTIVE_EKF_HPP__
+#ifndef __COMMON_FILTER_ADAPTIVE_EKF_HPP__
+#define __COMMON_FILTER_ADAPTIVE_EKF_HPP__
 
 #include <ceres/jet.h>
 

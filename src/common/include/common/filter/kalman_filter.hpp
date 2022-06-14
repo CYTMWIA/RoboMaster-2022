@@ -1,5 +1,5 @@
-#ifndef __FILTER_KALMAN_FILTER_HPP__
-#define __FILTER_KALMAN_FILTER_HPP__
+#ifndef __COMMON_FILTER_KALMAN_FILTER_HPP__
+#define __COMMON_FILTER_KALMAN_FILTER_HPP__
 
 #include <Eigen/Dense>
 

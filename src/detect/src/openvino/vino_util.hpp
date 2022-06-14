@@ -1,5 +1,5 @@
-#ifndef __DETECT_OPENVINO_VINO_UTIL_HPP__
-#define __DETECT_OPENVINO_VINO_UTIL_HPP__
+#ifndef __OPENVINO_VINO_UTIL_HPP__
+#define __OPENVINO_VINO_UTIL_HPP__
 
 #include <ie_core.hpp>
 #include <opencv2/core.hpp>

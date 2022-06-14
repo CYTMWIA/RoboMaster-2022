@@ -1,5 +1,5 @@
-#ifndef __RM_DATA_HPP__
-#define __RM_DATA_HPP__
+#ifndef __COMMON_DATA_HPP__
+#define __COMMON_DATA_HPP__
 
 /*
  * 统一单位

@@ -1,5 +1,5 @@
-#ifndef __LOGGING_LOGGING_HPP__
-#define __LOGGING_LOGGING_HPP__
+#ifndef __COMMON_LOGGING_HPP__
+#define __COMMON_LOGGING_HPP__
 
 #include <fmt/chrono.h>
 #include <fmt/color.h>

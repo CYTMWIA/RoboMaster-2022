@@ -1,5 +1,5 @@
-#ifndef __THREADING_SHARED_VARIABLE_HPP__
-#define __THREADING_SHARED_VARIABLE_HPP__
+#ifndef __COMMON_THREADING_SHARED_VARIABLE_HPP__
+#define __COMMON_THREADING_SHARED_VARIABLE_HPP__
 
 #include <algorithm>
 #include <condition_variable>

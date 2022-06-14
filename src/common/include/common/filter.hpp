@@ -1,5 +1,5 @@
-#ifndef __FILTER_FILTER_HPP__
-#define __FILTER_FILTER_HPP__
+#ifndef __COMMON_FILTER_HPP__
+#define __COMMON_FILTER_HPP__
 
 #include "filter/adaptive_ekf.hpp"
 #include "filter/dynamic_lowpass_filter.hpp"

@@ -1,5 +1,5 @@
-#ifndef __THREADING_ROSLIKE_TOPIC_HPP__
-#define __THREADING_ROSLIKE_TOPIC_HPP__
+#ifndef __COMMON_THREADING_ROSLIKE_TOPIC_HPP__
+#define __COMMON_THREADING_ROSLIKE_TOPIC_HPP__
 
 #include <unordered_map>
 

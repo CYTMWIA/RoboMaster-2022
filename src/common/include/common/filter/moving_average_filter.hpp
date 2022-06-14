@@ -1,5 +1,5 @@
-#ifndef __FILTER_MOVING_AVERAGE_FILTER_HPP__
-#define __FILTER_MOVING_AVERAGE_FILTER_HPP__
+#ifndef __COMMON_FILTER_MOVING_AVERAGE_FILTER_HPP__
+#define __COMMON_FILTER_MOVING_AVERAGE_FILTER_HPP__
 
 #include <algorithm>
 #include <vector>
