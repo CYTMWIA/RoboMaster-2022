@@ -8,22 +8,6 @@
 namespace rm_detect
 {
 /**
- * @brief 旋转矩形
- *
- */
-struct RRect
-{
-  /*
-   * width始终为长边，angle始终为长边从 向正右方射线 沿逆时针转动的角度即[0, 180)
-   */
-  cv::Point2f center;
-  double width, height, rad;
-
-  RRect() = default;
-  RRect(const cv::RotatedRect& cvrrect);
-};
-
-/**
  * @brief 装甲板检测结果
  *
  */

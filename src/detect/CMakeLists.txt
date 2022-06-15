@@ -15,7 +15,5 @@ target_include_directories(${PROJECT_NAME}
 target_sources(${PROJECT_NAME}
     PRIVATE
     src/armor_icon_classifier.cpp
-    src/collections.cpp
     src/ocv_armor_detector.cpp
-    src/ocv_utils.cpp
 )

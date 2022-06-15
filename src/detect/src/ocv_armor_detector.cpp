@@ -3,7 +3,7 @@
 #include "armor_icon_classifier.hpp"
 #include "common/logging.hpp"
 #include "common/threading.hpp"
-#include "ocv_utils.hpp"
+
 namespace rm_detect
 {
 /**
@@ -12,20 +12,43 @@ namespace rm_detect
  */
 struct Lightbar
 {
+  /*
+   * length始终为长边，rad始终为长边从 向正右方射线 沿逆时针转动的角度即[0, 180)
+   */
   cv::Point2f top, bottom, center;
-  double rad;
-  double length;
+  double length, width, rad;
+  std::shared_ptr<std::vector<cv::Point>> raw_contour_ptr;
 
-  Lightbar() = delete;
-  Lightbar(const RRect &rrect)
+  Lightbar(const cv::RotatedRect &cvrrect, const std::vector<cv::Point> &raw_contour)
+      : raw_contour_ptr{std::make_shared<std::vector<cv::Point>>(raw_contour)}
   {
-    float dx = rrect.width / 2 * cos(rrect.rad), dy = rrect.width / 2 * sin(rrect.rad);
-    top = cv::Point2f(rrect.center.x - dx, rrect.center.y - dy);
-    bottom = cv::Point2f(rrect.center.x + dx, rrect.center.y + dy);
+    // 确定 中心
+    center = cvrrect.center;
 
-    center = rrect.center;
-    rad = rrect.rad;
-    length = rrect.width;
+    cv::Point2f pts[4];
+    cvrrect.points(pts);
+
+    // 确定 长宽
+    double len01 = sqrt((pts[0].x - pts[1].x) * (pts[0].x - pts[1].x) +
+                        (pts[0].y - pts[1].y) * (pts[0].y - pts[1].y));
+    double len03 = sqrt((pts[0].x - pts[3].x) * (pts[0].x - pts[3].x) +
+                        (pts[0].y - pts[3].y) * (pts[0].y - pts[3].y));
+    if (len01 < len03)
+    {
+      std::swap(pts[1], pts[3]);
+      std::swap(len01, len03);
+    }
+    length = len01;
+    width = len03;
+
+    // 确定 倾斜弧度
+    if (pts[0].y > pts[1].y) std::swap(pts[0], pts[1]);
+    rad = std::atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
+
+    // 确定 上下顶点
+    float dx = length / 2 * cos(rad), dy = length / 2 * sin(rad);
+    top = cv::Point2f(center.x - dx, center.y - dy);
+    bottom = cv::Point2f(center.x + dx, center.y + dy);
   }
 };
 
@@ -82,9 +105,9 @@ class OcvArmorDetector::Impl
   {
     if (lightbars.empty()) return;
 
-    std::sort(lightbars.begin(), lightbars.end(), [](auto &r1, auto &r2) {
-      return r1.center.x < r2.center.x;
-    });  // 按照中心x升序（从左到右）
+    std::sort(lightbars.begin(), lightbars.end(),
+              [](auto &r1, auto &r2)
+              { return r1.center.x < r2.center.x; });  // 按照中心x升序（从左到右）
 
     for (int i = 0; i < lightbars.size() - 1; i++)
       for (int j = i + 1; j < lightbars.size(); j++)
@@ -139,6 +162,22 @@ class OcvArmorDetector::Impl
               [](auto &p1, auto &p2) { return p2.confidence < p1.confidence; });  // 按置信度倒序
   }
 
+  int lightbar_color(const cv::Mat &src, const Lightbar &light)
+  {
+    int blue_sum = 0, red_sum = 0;
+    for (const auto &p : *(light.raw_contour_ptr))
+    {
+      blue_sum += src.data[3 * (p.y * src.rows + p.x) + 0];
+      red_sum += src.data[3 * (p.y * src.rows + p.x) + 2];
+    }
+    if (blue_sum >= 1.2 * red_sum)
+      return 0;
+    else if (red_sum >= 1.2 * blue_sum)
+      return 1;
+    else
+      return -1;
+  }
+
   cv::Mat extract_icon(const cv::Mat &src, const Lightbar &left, const Lightbar &right,
                        const LightbarMatchResult &match)
   {
@@ -178,43 +217,50 @@ class OcvArmorDetector::Impl
     //   double scale = 640.0 / src.cols;
     //   cv::resize(src, img, cv::Size(640.0, src.rows * scale));
 
+    // 二值化
     threshold(img);
     rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img);
 
-    auto cons = find_external_contours(img);
-    cons.erase(std::remove_if(
-                   cons.begin(), cons.end(),
-                   [this](const std::vector<cv::Point> &con) { return cv::contourArea(con) < 16; }),
+    // 筛选轮廓
+    std::vector<std::vector<cv::Point>> cons;
+    std::vector<cv::Vec4i> hierarchy;  // unused
+    cv::findContours(img, cons, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    cons.erase(std::remove_if(cons.begin(), cons.end(),
+                              [this](const std::vector<cv::Point> &con)
+                              { return cv::contourArea(con) < 16; }),
                cons.end());
 
-    std::vector<RRect> rrects;
-    std::transform(cons.begin(), cons.end(), std::back_inserter(rrects),
-                   [](const std::vector<cv::Point> &con) { return RRect{cv::minAreaRect(con)}; });
-    rrects.erase(std::remove_if(rrects.begin(), rrects.end(),
-                                [this](const RRect &rr) {
-                                  // 倾斜度
-                                  if (!(M_PI / 4.0 < rr.rad && rr.rad < M_PI * 3.0 / 4.0))
-                                    return true;
-                                  // 比例
-                                  double ratio = rr.width / rr.height;
-                                  if (!(1.5 < ratio)) return true;
-                                  // 合格
-                                  return false;
-                                }),
-                 rrects.end());
-    if (rrects.empty())
+    // 光条初筛
+    std::vector<Lightbar> lightbars;
+    std::transform(cons.begin(), cons.end(), std::back_inserter(lightbars),
+                   [](std::vector<cv::Point> &con) {
+                     return Lightbar{cv::minAreaRect(con), con};
+                   });
+    lightbars.erase(std::remove_if(lightbars.begin(), lightbars.end(),
+                                   [this](const Lightbar &rr)
+                                   {
+                                     // 倾斜度
+                                     if (!(M_PI / 4.0 < rr.rad && rr.rad < M_PI * 3.0 / 4.0))
+                                       return true;
+                                     // 比例
+                                     double ratio = rr.length / rr.width;
+                                     if (!(1.5 < ratio)) return true;
+                                     // 合格
+                                     return false;
+                                   }),
+                    lightbars.end());
+    if (lightbars.empty())
     {
       return std::vector<Armor>{};
     }
 
-    std::vector<Lightbar> lightbars;
-    std::transform(rrects.begin(), rrects.end(), std::back_inserter(lightbars),
-                   [](const RRect &rrect) { return Lightbar{rrect}; });
+    // 灯条匹配
     std::vector<LightbarMatchResult> pairs;
     match_lightbars(lightbars, pairs);
 
+    // 检查匹配结果
     std::vector<Armor> armors;
-    std::vector<uint8_t> vis(rrects.size(), 0);
+    std::vector<uint8_t> vis(lightbars.size(), 0);
     for (auto &pair : pairs)
     {
       if (pair.confidence < 0.7) break;
@@ -223,6 +269,11 @@ class OcvArmorDetector::Impl
       const Lightbar &left = lightbars[pair.left_idx];
       const Lightbar &right = lightbars[pair.right_idx];
 
+      int left_color = lightbar_color(src, left);
+      int right_color = lightbar_color(src, right);
+      if (!(left_color == right_color && left_color != -1)) continue;
+
+      // 装甲板图标识别
       cv::Mat icon = extract_icon(src, left, right, pair);
       auto cres = icon_classifier_.classify(icon);
       if (cres.confidence < 0.7) continue;
@@ -230,7 +281,7 @@ class OcvArmorDetector::Impl
       vis[pair.left_idx] = vis[pair.right_idx] = 1;
 
       Armor final_res = {
-          .color_id = 0,
+          .color_id = left_color,
           .tag_id = cres.class_id,
           .type = pair.guess_armor_type,
       };
