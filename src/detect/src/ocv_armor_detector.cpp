@@ -122,22 +122,28 @@ class OcvArmorDetector::Impl
         // 陈君的armor_detector
         // https://github.com/chenjunnn/rm_auto_aim/tree/main/armor_detector
         using namespace std;
-        double tmp_conf, total_score = 0;
-#define ADD_JUDGE(weight, min_rate, x) \
-  total_score += weight;               \
-  tmp_conf = (double)(weight) * (x);   \
-  if (tmp_conf < weight * min_rate)    \
-  {                                    \
-    continue;                          \
-  }                                    \
-  else                                 \
-    res.confidence += tmp_conf;
+        double total_score = 0;
+#define ADD_CONF(weight, x) \
+  total_score += weight;    \
+  res.confidence += (double)(weight) * (x);
 
-        // 两灯条角度差
-        ADD_JUDGE(300, 0.7, 1 - abs(left.rad - right.rad) / (M_PI / 2.0));
+#define ASSERT(name, x)                               \
+  if (!(x))                                           \
+  {                                                   \
+    __LOG_DEBUG("JUMP OUT {} BECAUSE {}", name, (x)); \
+    continue;                                         \
+  }
 
-        // 两灯条长度比应在一定范围内
-        ADD_JUDGE(100, 0.5, min(left.length, right.length) / max(left.length, right.length));
+        ASSERT("两灯条角度差", abs(left.rad - right.rad) < (M_PI / 4.0));
+        ADD_CONF(100, 1 - abs(left.rad - right.rad) / (M_PI / 2.0));
+
+        ASSERT("两灯条长度比",
+               0.5 < min(left.length, right.length) / max(left.length, right.length));
+
+        auto v1 = left.top - left.bottom;
+        auto v2 = right.bottom - left.bottom;
+        auto ra = acos(v1.dot(v2) / abs(cv::norm(v1) * cv::norm(v2)));
+        ASSERT("组成四边形的角", M_PI / 3.0 < ra && ra < M_PI * (2.0 / 3.0));
 
         // 灯条中心距与灯条均长，顺便猜测装甲板类型
         double ratio = cv::norm(left.center - right.center) / ((left.length + right.length) / 2.0);
@@ -150,9 +156,10 @@ class OcvArmorDetector::Impl
         else
           continue;
 
-#undef ADD_JUDGE
+#undef ASSERT
+#undef ADD_CONF
         res.confidence = res.confidence / total_score;
-        std::cout << "CONF: " << res.confidence << std::endl;
+        // std::cout << "CONF: " << res.confidence << std::endl;
 
         results.push_back(std::move(res));
       }
@@ -170,12 +177,15 @@ class OcvArmorDetector::Impl
       blue_sum += src.data[3 * (p.y * src.rows + p.x) + 0];
       red_sum += src.data[3 * (p.y * src.rows + p.x) + 2];
     }
-    if (blue_sum >= 1.2 * red_sum)
+    if (blue_sum >= red_sum)
       return 0;
-    else if (red_sum >= 1.2 * blue_sum)
+    else //if (red_sum >= blue_sum)
       return 1;
-    else
-      return -1;
+    // else
+    // {
+    //   __LOG_DEBUG("颜色错误");
+    //   return -1;
+    //   }
   }
 
   cv::Mat extract_icon(const cv::Mat &src, const Lightbar &left, const Lightbar &right,
@@ -207,6 +217,7 @@ class OcvArmorDetector::Impl
 
     cv::cvtColor(icon_img, icon_img, cv::COLOR_BGR2GRAY);
     cv::threshold(icon_img, icon_img, 0, 255, cv::THRESH_OTSU);
+    rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_2", icon_img);
     return icon_img;
   }
 
@@ -219,7 +230,6 @@ class OcvArmorDetector::Impl
 
     // 二值化
     threshold(img);
-    rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img);
 
     // 筛选轮廓
     std::vector<std::vector<cv::Point>> cons;
@@ -227,8 +237,19 @@ class OcvArmorDetector::Impl
     cv::findContours(img, cons, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
     cons.erase(std::remove_if(cons.begin(), cons.end(),
                               [this](const std::vector<cv::Point> &con)
-                              { return cv::contourArea(con) < 16; }),
+                              { return cv::contourArea(con) < 8; }),
                cons.end());
+    // （调试用）绘制查找到的最小外接矩形
+    for (const auto &con : cons)
+    {
+      auto rect = cv::minAreaRect(con);
+      cv::Point2f pts[4];
+      rect.points(pts);
+      for (size_t i = 0; i < 4; i++)
+        cv::line(img, pts[i], pts[(i + 1) % 4], cv::Scalar(127), 2);
+    }
+
+    rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img);
 
     // 光条初筛
     std::vector<Lightbar> lightbars;
@@ -263,7 +284,7 @@ class OcvArmorDetector::Impl
     std::vector<uint8_t> vis(lightbars.size(), 0);
     for (auto &pair : pairs)
     {
-      if (pair.confidence < 0.7) break;
+      // if (pair.confidence < 0.7) break;
       if (vis[pair.left_idx] || vis[pair.right_idx]) continue;
 
       const Lightbar &left = lightbars[pair.left_idx];
@@ -271,12 +292,13 @@ class OcvArmorDetector::Impl
 
       int left_color = lightbar_color(src, left);
       int right_color = lightbar_color(src, right);
-      if (!(left_color == right_color && left_color != -1)) continue;
+      // if (!(left_color == right_color && left_color != -1)) continue;
 
       // 装甲板图标识别
       cv::Mat icon = extract_icon(src, left, right, pair);
       auto cres = icon_classifier_.classify(icon);
-      if (cres.confidence < 0.7) continue;
+      // __LOG_DEBUG("CLASS CONF {}", cres.confidence);
+      if (cres.confidence < 0.7 || cres.class_id==8) continue;
 
       vis[pair.left_idx] = vis[pair.right_idx] = 1;
 

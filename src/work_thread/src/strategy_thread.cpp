@@ -48,10 +48,10 @@ void StrategyThread::run()
     auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true);  // 允许旧数据
     // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", { robot_status.pitch,
     // robot_status.yaw});
-    // __LOG_DEBUG("{}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
+    __LOG_DEBUG("{:.2f}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
     // 转为 弧度
     robot_status.yaw *= M_PI / 180.0;
-    robot_status.pitch *= -M_PI / 180.0;  // 取反满足抽象
+    robot_status.pitch *= M_PI / 180.0;  // 取反满足抽象
 
     // aimer.bullet_speed(robot_status.bullet_speed * 1000);
     aimer.bullet_speed(16);
@@ -152,7 +152,7 @@ void StrategyThread::run()
       // 转换为 机器人坐标系
       // 机器人中心
       pos.y += 130;
-      pos.z += 60;
+      pos.z += 35;
       // Pitch 轴
       double len = sqrt(pos.y * pos.y + pos.z * pos.z);
       double rad = atan2(pos.z, pos.y) + robot_status.pitch;
@@ -182,8 +182,8 @@ void StrategyThread::run()
     CmdToEc cmd2ec = {0, 0};
     if (ptarget != nullptr || using_kf_predict)
     {
-      RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
-                                            {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
+      // RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
+      //                                       {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
 
       // 预测，注意：俯仰角计算结果为弧度
       AimResult aim, last_aim;
@@ -200,14 +200,17 @@ void StrategyThread::run()
         if (diff < 0.1 || t_ms > aim.flying_time) break;
         t_ms += diff * 0.5;
       }
+      // Over Predict
+      auto ppos = kf_.predict_without_save(1.1*t_ms / 1000.0);
+      aim = aimer({ppos[0], ppos[2], ppos[4]});
       // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
       if (aim.ok)
       {
         aim.pitch -= robot_status.pitch;
         aim.yaw -= robot_status.yaw;
         // 转为角度
-        cmd2ec.pitch = std::max(-10.0, std::min(aim.pitch * (180.0 / M_PI) * 0.3, 10.0));
-        cmd2ec.yaw = std::max(-10.0, std::min(aim.yaw * (180.0 / M_PI) * 0.3, 10.0));
+        cmd2ec.pitch = std::max(-15.0, std::min(aim.pitch * (180.0 / M_PI) * 1.0, 15.0));
+        cmd2ec.yaw = std::max(-15.0, std::min(aim.yaw * (180.0 / M_PI) * 1.0, 15.0));
         // cmd2ec.pitch = aim.pitch*(180.0/M_PI);
         // cmd2ec.yaw = aim.yaw*(180.0/M_PI);
       }
@@ -216,8 +219,8 @@ void StrategyThread::run()
     /*
      * 发送信号
      */
-    // RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
-    //                                       {(float)cmd2ec.pitch, (float)cmd2ec.yaw});
+    RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
+                                          {(float)cmd2ec.pitch, (float)cmd2ec.yaw});
     RoslikeTopic<CmdToEc>::set("cmd_to_ec", std::move(cmd2ec));
 
     // 状态保存
