@@ -200,9 +200,6 @@ void StrategyThread::run()
         if (diff < 0.1 || t_ms > aim.flying_time) break;
         t_ms += diff * 0.5;
       }
-      // Over Predict
-      auto ppos = kf_.predict_without_save(1.1*t_ms / 1000.0);
-      aim = aimer({ppos[0], ppos[2], ppos[4]});
       // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
       if (aim.ok)
       {

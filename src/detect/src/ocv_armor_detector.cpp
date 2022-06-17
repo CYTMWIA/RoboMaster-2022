@@ -252,7 +252,7 @@ class OcvArmorDetector::Impl
     cv::findContours(img, cons, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
     cons.erase(std::remove_if(cons.begin(), cons.end(),
                               [this](const std::vector<cv::Point> &con)
-                              { return cv::contourArea(con) < 8; }),
+                              { return cv::contourArea(con) < 8 || con.size() < 6; }), //椭圆拟合至少要6个点
                cons.end());
     // （调试用）绘制查找到的最小外接矩形
     for (const auto &con : cons)
@@ -269,7 +269,7 @@ class OcvArmorDetector::Impl
     std::vector<Lightbar> lightbars;
     std::transform(cons.begin(), cons.end(), std::back_inserter(lightbars),
                    [](std::vector<cv::Point> &con) {
-                     return Lightbar{cv::minAreaRect(con), con};
+                     return Lightbar{cv::fitEllipse(con), con};
                    });
     lightbars.erase(std::remove_if(lightbars.begin(), lightbars.end(),
                                    [this](const Lightbar &rr)
