@@ -127,11 +127,11 @@ class OcvArmorDetector::Impl
   total_score += weight;    \
   res.confidence += (double)(weight) * (x);
 
-#define ASSERT(name, x)                               \
-  if (!(x))                                           \
-  {                                                   \
-    __LOG_DEBUG("JUMP OUT {} BECAUSE {}", name, (x)); \
-    continue;                                         \
+#define ASSERT(name, x)               \
+  if (!(x))                           \
+  {                                   \
+    __LOG_DEBUG("JUMP OUT {}", name); \
+    continue;                         \
   }
 
         ASSERT("两灯条角度差", abs(left.rad - right.rad) < (M_PI / 4.0));
@@ -171,21 +171,36 @@ class OcvArmorDetector::Impl
 
   int lightbar_color(const cv::Mat &src, const Lightbar &light)
   {
+    auto br = cv::boundingRect(*light.raw_contour_ptr);
+    cv::Mat roi = src(br);
+    cv::cvtColor(roi, roi, cv::COLOR_BGR2HSV);
+
     int blue_sum = 0, red_sum = 0;
     for (const auto &p : *(light.raw_contour_ptr))
     {
-      blue_sum += src.data[3 * (p.y * src.rows + p.x) + 0];
-      red_sum += src.data[3 * (p.y * src.rows + p.x) + 2];
+      int px = 3 * ((p.y - br.y) * br.width + (p.x - br.x));
+      if (105 < roi.data[px + 0] && roi.data[px + 0] < 135  // H
+          && 70 < roi.data[px + 1]                          // S
+          && 50 < roi.data[px + 2])                         // V
+      {                                                     // Blue
+        blue_sum++;
+      }
+      else if ((roi.data[px + 0] < 10 || 160 < roi.data[px + 0])  // H
+               && 70 < roi.data[px + 1]                           // S
+               && 50 < roi.data[px + 2])                          // V
+      {                                                           // Red
+        red_sum++;
+      }
     }
-    if (blue_sum >= red_sum)
+    if (blue_sum > red_sum)
       return 0;
-    else //if (red_sum >= blue_sum)
+    else if (red_sum > blue_sum)
       return 1;
-    // else
-    // {
-    //   __LOG_DEBUG("颜色错误");
-    //   return -1;
-    //   }
+    else
+    {
+      __LOG_DEBUG("颜色错误");
+      return -1;
+    }
   }
 
   cv::Mat extract_icon(const cv::Mat &src, const Lightbar &left, const Lightbar &right,
@@ -245,8 +260,7 @@ class OcvArmorDetector::Impl
       auto rect = cv::minAreaRect(con);
       cv::Point2f pts[4];
       rect.points(pts);
-      for (size_t i = 0; i < 4; i++)
-        cv::line(img, pts[i], pts[(i + 1) % 4], cv::Scalar(127), 2);
+      for (size_t i = 0; i < 4; i++) cv::line(img, pts[i], pts[(i + 1) % 4], cv::Scalar(127), 2);
     }
 
     rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", img);
@@ -291,14 +305,13 @@ class OcvArmorDetector::Impl
       const Lightbar &right = lightbars[pair.right_idx];
 
       int left_color = lightbar_color(src, left);
-      int right_color = lightbar_color(src, right);
-      // if (!(left_color == right_color && left_color != -1)) continue;
+      if (left_color == -1) continue;
 
       // 装甲板图标识别
       cv::Mat icon = extract_icon(src, left, right, pair);
       auto cres = icon_classifier_.classify(icon);
       // __LOG_DEBUG("CLASS CONF {}", cres.confidence);
-      if (cres.confidence < 0.7 || cres.class_id==8) continue;
+      if (cres.confidence < 0.7 || cres.class_id == 8) continue;
 
       vis[pair.left_idx] = vis[pair.right_idx] = 1;
 
