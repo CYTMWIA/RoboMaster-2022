@@ -127,23 +127,23 @@ class OcvArmorDetector::Impl
   total_score += weight;    \
   res.confidence += (double)(weight) * (x);
 
-#define ASSERT(name, x)               \
-  if (!(x))                           \
-  {                                   \
-    __LOG_DEBUG("JUMP OUT {}", name); \
-    continue;                         \
+#define ASSERT(name, x)                   \
+  if (!(x))                               \
+  {                                       \
+    /*__LOG_DEBUG("JUMP OUT {}", name);*/ \
+    continue;                             \
   }
 
         ASSERT("两灯条角度差", abs(left.rad - right.rad) < (M_PI / 4.0));
         ADD_CONF(100, 1 - abs(left.rad - right.rad) / (M_PI / 2.0));
 
         ASSERT("两灯条长度比",
-               0.5 < min(left.length, right.length) / max(left.length, right.length));
+               0.33 <= min(left.length, right.length) / max(left.length, right.length));
 
         auto v1 = left.top - left.bottom;
         auto v2 = right.bottom - left.bottom;
         auto ra = acos(v1.dot(v2) / abs(cv::norm(v1) * cv::norm(v2)));
-        ASSERT("组成四边形的角", M_PI / 3.0 < ra && ra < M_PI * (2.0 / 3.0));
+        ASSERT("组成四边形的角", M_PI / 6.0 < ra && ra < M_PI * (5.0 / 6.0));
 
         // 灯条中心距与灯条均长，顺便猜测装甲板类型
         double ratio = cv::norm(left.center - right.center) / ((left.length + right.length) / 2.0);
@@ -176,22 +176,23 @@ class OcvArmorDetector::Impl
     cv::cvtColor(roi, roi, cv::COLOR_BGR2HSV);
 
     int blue_sum = 0, red_sum = 0;
-    for (const auto &p : *(light.raw_contour_ptr))
-    {
-      int px = 3 * ((p.y - br.y) * br.width + (p.x - br.x));
-      if (105 < roi.data[px + 0] && roi.data[px + 0] < 135  // H
-          && 70 < roi.data[px + 1]                          // S
-          && 50 < roi.data[px + 2])                         // V
-      {                                                     // Blue
-        blue_sum++;
+    for (int i = 0; i < roi.rows; i++)
+      for (int j = 0; j < roi.cols; j++)
+      {
+        int px = 3 * (i * roi.cols + j);
+        if (100 < roi.data[px + 0] && roi.data[px + 0] < 140  // H
+            && 60 < roi.data[px + 1]                          // S
+            && 50 < roi.data[px + 2])                         // V
+        {                                                     // Blue
+          blue_sum++;
+        }
+        else if ((roi.data[px + 0] < 15 || 155 < roi.data[px + 0])  // H
+                 && 60 < roi.data[px + 1]                           // S
+                 && 50 < roi.data[px + 2])                          // V
+        {                                                           // Red
+          red_sum++;
+        }
       }
-      else if ((roi.data[px + 0] < 10 || 160 < roi.data[px + 0])  // H
-               && 70 < roi.data[px + 1]                           // S
-               && 50 < roi.data[px + 2])                          // V
-      {                                                           // Red
-        red_sum++;
-      }
-    }
     if (blue_sum > red_sum)
       return 0;
     else if (red_sum > blue_sum)
@@ -207,7 +208,7 @@ class OcvArmorDetector::Impl
                        const LightbarMatchResult &match)
   {
     const cv::Size roi_size = cv::Size(20, 28);
-    const int lightbar_length = 12;
+    const int lightbar_length = 14;
     const int armor_small_width = 30;
     const int armor_big_width = 54;
     const int warp_lightbar_top_y = (roi_size.height - lightbar_length) / 2;
@@ -252,7 +253,7 @@ class OcvArmorDetector::Impl
     cv::findContours(img, cons, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
     cons.erase(std::remove_if(cons.begin(), cons.end(),
                               [this](const std::vector<cv::Point> &con)
-                              { return cv::contourArea(con) < 8 || con.size() < 6; }), //椭圆拟合至少要6个点
+                              { return cv::contourArea(con) < 8; }),
                cons.end());
     // （调试用）绘制查找到的最小外接矩形
     for (const auto &con : cons)
@@ -269,7 +270,7 @@ class OcvArmorDetector::Impl
     std::vector<Lightbar> lightbars;
     std::transform(cons.begin(), cons.end(), std::back_inserter(lightbars),
                    [](std::vector<cv::Point> &con) {
-                     return Lightbar{cv::fitEllipse(con), con};
+                     return Lightbar{cv::minAreaRect(con), con};
                    });
     lightbars.erase(std::remove_if(lightbars.begin(), lightbars.end(),
                                    [this](const Lightbar &rr)
