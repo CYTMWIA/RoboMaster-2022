@@ -8,5 +8,6 @@
 
 #include "collections.hpp"
 #include "ocv_armor_detector.hpp"
+#include "ocv_power_rune_detector.hpp"
 
 #endif

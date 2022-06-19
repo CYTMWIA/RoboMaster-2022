@@ -14,7 +14,7 @@ namespace rm_detect
 struct Armor
 {
   cv::Point2f pts[4];  // [pt0, pt1, pt2, pt3] 左上 左下 右下 右上
-  int color_id;        // 0: blue, 1: red, 2: gray
+  int color_id;        // 0: blue, 1: red, 2: gray, 3: enemy anyway
   int tag_id;          // 0: guard, 1-5: number, 6: base
   rm_data::ArmorType type;
 };

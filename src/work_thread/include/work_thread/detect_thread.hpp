@@ -17,8 +17,9 @@ namespace rm_work_thread
 DECL_WORKTHTREAD(DetectThread)
 
 private:
-rm_detect::OcvArmorDetector detector;
-// rm_detect::NnArmorDetector detector;
+rm_detect::OcvArmorDetector armor_detector;
+rm_detect::OcvPowerRuneDetector power_rune_detector;
+// rm_detect::NnArmorDetector armor_detector;
 
 public:
 DetectThread(const rm_config::Config &cfg);

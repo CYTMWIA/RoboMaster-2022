@@ -1,11 +1,11 @@
 [capture]
-target = "camera"
+target = "video"
 
 [communicate]
 enable = true
 
 [video]
-path = "/home/rm/dataset/Video/哨兵移动.mp4"
+path = "/home/rm/4低曝光蓝.mp4"
 
 [image]
 path = ""
@@ -39,7 +39,7 @@ port = "/dev/ttyUSB0"
 baud_rate = 115200
 
 [vofa]
-enable = true
+enable = false
 ip = "192.168.137.1" # nuc 共享网络
 # ip = "192.168.236.1" # vmware 虚拟机
 port = 1347
