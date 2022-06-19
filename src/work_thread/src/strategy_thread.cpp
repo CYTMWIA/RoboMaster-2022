@@ -206,15 +206,27 @@ void StrategyThread::run()
         // 转为角度
         aim.pitch *= (180.0 / M_PI);
         aim.yaw *= (180.0 / M_PI);
-        
+
         // 补偿
-        if (aim.pitch > 1) aim.pitch -= 1;
-        else if (aim.pitch < -1) { aim.pitch += 1; }
+        if (25 <= robot_status.bullet_speed)
+        {
+        }
+        else if (15 <= robot_status.bullet_speed)
+        {
+          if (aim.pitch > 1)
+            aim.pitch -= 1;
+          else if (aim.pitch < -1)
+            aim.pitch += 1;
+        }
+        else  // if (10 <= robot_status.bullet_speed)
+        {
+          aim.pitch += 2.0;
+        }
         aim.yaw += -1.0;
 
-        aim.pitch -= robot_status.pitch*(180.0 / M_PI);
-        aim.yaw -= robot_status.yaw*(180.0 / M_PI);
-        
+        aim.pitch -= robot_status.pitch * (180.0 / M_PI);
+        aim.yaw -= robot_status.yaw * (180.0 / M_PI);
+
         cmd2ec.pitch = std::max(-15.0, std::min((double)aim.pitch, 15.0));
         cmd2ec.yaw = std::max(-15.0, std::min((double)aim.yaw, 15.0));
       }
