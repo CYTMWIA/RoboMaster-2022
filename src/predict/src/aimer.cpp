@@ -81,7 +81,12 @@ AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos)
   float tx = target_pos(0, 0), ty = target_pos(1, 0), tz = target_pos(2, 0);
 
   // Yaw 轴偏差
-  float yaw = atan2(ty, tx) - M_PI/2.0; // 遵守正前为零点的约定
+  float yaw = atan2(ty, tx);
+  // 遵守正前为零点的约定
+  if (yaw < -M_PI / 2.0)
+    yaw = M_PI + yaw + M_PI / 2.0;
+  else
+    yaw -= M_PI / 2.0;
 
   // Pitch 轴偏差（枪口仰角）
   // 计算过程还请看笔记《弹丸运动学》

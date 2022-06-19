@@ -48,7 +48,7 @@ void StrategyThread::run()
     auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true);  // 允许旧数据
     // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", { robot_status.pitch,
     // robot_status.yaw});
-    // __LOG_DEBUG("{:.2f}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
+    __LOG_DEBUG("{:.2f}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
     // 转为 弧度
     robot_status.yaw *= M_PI / 180.0;
     robot_status.pitch *= M_PI / 180.0;
@@ -203,15 +203,20 @@ void StrategyThread::run()
       // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
       if (aim.ok)
       {
-        aim.pitch -= robot_status.pitch;
-        auto ori = aim.yaw* (180.0 / M_PI);
-        aim.yaw -= robot_status.yaw;
-        // __LOG_DEBUG("YAW: {} {}",ori,  aim.yaw * (180.0 / M_PI));
         // 转为角度
-        cmd2ec.pitch = std::max(-15.0, std::min(aim.pitch * (180.0 / M_PI) , 15.0));
-        cmd2ec.yaw = std::max(-15.0, std::min(aim.yaw * (180.0 / M_PI) - 1.0, 15.0));
-        // cmd2ec.pitch = aim.pitch*(180.0/M_PI);
-        // cmd2ec.yaw = aim.yaw*(180.0/M_PI);
+        aim.pitch *= (180.0 / M_PI);
+        aim.yaw *= (180.0 / M_PI);
+        
+        // 补偿
+        if (aim.pitch > 1) aim.pitch -= 1;
+        else if (aim.pitch < -1) { aim.pitch += 1; }
+        aim.yaw += -1.0;
+
+        aim.pitch -= robot_status.pitch*(180.0 / M_PI);
+        aim.yaw -= robot_status.yaw*(180.0 / M_PI);
+        
+        cmd2ec.pitch = std::max(-15.0, std::min((double)aim.pitch, 15.0));
+        cmd2ec.yaw = std::max(-15.0, std::min((double)aim.yaw, 15.0));
       }
     }
 
