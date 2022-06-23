@@ -46,9 +46,17 @@ ament_target_dependencies(camera_node
   rm_autoaim
 )
 
+add_executable(radar src/radar.cpp)
+ament_target_dependencies(radar
+  rclcpp
+  rm_common
+  rm_autoaim
+)
+
 install(TARGETS 
   legacy_control
   camera_node
+  radar
   DESTINATION lib/${PROJECT_NAME}
 )
 
