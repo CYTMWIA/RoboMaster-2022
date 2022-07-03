@@ -1,4 +1,0 @@
-#ifndef __RM_BRINGUP_RM_BRINGUP_HPP__
-#define __RM_BRINGUP_RM_BRINGUP_HPP__
-
-#endif
