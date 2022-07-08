@@ -92,11 +92,11 @@ AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos)
   // 计算过程还请看笔记《弹丸运动学》
 
   // 将xOy平面“转”到水平面
-  float dis = sqrt(ty * ty + tz * tz), target_pitch = atan(tz / ty);
-  float hx = tx, hy = dis * cos(target_pitch), hz = dis * sin(target_pitch);
+  // float dis = sqrt(ty * ty + tz * tz), target_pitch = atan(tz / ty);
+  // float hx = tx, hy = dis * cos(target_pitch), hz = dis * sin(target_pitch);
   // 假设现在是竖直平面，平面上有【枪口】与【目标】两个点
-  float x = sqrt(hx * hx + hy * hy);  // 与目标在x轴（横轴）的距离
-  float y = hz;                       // 与目标在y轴（纵轴）的距离
+  float x = sqrt(tx * tx +ty *ty);  // 与目标在x轴（横轴）的距离
+  float y = tz;                       // 与目标在y轴（纵轴）的距离
 
   TestResult tres = test(x, y, M_PI / 4.0);
   if (!tres.ok)

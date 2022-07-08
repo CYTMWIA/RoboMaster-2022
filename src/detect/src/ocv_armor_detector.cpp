@@ -130,7 +130,7 @@ class OcvArmorDetector::Impl
 #define ASSERT(name, x)                   \
   if (!(x))                               \
   {                                       \
-    /*__LOG_DEBUG("JUMP OUT {}", name);*/ \
+    __LOG_DEBUG("JUMP OUT {}", name); \
     continue;                             \
   }
 
@@ -173,35 +173,33 @@ class OcvArmorDetector::Impl
   {
     auto br = cv::boundingRect(*light.raw_contour_ptr);
     cv::Mat roi = src(br);
-    cv::cvtColor(roi, roi, cv::COLOR_BGR2HSV);
+    // cv::cvtColor(roi, roi, cv::COLOR_BGR2HSV);
 
     int blue_sum = 0, red_sum = 0;
     for (int i = 0; i < roi.rows; i++)
       for (int j = 0; j < roi.cols; j++)
       {
         int px = 3 * (i * roi.cols + j);
-        if (100 < roi.data[px + 0] && roi.data[px + 0] < 140  // H
-            && 60 < roi.data[px + 1]                          // S
-            && 50 < roi.data[px + 2])                         // V
-        {                                                     // Blue
-          blue_sum++;
-        }
-        else if ((roi.data[px + 0] < 15 || 155 < roi.data[px + 0])  // H
-                 && 60 < roi.data[px + 1]                           // S
-                 && 50 < roi.data[px + 2])                          // V
-        {                                                           // Red
-          red_sum++;
-        }
+        blue_sum += roi.data[px + 0];
+        red_sum += roi.data[px + 2];
+        // if (90 < roi.data[px + 0] && roi.data[px + 0] < 150     // H
+        //     && 50 < roi.data[px + 1]                             // S
+        //     && 50 < roi.data[px + 2] && roi.data[px + 2] < 250)  // V
+        // {                                                        // Blue
+        //   blue_sum++;
+        // }
+        // else if ((roi.data[px + 0] < 20 || 150 < roi.data[px + 0])    // H
+        //          && 50 < roi.data[px + 1]                             // S
+        //          && 50 < roi.data[px + 2] && roi.data[px + 2] < 250)  // V
+        // {                                                             // Red
+        //   red_sum++;
+        // }
       }
-    if (blue_sum > red_sum)
-      return 0;
-    else if (red_sum > blue_sum)
+
+    if (red_sum > blue_sum)
       return 1;
     else
-    {
-      __LOG_DEBUG("颜色错误");
-      return -1;
-    }
+      return 0;
   }
 
   cv::Mat extract_icon(const cv::Mat &src, const Lightbar &left, const Lightbar &right,
@@ -312,7 +310,7 @@ class OcvArmorDetector::Impl
       cv::Mat icon = extract_icon(src, left, right, pair);
       auto cres = icon_classifier_.classify(icon);
       // __LOG_DEBUG("CLASS CONF {}", cres.confidence);
-      if (cres.confidence < 0.7 || cres.class_id == 8) continue;
+      if (cres.confidence < 0.9 || cres.class_id == 8) continue;
 
       vis[pair.left_idx] = vis[pair.right_idx] = 1;
 

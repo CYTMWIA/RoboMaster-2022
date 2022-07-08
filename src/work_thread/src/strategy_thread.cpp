@@ -48,13 +48,16 @@ void StrategyThread::run()
     auto robot_status = RoslikeTopic<RobotStatus>::get("robot_status", true);  // 允许旧数据
     // RoslikeTopic<std::vector<float>>::set("vofa_justfloat", { robot_status.pitch,
     // robot_status.yaw});
-    __LOG_DEBUG("{:.2f}, {}, {}", robot_status.bullet_speed, robot_status.pitch, robot_status.yaw);
+    __LOG_DEBUG("Robot {:.2f}, {}, {}", robot_status.bullet_speed, robot_status.pitch,
+                robot_status.yaw);
     // 转为 弧度
     robot_status.yaw *= M_PI / 180.0;
     robot_status.pitch *= M_PI / 180.0;
+    if (robot_status.bullet_speed <= 15) robot_status.bullet_speed = 13.4;
+    else if (robot_status.bullet_speed <=18 ) robot_status.bullet_speed = 16.7;
 
-    // aimer.bullet_speed(robot_status.bullet_speed * 1000);
-    aimer.bullet_speed(16);
+    aimer.bullet_speed(robot_status.bullet_speed);
+    // aimer.bullet_speed(16);
 
     /*
      * 选择目标
@@ -63,6 +66,10 @@ void StrategyThread::run()
     bool new_target_flag = false;   // 是否为新目标
     bool using_kf_predict = false;  // 使用卡尔曼预测值代替目标
     // TODO 忽略己方装甲板
+    detections.erase(
+        std::remove_if(detections.begin(), detections.end(),
+                       [&](const auto &d) { return d.color_id != robot_status.enemy_color; }),
+        detections.end());
     int idx = -1;
     double cmp = -INFINITY;
     // 上次瞄准的装甲板
@@ -85,7 +92,7 @@ void StrategyThread::run()
 
     if (idx < 0)
     {
-      if (std::chrono::steady_clock::now() - lats_found_time < std::chrono::milliseconds(500))
+      if (std::chrono::steady_clock::now() - lats_found_time < std::chrono::milliseconds(200))
       {
         kf_.predict();
         using_kf_predict = true;
@@ -148,7 +155,7 @@ void StrategyThread::run()
     if (ptarget != nullptr)
     {
       // PNP（相机坐标系）
-      auto pos = pnp_solver_.solve(ARMOR_SMALL, ptarget->pts);
+      auto pos = pnp_solver_.solve(ptarget->type, ptarget->pts);
       // 转换为 机器人坐标系
       // 机器人中心
       pos.y += 130;
@@ -184,20 +191,24 @@ void StrategyThread::run()
     {
       RoslikeTopic<std::vector<float>>::set("vofa_justfloat",
                                             {(float)kf_.X[0], (float)kf_.X[2], (float)kf_.X[4]});
-      // __LOG_DEBUG("POS: {} {} {}",kf_.X[0], kf_.X[2], kf_.X[4]);
+      __LOG_DEBUG("POS {} {} {}",kf_.X[0], kf_.X[2], kf_.X[4]);
       // 预测，注意：俯仰角计算结果为弧度
-      AimResult aim, last_aim;
-      double t_ms = 0, last_diff = INFINITY;
+      AimResult aim;
+      double t_ms = 0, target_distance;
       while (true)
       {
-        auto ppos = kf_.predict_without_save(t_ms / 1000.0);
+        auto ppos = kf_.predict_without_save(0.01 + t_ms / 1000.0); // 前面的常数为发射延迟（单位为秒）
         aim = aimer({ppos[0], ppos[2], ppos[4]});
 
         if (!aim.ok) break;
 
         auto diff = std::abs(aim.flying_time - t_ms);
         // __LOG_DEBUG("{}", aim.flying_time);
-        if (diff < 0.1 || t_ms > aim.flying_time) break;
+        if (diff < 0.1 || t_ms > aim.flying_time)
+        {
+          target_distance = sqrt(ppos[0] * ppos[0] + ppos[2] * ppos[2]);
+          break;
+        }
         t_ms += diff * 0.5;
       }
       // aim = aimer({kf_.X[0], kf_.X[2], kf_.X[4]}, robot_status.pitch / 180.0 * M_PI); // 无预测
@@ -206,26 +217,40 @@ void StrategyThread::run()
         // 转为角度
         aim.pitch *= (180.0 / M_PI);
         aim.yaw *= (180.0 / M_PI);
-
+        __LOG_DEBUG("RAW AIM {} {}", aim.pitch, aim.yaw);
         // 补偿
-        if (25 <= robot_status.bullet_speed)
+        target_distance /= 1000;
+        if (15 <= robot_status.bullet_speed)
         {
+          aim.pitch += -3;
+          if (target_distance < 2) aim.pitch += 1.0;
+          if (target_distance >= 2) aim.pitch += 1;
+          if (target_distance >= 3) aim.pitch += 1;
+          if (target_distance >= 4) aim.pitch += -0.5;
+          // if (target_distance >= 4) aim.pitch += 0.5;
         }
-        else if (15 <= robot_status.bullet_speed)
+        else if (10 <= robot_status.bullet_speed)
         {
-          if (aim.pitch > 1)
-            aim.pitch -= 1;
-          else if (aim.pitch < -1)
-            aim.pitch += 1;
+          // if (target_distance <= 2) aim.pitch += (target_distance - 3) * 7.0;
+          aim.pitch += -2;
+          if (target_distance >= 3) aim.pitch += -1;
+          // else aim.pitch += (target_distance - 3) * 0.3;
+          // else aim.pitch += (target_distance-3)*1.0;
+          // if (target_distance < 3000) aim.pitch += -5.0;
+          // else if  (target_distance < 6000) aim.pitch += -10.0;
         }
         else  // if (10 <= robot_status.bullet_speed)
         {
-          aim.pitch += 2.0;
         }
-        aim.yaw += -1.0;
+        aim.yaw += -1.5;
 
         aim.pitch -= robot_status.pitch * (180.0 / M_PI);
         aim.yaw -= robot_status.yaw * (180.0 / M_PI);
+        if (aim.yaw <= -180)
+          aim.yaw += 360;
+        else if (aim.yaw >= 180)
+          aim.yaw -= 360;
+        __LOG_DEBUG("AIM {} {} {}", target_distance, aim.pitch, aim.yaw);
 
         cmd2ec.pitch = std::max(-15.0, std::min((double)aim.pitch, 15.0));
         cmd2ec.yaw = std::max(-15.0, std::min((double)aim.yaw, 15.0));

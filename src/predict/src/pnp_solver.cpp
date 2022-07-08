@@ -37,7 +37,7 @@ TargetPosition PnpSolver::solve(rm_data::ArmorType armor_type, const cv::Point2f
    * （x、y、z分别为tvec第1、2、3个数）
    */
   cv::solvePnP(ARMOR_POINTS[armor_type], points, camera_matrix_, distortion_coefficients_, rvec,
-               tvec, false, cv::SOLVEPNP_ITERATIVE);
+               tvec, false, cv::SOLVEPNP_IPPE);
 
   TargetPosition res;
 
