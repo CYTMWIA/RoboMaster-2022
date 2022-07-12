@@ -8,7 +8,7 @@
  * 质量：克 g
  */
 
-namespace rm_data
+namespace rm_commom
 {
 enum ArmorType
 {

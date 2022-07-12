@@ -1,23 +1,29 @@
+// Ours
 #include "rm_serial/serial_node.hpp"
 
+#include "cmd.h"
+
+// Others
+#include <boost/algorithm/string.hpp>
+
+// ROS
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <boost/algorithm/string.hpp>
-#include <cstdint>
-#include <functional>
 #include <geometry_msgs/msg/quaternion_stamped.hpp>
 #include <io_context/io_context.hpp>
-#include <memory>
 #include <rclcpp/logging.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/utilities.hpp>
 #include <serial_driver/serial_driver.hpp>
+
+// C++
+#include <cstdint>
+#include <functional>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include "cmd.h"
 
 namespace rm_serial
 {
@@ -127,10 +133,7 @@ void SerialNode::reopen_serial_port()
     catch (const std::exception& ex)
     {
       RCLCPP_ERROR(get_logger(), "Error while reopening port: %s", ex.what());
-      if (rclcpp::ok())
-      {
-        rclcpp::sleep_for(std::chrono::seconds(1));
-      }
+      rclcpp::sleep_for(std::chrono::seconds(1));
     }
   }
 }

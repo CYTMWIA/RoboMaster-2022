@@ -1,0 +1,20 @@
+/armor_detector_node:
+  ros__parameters:
+    enable_debug: true
+    
+    binary_threshold: 100
+
+    lightbar.min_contour_area: 16.0
+    lightbar.max_contour_area: 163840.0 # 1280*1024/8
+    lightbar.min_rect_angle: 60.0
+    lightbar.max_rect_angle: 120.0
+    lightbar.min_rect_ratio: 1.5
+    lightbar.max_rect_ratio: 100.0
+
+    pair.min_length_ratio: 0.4
+    pair.max_angle_diff: 30.0
+    pair.min_center_distance_small_armor: 0.8
+    pair.mid_center_distance: 3.2
+    pair.max_center_distance_big_armor: 5.0
+
+    icon_threshold: 0.9

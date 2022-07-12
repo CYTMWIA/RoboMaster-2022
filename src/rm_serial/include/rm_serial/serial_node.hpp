@@ -21,7 +21,6 @@ class SerialNode : public rclcpp::Node
 {
  public:
   explicit SerialNode(const rclcpp::NodeOptions& options);
-  void get_parameters();
 
  private:
   drivers::common::IoContext ctx_;
@@ -33,6 +32,7 @@ class SerialNode : public rclcpp::Node
   rclcpp::Publisher<rm_interfaces::msg::RpyStamped>::SharedPtr gimbal_rpy_pub_;
   std::thread thread_;
 
+  void get_parameters();
   void receive_thread();
   void send(const rm_interfaces::msg::CmdToEc::SharedPtr cmd_to_ec);
   void reopen_serial_port();
