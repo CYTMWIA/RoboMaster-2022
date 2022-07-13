@@ -9,9 +9,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
 
 project(REDO VERSION 0.1.0)
 
-# C++标准
-
-set(CMAKE_CXX_STANDARD 17)
+# 设置编译器
+## C++14
+set(CMAKE_CXX_STANDARD 20)
+## 启用所有警告
+add_compile_options(-Wall -Wextra -Wpedantic)
+## 为 clangd 导出编译选项
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # 全局启用的外部库
 

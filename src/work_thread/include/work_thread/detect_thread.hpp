@@ -18,7 +18,7 @@ DECL_WORKTHTREAD(DetectThread)
 
 private:
 rm_detect::OcvArmorDetector armor_detector;
-rm_detect::OcvPowerRuneDetector power_rune_detector;
+// rm_detect::OcvPowerRuneDetector power_rune_detector;
 // rm_detect::NnArmorDetector armor_detector;
 
 public:

@@ -91,7 +91,7 @@ void CaptureThread::camera()
     {
       rm_threading::RoslikeTopic<cv::Mat>::set("capture_image", pcap->next());
     }
-    catch (std::runtime_error e)
+    catch (const std::runtime_error& e)
     {
       __LOG_ERROR("{}", e.what());
       init_camera(pcap);

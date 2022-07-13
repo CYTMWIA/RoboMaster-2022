@@ -30,7 +30,7 @@ class RoslikeTopic
     // __LOG_DEBUG("Set {}", name);
 
     instance_.varmap_[name].set(std::forward<T>(var));
-  };
+  }
 
   template <typename... Args>
   static DataType get(std::string name, Args &&... args)
@@ -39,7 +39,7 @@ class RoslikeTopic
     // 变长参数转发
     // https://stackoverflow.com/questions/16447951/how-to-forward-variable-number-of-arguments-to-another-function
     return instance_.varmap_[name].get(std::forward<Args>(args)...);
-  };
+  }
 
   static bool updated(std::string name) { return instance_.varmap_[name].updated(); }
 };

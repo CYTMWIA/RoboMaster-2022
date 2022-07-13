@@ -1,3 +1,6 @@
+#ifndef __COMMON_ASSERT_HPP__
+#define __COMMON_ASSERT_HPP__
+
 #include <iostream>
 
 #define RM_ASSERT(msg, x)                                                         \
@@ -7,3 +10,5 @@
     std::cout << msg << ": " << #x << std::endl;                                  \
     exit(1);                                                                      \
   }
+
+#endif

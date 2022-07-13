@@ -28,8 +28,8 @@ void DetectThread::run()
     auto img = RoslikeTopic<cv::Mat>::get("capture_image");
     if (robot_status.target >= 2)
     {
-      auto res = power_rune_detector(img);
-      RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
+      // auto res = power_rune_detector(img);
+      // RoslikeTopic<decltype(res)>::set("detect_result", std::move(res));
     }
     else
     {

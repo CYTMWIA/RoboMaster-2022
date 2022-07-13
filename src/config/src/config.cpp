@@ -19,7 +19,7 @@ class Config::Impl
   {
     std::vector<std::string> res;
     int begin = 0;
-    for (int end = 0; end < str.size(); end++)
+    for (int end = 0; end < (int)str.size(); end++)
     {
       if (str[end] == split_char)
       {
@@ -27,7 +27,7 @@ class Config::Impl
         begin = end + 1;
       }
     }
-    if (begin < str.size()) res.push_back(str.substr(begin));
+    if (begin < (int)str.size()) res.push_back(str.substr(begin));
     return res;
   }
 
@@ -36,7 +36,7 @@ class Config::Impl
   {
     auto keys = split_string(dotkeys, '.');
     toml::value value = data_;
-    for (int i = 0; i < keys.size(); i++)
+    for (int i = 0; i < (int)keys.size(); i++)
     {
       std::string key = keys[i];
       try
@@ -47,7 +47,7 @@ class Config::Impl
       {
         break;
       }
-      if (i == keys.size() - 1) return toml::get<T>(value);
+      if (i == (int)keys.size() - 1) return toml::get<T>(value);
     }
     return fallback;
   }

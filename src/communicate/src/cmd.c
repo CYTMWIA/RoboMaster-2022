@@ -19,7 +19,7 @@
   }                                                \
   else                                             \
   {                                                \
-    for (int i = 0; i < sizeof(pod_lv); i++)       \
+    for (int i = 0; i < (int)sizeof(pod_lv); i++)  \
     {                                              \
       memcpy(&(pod_lv) + i, data + idx, 1);        \
       idx = (idx + 1) % data_len;                  \

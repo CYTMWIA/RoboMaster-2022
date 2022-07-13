@@ -77,7 +77,7 @@ void StrategyThread::run()
     {
       auto last_rect =
           cv::boundingRect(std::vector<cv::Point2f>{plast_target->pts, plast_target->pts + 4});
-      for (int i = 0; i < detections.size(); i++)
+      for (int i = 0; i < (int)detections.size(); i++)
       {
         auto &det = detections[i];
         auto det_rect = cv::boundingRect(std::vector<cv::Point2f>{det.pts, det.pts + 4});
@@ -104,7 +104,7 @@ void StrategyThread::run()
         // 上次瞄准的机器人的离画面中心最近的装甲板
         if (plast_target != nullptr)
         {
-          for (int i = 0; i < detections.size(); i++)
+          for (int i = 0; i < (int)detections.size(); i++)
           {
             auto &det = detections[i];
             if (det.tag_id == plast_target->tag_id)
@@ -123,7 +123,7 @@ void StrategyThread::run()
         // 离画面中心最近的装甲板
         if (idx < 0)
         {
-          for (int i = 0; i < detections.size(); i++)
+          for (int i = 0; i < (int)detections.size(); i++)
           {
             auto &det = detections[i];
             auto det_center = (det.pts[0] + det.pts[1] + det.pts[2] + det.pts[3]) / 4.0;
@@ -186,7 +186,7 @@ void StrategyThread::run()
       }
     }
 
-    CmdToEc cmd2ec = {0, 0};
+    CmdToEc cmd2ec = {0, 0, 0};
     if (ptarget != nullptr || using_kf_predict)
     {
       RoslikeTopic<std::vector<float>>::set("vofa_justfloat",

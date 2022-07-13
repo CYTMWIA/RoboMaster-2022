@@ -1,6 +1,7 @@
 #include "detect/ocv_armor_detector.hpp"
 
 #include "armor_icon_classifier.hpp"
+#include "common/data.hpp"
 #include "common/logging.hpp"
 #include "common/threading.hpp"
 
@@ -109,10 +110,13 @@ class OcvArmorDetector::Impl
               [](auto &r1, auto &r2)
               { return r1.center.x < r2.center.x; });  // 按照中心x升序（从左到右）
 
-    for (int i = 0; i < lightbars.size() - 1; i++)
-      for (int j = i + 1; j < lightbars.size(); j++)
+    for (int i = 0; i < (int)lightbars.size() - 1; i++)
+      for (int j = i + 1; j < (int)lightbars.size(); j++)
       {
-        LightbarMatchResult res = {.left_idx = i, .right_idx = j};
+        LightbarMatchResult res = {.left_idx = i,
+                                   .right_idx = j,
+                                   .confidence = 0,
+                                   .guess_armor_type = rm_data::ARMOR_SMALL};
         auto &left = lightbars[i];
         auto &right = lightbars[j];
 
@@ -127,11 +131,11 @@ class OcvArmorDetector::Impl
   total_score += weight;    \
   res.confidence += (double)(weight) * (x);
 
-#define ASSERT(name, x)                   \
-  if (!(x))                               \
-  {                                       \
+#define ASSERT(name, x)               \
+  if (!(x))                           \
+  {                                   \
     __LOG_DEBUG("JUMP OUT {}", name); \
-    continue;                             \
+    continue;                         \
   }
 
         ASSERT("两灯条角度差", abs(left.rad - right.rad) < (M_PI / 4.0));
@@ -314,15 +318,10 @@ class OcvArmorDetector::Impl
 
       vis[pair.left_idx] = vis[pair.right_idx] = 1;
 
-      Armor final_res = {
-          .color_id = left_color,
-          .tag_id = cres.class_id,
-          .type = pair.guess_armor_type,
-      };
-      final_res.pts[0] = left.top;
-      final_res.pts[1] = left.bottom;
-      final_res.pts[2] = right.bottom;
-      final_res.pts[3] = right.top;
+      Armor final_res = {.pts = {left.top, left.bottom, right.bottom, right.top},
+                         .color_id = left_color,
+                         .tag_id = cres.class_id,
+                         .type = pair.guess_armor_type};
       armors.push_back(std::move(final_res));
     }
 

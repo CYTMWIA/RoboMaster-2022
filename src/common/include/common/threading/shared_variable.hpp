@@ -40,7 +40,7 @@ class SharedVariable
     xlck.unlock();
     // 更新通知
     cv_update_.notify_all();
-  };
+  }
 
   DataType get(bool allow_old_data = false)
   {
@@ -51,7 +51,7 @@ class SharedVariable
 
     updated_[tid] = false;
     return *ptr_output_;
-  };
+  }
 
   bool updated() { return updated_[get_this_thread_idx()]; }
 
@@ -86,7 +86,7 @@ class SharedVariable
     thread_list_[thread_count_] = this_id;
     thread_count_ = (thread_count_ + 1) % MAX_THREADS;
     return thread_count_ - 1;
-  };
+  }
 };
 }  // namespace rm_threading
 

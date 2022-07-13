@@ -33,6 +33,8 @@ Aimer::TestResult Aimer::test(double target_x, double target_y, double rad, doub
   TestResult res;
 
 #if 1
+  // 无用overtime，消除警告
+  while (0 && overtime);
   // 斜抛公式
   // clang-format off
   res.y_deviation = target_y-((-G*target_x*target_x)/(2*bullet_speed_*bullet_speed_*cos(rad)*cos(rad))+tan(rad)*target_x);
@@ -95,7 +97,7 @@ AimResult Aimer::operator()(const Eigen::Matrix<double, 3, 1> &target_pos)
   // float dis = sqrt(ty * ty + tz * tz), target_pitch = atan(tz / ty);
   // float hx = tx, hy = dis * cos(target_pitch), hz = dis * sin(target_pitch);
   // 假设现在是竖直平面，平面上有【枪口】与【目标】两个点
-  float x = sqrt(tx * tx +ty *ty);  // 与目标在x轴（横轴）的距离
+  float x = sqrt(tx * tx + ty * ty);  // 与目标在x轴（横轴）的距离
   float y = tz;                       // 与目标在y轴（纵轴）的距离
 
   TestResult tres = test(x, y, M_PI / 4.0);
