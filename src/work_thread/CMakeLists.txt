@@ -17,7 +17,7 @@ target_sources( ${PROJECT_NAME}
     PRIVATE
         src/communicate_thread.cpp
         src/capture_thread.cpp
-        src/detect_thread.cpp
-        src/strategy_thread.cpp
+        # src/detect_thread.cpp
+        # src/strategy_thread.cpp
         src/ulm_xyz_kf.cpp
 )

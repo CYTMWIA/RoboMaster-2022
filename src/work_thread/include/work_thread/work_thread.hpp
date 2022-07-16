@@ -3,7 +3,7 @@
 
 #include "capture_thread.hpp"
 #include "communicate_thread.hpp"
-#include "detect_thread.hpp"
-#include "strategy_thread.hpp"
+// #include "detect_thread.hpp"
+// #include "strategy_thread.hpp"
 
 #endif

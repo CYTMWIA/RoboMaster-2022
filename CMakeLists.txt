@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} cmake)
 project(REDO VERSION 0.1.0)
 
 # 设置编译器
-## C++14
+## C++20
 set(CMAKE_CXX_STANDARD 20)
 ## 启用所有警告
 add_compile_options(-Wall -Wextra -Wpedantic)
@@ -19,7 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # 全局启用的外部库
 
-find_package(Boost REQUIRED)
+find_package(Boost 1.74 REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 link_libraries(${Boost_LIBRARIES})
 
@@ -30,6 +30,10 @@ link_libraries(${OpenCV_LIBS})
 find_package(fmt REQUIRED)
 include_directories(SYSTEM ${fmt_INCLUDE_DIRS})
 link_libraries(fmt::fmt)
+
+find_package(yaml-cpp REQUIRED)
+include_directories(SYSTEM ${YAML_CPP_INCLUDE_DIRS})
+link_libraries(${YAML_CPP_LIBRARIES})
 
 # 模块
 
@@ -43,16 +47,18 @@ link_libraries(common)
 add_subdirectory(src/capture)
 add_subdirectory(src/communicate)
 add_subdirectory(src/config)
-add_subdirectory(src/detect)
-add_subdirectory(src/predict)
+# add_subdirectory(src/detect)
+# add_subdirectory(src/predict)
+add_subdirectory(src/rm_autoaim)
 
 ## 将普通模块也全局链接（供线程、主程序、工具使用）
 
 link_libraries(capture)
 link_libraries(communicate)
 link_libraries(config)
-link_libraries(detect)
-link_libraries(predict)
+# link_libraries(detect)
+# link_libraries(predict)
+link_libraries(rm_autoaim)
 
 # 线程
 
