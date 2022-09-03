@@ -38,8 +38,8 @@ class PowerRuneDetector
   std::vector<Logo> find_logos(const std::vector<std::vector<cv::Point>>& contours);
   std::vector<ArmorRect> find_armors(const std::vector<std::vector<cv::Point>>& contours,
                                      const std::vector<cv::Vec4i>& hierarchy);
-  std::vector<PowerRune> match_logos_and_armors(
-      const cv::Mat& bin, const std::vector<Logo>& logos, const std::vector<ArmorRect>& armors);
+  std::vector<PowerRune> match_logos_and_armors(const cv::Mat& bin, const std::vector<Logo>& logos,
+                                                const std::vector<ArmorRect>& armors);
 
  public:
   explicit PowerRuneDetector(const PowerRuneDetectorConfig& config);

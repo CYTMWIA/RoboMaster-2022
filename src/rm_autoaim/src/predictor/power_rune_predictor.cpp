@@ -2,9 +2,6 @@
 
 #include <chrono>
 
-#include "common/logging.hpp"
-#include "common/threading/roslike_topic.hpp"
-
 namespace rm_autoaim
 {
 
@@ -12,7 +9,7 @@ void PowerRunePredictor::clear_expired_history()
 {
   if (history_.empty()) return;
 
-  if (rmc::interfaces::now() - history_[history_.size() - 1].image_timestamp >
+  if (nerv::interfaces::now() - history_[history_.size() - 1].image_timestamp >
       std::chrono::milliseconds(500))
     history_.clear();
 }
@@ -58,14 +55,14 @@ void PowerRunePredictor::predict(const DetectResult<PowerRune>& detect, int powe
       speed += rad / time;
     }
     speed /= 3.0;
-    rm_threading::RoslikeTopic<std::vector<float>>::set(
-        "vofa_justfloat",
-        {(float)(std::chrono::duration_cast<std::chrono::milliseconds>(history_[history_.size() - 5].image_timestamp.time_since_epoch()).count()),
-         (float)speed});
-    __LOG_DEBUG("{}", speed);
+    // nerv::Topic<std::vector<float>>::set(
+    //     "vofa_justfloat",
+    //     {(float)(std::chrono::duration_cast<std::chrono::milliseconds>(
+    //                  history_[history_.size() - 5].image_timestamp.time_since_epoch())
+    //                  .count()),
+    //      (float)speed});
+    NERV_DEBUG("{}", speed);
   }
-
-
 }
 
 }  // namespace rm_autoaim

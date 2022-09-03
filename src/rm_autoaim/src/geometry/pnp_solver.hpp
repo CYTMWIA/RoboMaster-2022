@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-#include "common/data.hpp"
+#include "nerv/nerv.hpp"
 
 namespace rm_autoaim
 {

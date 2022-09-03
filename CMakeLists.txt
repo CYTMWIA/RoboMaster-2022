@@ -23,7 +23,7 @@ find_package(Boost 1.74 REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 link_libraries(${Boost_LIBRARIES})
 
-find_package(OpenCV 4 REQUIRED)
+find_package(OpenCV 4.5 REQUIRED)
 include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
 
@@ -35,42 +35,34 @@ find_package(yaml-cpp REQUIRED)
 include_directories(SYSTEM ${YAML_CPP_INCLUDE_DIRS})
 link_libraries(${YAML_CPP_LIBRARIES})
 
+find_package(Ceres 2 REQUIRED)
+include_directories(${CERES_INCLUDE_DIRS})
+link_libraries(${CERES_LIBRARIES})
+
 # 模块
 
 ## 全局模块
 
-add_subdirectory(src/common)
-link_libraries(common)
+add_subdirectory(src/nerv)
+link_libraries(nerv)
 
 ## 普通模块
 
-add_subdirectory(src/capture)
-add_subdirectory(src/communicate)
-add_subdirectory(src/config)
-# add_subdirectory(src/detect)
-# add_subdirectory(src/predict)
+add_subdirectory(src/rm_capture)
 add_subdirectory(src/rm_autoaim)
+# add_subdirectory(src/rm_serial)
 
-## 将普通模块也全局链接（供线程、主程序、工具使用）
+## 将普通模块也全局链接
 
-link_libraries(capture)
-link_libraries(communicate)
-link_libraries(config)
-# link_libraries(detect)
-# link_libraries(predict)
+link_libraries(rm_capture)
 link_libraries(rm_autoaim)
 
-# 线程
+# 可执行文件
 
-add_subdirectory(src/work_thread)
-link_libraries(work_thread)
-
-# 主程序
-
-add_executable(REDO src/main.cpp)
-
+add_executable(standard src/executables/standard.cpp)
+add_executable(test src/executables/test.cpp)
 # Tools
 
-add_executable(calibrate src/tool/calibrate/calibrate.cpp) # 来自OpenCV官方的标定工具
-add_executable(capture_camera src/tool/calibrate/capture_camera.cpp) # 相机捕获工具
-add_executable(usbreset src/tool/usbreset/usbreset.c) # 重置USB设备
+# add_executable(calibrate src/tool/calibrate/calibrate.cpp) # 来自OpenCV官方的标定工具
+# add_executable(capture_camera src/tool/calibrate/capture_camera.cpp) # 相机捕获工具
+# add_executable(usbreset src/tool/usbreset/usbreset.c) # 重置USB设备

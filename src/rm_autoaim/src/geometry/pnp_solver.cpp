@@ -1,22 +1,20 @@
 #include "pnp_solver.hpp"
 
-#include "common/data.hpp"
-
 namespace rm_autoaim
 {
 const std::vector<std::vector<cv::Point3f> > ARMOR_POINTS = {
-    {cv::Point3f(-rm_data::ARMOR_SMALL_WIDTH / 2, rm_data::LIGHTBAR_HEIGHT / 2, 0),
-     cv::Point3f(-rm_data::ARMOR_SMALL_WIDTH / 2, -rm_data::LIGHTBAR_HEIGHT / 2, 0),
-     cv::Point3f(rm_data::ARMOR_SMALL_WIDTH / 2, -rm_data::LIGHTBAR_HEIGHT / 2, 0),
-     cv::Point3f(rm_data::ARMOR_SMALL_WIDTH / 2, rm_data::LIGHTBAR_HEIGHT / 2, 0)},
-    {cv::Point3f(-rm_data::ARMOR_BIG_WIDTH / 2, rm_data::LIGHTBAR_HEIGHT / 2, 0),
-     cv::Point3f(-rm_data::ARMOR_BIG_WIDTH / 2, -rm_data::LIGHTBAR_HEIGHT / 2, 0),
-     cv::Point3f(rm_data::ARMOR_BIG_WIDTH / 2, -rm_data::LIGHTBAR_HEIGHT / 2, 0),
-     cv::Point3f(rm_data::ARMOR_BIG_WIDTH / 2, rm_data::LIGHTBAR_HEIGHT / 2, 0)},
-    {cv::Point3f(-rm_data::ARMOR_BIG_WIDTH / 2, rm_data::ARMOR_BIG_HEIGHT / 2, 0),
-     cv::Point3f(-rm_data::ARMOR_BIG_WIDTH / 2, -rm_data::ARMOR_BIG_HEIGHT / 2, 0),
-     cv::Point3f(rm_data::ARMOR_BIG_WIDTH / 2, -rm_data::ARMOR_BIG_HEIGHT / 2, 0),
-     cv::Point3f(rm_data::ARMOR_BIG_WIDTH / 2, rm_data::ARMOR_BIG_HEIGHT / 2, 0)}};
+    {cv::Point3f(-nerv::rm_data::SMALL_ARMOR_WIDTH / 2, nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0),
+     cv::Point3f(-nerv::rm_data::SMALL_ARMOR_WIDTH / 2, -nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0),
+     cv::Point3f(nerv::rm_data::SMALL_ARMOR_WIDTH / 2, -nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0),
+     cv::Point3f(nerv::rm_data::SMALL_ARMOR_WIDTH / 2, nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0)},
+    {cv::Point3f(-nerv::rm_data::LARGE_ARMOR_WIDTH / 2, nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0),
+     cv::Point3f(-nerv::rm_data::LARGE_ARMOR_WIDTH / 2, -nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0),
+     cv::Point3f(nerv::rm_data::LARGE_ARMOR_WIDTH / 2, -nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0),
+     cv::Point3f(nerv::rm_data::LARGE_ARMOR_WIDTH / 2, nerv::rm_data::LIGHTBAR_HEIGHT / 2, 0)},
+    {cv::Point3f(-nerv::rm_data::LARGE_ARMOR_WIDTH / 2, nerv::rm_data::LARGE_ARMOR_HEIGHT / 2, 0),
+     cv::Point3f(-nerv::rm_data::LARGE_ARMOR_WIDTH / 2, -nerv::rm_data::LARGE_ARMOR_HEIGHT / 2, 0),
+     cv::Point3f(nerv::rm_data::LARGE_ARMOR_WIDTH / 2, -nerv::rm_data::LARGE_ARMOR_HEIGHT / 2, 0),
+     cv::Point3f(nerv::rm_data::LARGE_ARMOR_WIDTH / 2, nerv::rm_data::LARGE_ARMOR_HEIGHT / 2, 0)}};
 
 PnpSolver::PnpSolver(cv::Mat camera_matrix, cv::Mat distortion_coefficients)
     : camera_matrix_(camera_matrix), distortion_coefficients_(distortion_coefficients)

@@ -10,9 +10,6 @@
 #include <vector>
 
 #include "../geometry/utils.hpp"
-#include "common/logging.hpp"
-#include "common/threading.hpp"
-#include "common/threading/roslike_topic.hpp"
 #include "utils.hpp"
 
 namespace rm_autoaim
@@ -188,7 +185,7 @@ std::vector<PowerRune> PowerRuneDetector::detect(const cv::Mat& src)
   {
     cv::line(show, r.armor_center, r.logo, cv::Scalar(100, 255, 0), 4);
   }
-  rm_threading::RoslikeTopic<cv::Mat>::set("debug_img_1", show);
+  nerv::Topic<cv::Mat>::set("debug_img_1", show);
 
   return res;
 }

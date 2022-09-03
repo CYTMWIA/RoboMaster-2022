@@ -9,7 +9,6 @@
 
 #include "../geometry/utils.hpp"
 #include "../interfaces.hpp"
-#include "common/interfaces.hpp"
 
 namespace rm_autoaim
 {
@@ -18,7 +17,7 @@ class PowerRunePredictor
  private:
   struct HistoryFrame
   {
-    rmc::interfaces::Timestamp image_timestamp;
+    nerv::interfaces::Timestamp image_timestamp;
     std::vector<PowerRune> power_runes;
   };
   std::vector<HistoryFrame> history_;

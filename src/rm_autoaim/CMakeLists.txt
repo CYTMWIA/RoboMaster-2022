@@ -19,11 +19,11 @@ target_include_directories( ${PROJECT_NAME}
 
 target_sources( ${PROJECT_NAME}
     PRIVATE
-    src/detector/detector_thread.cpp
+    src/detector/detector_node.cpp
     src/detector/power_rune_detector.cpp
     src/geometry/coordinate_converter.cpp
     src/geometry/pnp_solver.cpp
-    src/predictor/predictor_thread.cpp
+    src/predictor/predictor_node.cpp
     src/predictor/power_rune_predictor.cpp
 )
 

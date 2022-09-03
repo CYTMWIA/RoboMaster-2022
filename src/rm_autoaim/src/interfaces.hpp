@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-#include "common/interfaces.hpp"
+#include "nerv/nerv.hpp"
 
 namespace rm_autoaim
 {
@@ -26,18 +26,18 @@ struct Armor
 
 struct PowerRune
 {
-    cv::Point2f armor_pts[4];
-    cv::Point2f armor_center;
-    cv::Point2f logo;
-    bool activating;
+  cv::Point2f armor_pts[4];
+  cv::Point2f armor_center;
+  cv::Point2f logo;
+  bool activating;
 };
 
-template<typename T>
+template <typename T>
 struct DetectResult
 {
-    rmc::interfaces::Timestamp image_timestamp;
-    rmc::interfaces::Rpy image_robot_rpy;
-    std::vector<T> content;
+  nerv::interfaces::Timestamp image_timestamp;
+  nerv::interfaces::Rpy image_robot_rpy;
+  std::vector<T> content;
 };
 
 }  // namespace rm_autoaim
