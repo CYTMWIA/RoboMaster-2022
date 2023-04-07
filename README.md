@@ -8,11 +8,6 @@
 - [serial](https://github.com/wjwwood/serial) git
 - fmt 8.1.1
 
-### 二选一
-
-- TensorRT 8
-- OpenVino 2021.4
-
 ## 代码结构
 
 ![](docs/代码结构.drawio.png)
